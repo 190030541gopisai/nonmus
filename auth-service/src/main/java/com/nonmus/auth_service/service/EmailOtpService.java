@@ -11,7 +11,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Service;
-
 import java.security.SecureRandom;
 import java.time.Duration;
 
@@ -32,34 +31,34 @@ public class EmailOtpService {
     public void sendEmailOtp(SendEmailOtpRequest request) {
         String email = request.getEmail();
 
-        if(email == null || email.isEmpty()) {
-            throw new IllegalArgumentException("Email is Empty");
-        }
-
         var userOpt = userRepository.findByEmail(email);
 
-        if(userOpt.isEmpty()) {
+        if (userOpt.isEmpty()) {
+            log.error("User with email " + email + " does not exist");
             return;
         }
+
+        log.info("Sending Email Otp for email " + email);
 
         User user = userOpt.get();
-        if(user.getIsEmailVerified()) {
+        if (Boolean.TRUE.equals(user.getIsEmailVerified())) {
+            log.info("User with email " + email + " is already verified");
             return;
         }
 
-        String otp = generateOtp(OTP_LEN);
+        String otp = generateOtp();
         saveOtpInCache(email, otp);
 
         // TODO: Implement the actual email sending logic here
-        // For example: emailSender.send(email, "Your OTP Code", "Your OTP is: " + otp);
+
         log.info("Generated OTP for " + email + " is: " + otp); // For testing
     }
 
-    private String generateOtp(int length) {
+    private String generateOtp() {
         StringBuilder otp = new StringBuilder();
         SecureRandom random = new SecureRandom();
 
-        for(int i = 0; i < length; i++) {
+        for (int i = 0; i < EmailOtpService.OTP_LEN; i++) {
             otp.append(random.nextInt(10)); // 0 to 9
         }
 
@@ -67,13 +66,16 @@ public class EmailOtpService {
     }
 
     private void saveOtpInCache(String email, String otp) {
+        log.info("Saving Otp for email " + email + " in Cache");
         if (!isOtpRequestAllowed(email)) {
             // Handle the case where the limit is exceeded
+            log.info("Otp not Saved for email " + email + " due to rate limit");
             throw new RateLimitException("Rate limit exceeded: Max 5 OTPs per 5 hours.");
         }
 
         String otpKey = "otp:" + email;
         redisTemplate.opsForValue().set(otpKey, otp, Duration.ofMinutes(OTP_VALIDITY_MINUTES));
+        log.info("Otp Saved for email " + email + " in Cache");
     }
 
     private boolean isOtpRequestAllowed(String email) {
@@ -98,53 +100,53 @@ public class EmailOtpService {
     }
 
     public boolean verifyEmailOtp(VerifyEmailOtpRequest request) {
+        log.info("Verifying Otp");
         String email = request.getEmail();
         String inputOtp = request.getOtp();
 
-        if(email == null || email.isEmpty()) {
-            throw new IllegalArgumentException("Email is Empty");
-        }
-
-        if(inputOtp == null || inputOtp.isEmpty()) {
-            throw new IllegalArgumentException("Otp is Empty");
-        }
-
         var userOpt = userRepository.findByEmail(email);
 
-        if(userOpt.isEmpty()) {
+        if (!isVerifyEmailOtpRequestAllowed(email)) {
+            log.info("Rate limit exceeded for OTP verification for email " + email);
+            throw new RateLimitException("Rate limit exceeded: Max 5 Retries per 1 hour.");
+        }
+
+        if (userOpt.isEmpty()) {
+            log.info("User with email " + email + " does not exist");
             return false;
         }
 
         User user = userOpt.get();
-        if(user.getIsEmailVerified()) {
+        if (Boolean.TRUE.equals(user.getIsEmailVerified())) {
+            log.info("User with email " + email + " is already verified");
             return false;
-        }
-
-
-        if(!isVerifyEmailOtpRequestAllowed(email)) {
-            throw new RateLimitException("Rate limit exceeded: Max 5 Retries per 1 hour.");
         }
 
         String otpKey = "otp:" + email;
         String storedOtp = redisTemplate.opsForValue().get(otpKey);
 
         if (storedOtp == null) {
+            log.info("OTP is invalid or has expired for email " + email);
             throw new InvalidOtpException("OTP is invalid or has expired. Please request a new one.");
         }
 
-        if(inputOtp.equals(storedOtp)) {
+        if (inputOtp.equals(storedOtp)) {
             String retriesOtpKey = "otp:retry:" + email;
             String limitKey = "otp:limit:" + email;
 
+            log.info("OTP verified successfully for email " + email);
             redisTemplate.delete(otpKey);
             redisTemplate.delete(retriesOtpKey);
             redisTemplate.delete(limitKey);
 
+            log.info("deleted otp related keys from cache for email " + email);
             updateUserEmailVerificationFlag(email);
+            log.info("Email verification flag updated for email " + email);
 
             return true;
         }
 
+        log.info("OTP verification failed for email " + email);
         return false;
     }
 
@@ -153,19 +155,22 @@ public class EmailOtpService {
         String otpKey = "otp:" + email;
 
         String storedOtp = redisTemplate.opsForValue().get(otpKey);
-        if(storedOtp == null || storedOtp.isEmpty()) {
-            return false;
+        if (storedOtp == null || storedOtp.isEmpty()) {
+            log.info("OTP is invalid or has expired for email " + email + " during retry check");
+            throw new InvalidOtpException("OTP is invalid or has expired. Please request a new one.");
         }
 
         Long retriesCount = redisTemplate.opsForValue().increment(otpRetriesKey, 1);
 
         if (retriesCount == null) {
+            log.error("Failed to increment OTP in Cache for email " + email);
             // Should not happen if Redis is available, but for safety
             return false;
         }
 
         // If it's the first request, set the expiration time for the tracking key
         if (retriesCount == 1) {
+            log.info("Setting expiration for OTP retry key for email " + email);
             redisTemplate.expire(otpRetriesKey, Duration.ofHours(OTP_RETRIES_LIMIT_HOURS));
         }
 
@@ -173,9 +178,11 @@ public class EmailOtpService {
     }
 
     private void updateUserEmailVerificationFlag(String email) {
+        log.info("Updating email verification flag for email " + email);
         var userOpt = userRepository.findByEmail(email);
 
-        if(userOpt.isEmpty()) {
+        if (userOpt.isEmpty()) {
+            log.info("User with email " + email + " does not exist");
             return;
         }
 

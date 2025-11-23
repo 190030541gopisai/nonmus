@@ -6,6 +6,6 @@ import lombok.Setter;
 @Getter
 @Setter
 public class UserRegistrationResponse {
-    private Status status;
+    private String status;
     private String message;
 }
