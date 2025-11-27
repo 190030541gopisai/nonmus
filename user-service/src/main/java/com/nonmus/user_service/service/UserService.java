@@ -3,7 +3,9 @@ package com.nonmus.user_service.service;
 import org.springframework.stereotype.Service;
 import com.nonmus.user_service.dto.UserRequest;
 import com.nonmus.user_service.entity.User;
+import com.nonmus.user_service.exception.EmailAlreadyVerifiedException;
 import com.nonmus.user_service.exception.UserAlreadyExistsException;
+import com.nonmus.user_service.exception.UserNotFoundException;
 import com.nonmus.user_service.repository.UserRepository;
 
 import jakarta.transaction.Transactional;
@@ -30,5 +32,23 @@ public class UserService {
         user.setEmailVerified(false);
 
         return userRepository.save(user);
+    }
+
+    @Transactional
+    public User getUserByEmail(String email) {
+        return userRepository.findByEmail(email).orElse(null);
+    }
+
+    @Transactional
+    public void activateUserEmail(String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new UserNotFoundException("User with email " + email + " not found"));
+
+        if (user.isEmailVerified()) {
+            throw new EmailAlreadyVerifiedException("Email is already verified");
+        }
+
+        user.setEmailVerified(true);
+        userRepository.save(user);
     }
 }
