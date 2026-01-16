@@ -6,6 +6,8 @@ import com.nonmus.dto.ApiResponse;
 import com.nonmus.dto.Meta;
 import com.nonmus.dto.UserCreateRequest;
 import com.nonmus.dto.UserCreateResponse;
+import com.nonmus.dto.UserValidateRequest;
+import com.nonmus.dto.UserValidateResponse;
 import com.nonmus.entity.User;
 import com.nonmus.service.UserService;
 
@@ -35,7 +37,7 @@ public class UserController {
     }
 
     @PostMapping
-    public ResponseEntity<ApiResponse<?>> createUser(@Valid @RequestBody UserCreateRequest request) {
+    public ResponseEntity<ApiResponse<UserCreateResponse>> createUser(@Valid @RequestBody UserCreateRequest request) {
         User user = userService.createUser(request);
 
         ApiResponse<UserCreateResponse> response = new ApiResponse<>();
@@ -44,7 +46,7 @@ public class UserController {
         response.setMessage("User Creation Successful");
         
         UserCreateResponse userCreateResponse = new UserCreateResponse();
-        userCreateResponse.setUserId(user.getUserId().toString());
+        userCreateResponse.setUserId(user.getUserId());
         userCreateResponse.setEmail(user.getEmail());
         userCreateResponse.setFirstName(user.getFirstName());
         userCreateResponse.setLastName(user.getLastName());
@@ -59,4 +61,11 @@ public class UserController {
 
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
+
+    @PostMapping("/validate")
+    public UserValidateResponse validate(@Valid @RequestBody UserValidateRequest request) {
+        UserValidateResponse userValidateResponse = userService.validate(request);
+        return userValidateResponse;
+    }
+    
 }

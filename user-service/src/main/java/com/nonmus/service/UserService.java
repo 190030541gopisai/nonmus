@@ -1,8 +1,12 @@
 package com.nonmus.service;
 
+import java.util.UUID;
+
 import org.springframework.stereotype.Service;
 
 import com.nonmus.dto.UserCreateRequest;
+import com.nonmus.dto.UserValidateRequest;
+import com.nonmus.dto.UserValidateResponse;
 import com.nonmus.entity.User;
 import com.nonmus.exception.UserAlreadyExistsException;
 import com.nonmus.repository.UserRepository;
@@ -33,12 +37,24 @@ public class UserService {
     }
 
     private boolean isUserAlreadyExists(String email) {
-        User user = userRepository.findByEmail(email).orElse(null);
+        boolean userExists = userRepository.existsByEmail(email);
 
-        if(user != null) {
+        if(userExists) {
             return true;
         }
 
         return false;
+    }
+
+    public UserValidateResponse validate(UserValidateRequest request) {
+        UUID userId = request.getUserId();
+        String email = request.getEmail();
+
+        UserValidateResponse response = new UserValidateResponse();
+        response.setUserIdExist(userRepository.existsById(userId));
+        response.setEmailExist(userRepository.existsByEmail(email));
+        response.setBelongsToSameUser(userRepository.existsByUserIdAndEmail(userId, email));
+
+        return response;
     }
 }
