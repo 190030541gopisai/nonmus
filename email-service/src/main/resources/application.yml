@@ -1,0 +1,23 @@
+server:
+  port: 8002
+
+spring:
+  data:
+    redis:
+      host: localhost
+      port: 6379
+
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: ${GMAIL:your-email@gmail.com}
+    password: ${APP_PASSWORD:your-app-password}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
+api:
+  prefix: /api/v1/email
