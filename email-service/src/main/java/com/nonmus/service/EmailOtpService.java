@@ -10,7 +10,11 @@ import com.nonmus.dto.EmailOtpSendRequest;
 import com.nonmus.dto.EmailOtpSendResponse;
 import com.nonmus.dto.UserValidateRequest;
 import com.nonmus.dto.UserValidateResponse;
+import com.nonmus.exception.DownStreamServiceException;
 import com.nonmus.utils.OtpUtils;
+
+import feign.FeignException;
+import feign.RetryableException;
 
 @Service
 public class EmailOtpService {
@@ -38,8 +42,24 @@ public class EmailOtpService {
         userValidateRequest.setUserId(userId);
         userValidateRequest.setEmail(email);
 
-        UserValidateResponse userValidateResponse = userServiceClient.validate(userValidateRequest);
+        UserValidateResponse userValidateResponse;
 
+        try {
+            userValidateResponse = userServiceClient.validate(userValidateRequest);
+        }  catch (RetryableException ex) {
+            throw new DownStreamServiceException(
+                    AppConstants.USER_SERVICE_UNAVAILABLE,
+                    "User service is unavailable",
+                    ex
+            );
+        } catch (FeignException ex) {
+            throw new DownStreamServiceException(
+                    AppConstants.USER_SERVICE_ERROR,
+                    "User service returned an error",
+                    ex
+            );
+        }
+        
         if(!userValidateResponse.isBelongsToSameUser()) {
             response.setCode(AppConstants.USER_NOT_FOUND);
             return response;
