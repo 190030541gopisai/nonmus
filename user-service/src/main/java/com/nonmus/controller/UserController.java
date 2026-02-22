@@ -6,6 +6,7 @@ import com.nonmus.dto.ApiResponse;
 import com.nonmus.dto.Meta;
 import com.nonmus.dto.UserCreateRequest;
 import com.nonmus.dto.UserCreateResponse;
+import com.nonmus.dto.UserData;
 import com.nonmus.dto.UserValidateRequest;
 import com.nonmus.dto.UserValidateResponse;
 import com.nonmus.entity.User;
@@ -16,12 +17,17 @@ import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import java.time.Instant;
+import java.util.UUID;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestParam;
+
 
 
 
@@ -68,4 +74,39 @@ public class UserController {
         return userValidateResponse;
     }
     
+    @GetMapping(params = {"userId"})
+    public UserData getUserData(@RequestParam("userId") UUID userId) {
+        User user = userService.getUserData(userId);
+
+        if(user == null) {
+            return null;
+        }
+
+        UserData userData = new UserData();
+        userData.setUserId(user.getUserId());
+        userData.setEmail(user.getEmail());
+        userData.setFirstName(user.getFirstName());
+        userData.setLastName(user.getLastName());
+        userData.setEmailVerified(user.isEmailVerified());
+        
+        return userData;
+    }
+
+    @GetMapping(params = {"email"})
+    public UserData getUserData(@RequestParam("email") String email) {
+        User user = userService.getUserData(email);
+
+        if(user == null) {
+            return null;
+        }
+    
+        UserData userData = new UserData();
+        userData.setUserId(user.getUserId());
+        userData.setEmail(user.getEmail());
+        userData.setFirstName(user.getFirstName());
+        userData.setLastName(user.getLastName());
+        userData.setEmailVerified(user.isEmailVerified());
+        
+        return userData;
+    }
 }

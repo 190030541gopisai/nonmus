@@ -57,4 +57,12 @@ public class UserService {
 
         return response;
     }
+
+    public User getUserData(UUID userId) {
+        return userRepository.findById(userId).orElse(null);
+    }
+
+    public User getUserData(String email) {
+        return userRepository.findByEmail(email).orElse(null);
+    }
 }

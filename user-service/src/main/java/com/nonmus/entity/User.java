@@ -3,7 +3,8 @@ package com.nonmus.entity;
 import java.time.Instant;
 import java.util.UUID;
 
-import jakarta.annotation.Generated;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -25,6 +26,9 @@ public class User {
     private String profilePicture;
     private boolean isEmailVerified;
     private Instant passwordChangedAt;
+    
+    @CreationTimestamp
     private Instant createdAt;
+    @UpdateTimestamp
     private Instant updatedAt;
 }
