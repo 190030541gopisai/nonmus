@@ -2,7 +2,6 @@ services:
   db:
     image: postgres
     container_name: postgres_db
-    restart: always
     environment:
       POSTGRES_PASSWORD: root
     ports:
@@ -14,7 +13,6 @@ services:
   cache:
     image: redis
     container_name: redis_cache
-    restart: always
     ports:
       - "6379:6379"
     volumes:
