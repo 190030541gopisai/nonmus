@@ -6,7 +6,10 @@ import org.springframework.web.bind.annotation.RestController;
 import com.nonmus.dto.ApiResponse;
 import com.nonmus.dto.EmailOtpSendRequest;
 import com.nonmus.dto.EmailOtpSendResponse;
+import com.nonmus.dto.EmailOtpVerifyRequest;
+import com.nonmus.dto.EmailOtpVerifyResponse;
 import com.nonmus.factory.EmailOtpSendResponseFactory;
+import com.nonmus.factory.EmailOtpVerifyResponseFactory;
 import com.nonmus.service.EmailOtpService;
 import com.nonmus.service.OtpCacheService;
 
@@ -39,4 +42,14 @@ public class EmailOtpController {
         
         return ResponseEntity.status(response.getStatusCode()).body(response);
     }
+
+    @PostMapping("/verify")
+    public ResponseEntity<ApiResponse<?>> verifyOtp(@Valid @RequestBody EmailOtpVerifyRequest request) {
+        EmailOtpVerifyResponse otpVerifyResponse = emailOtpService.verifyOtp(request);
+        
+        ApiResponse<?> response = EmailOtpVerifyResponseFactory.getApiResponse(otpVerifyResponse, request.getUserId(), otpCacheService);
+        
+        return ResponseEntity.status(response.getStatusCode()).body(response);
+    }
+    
 }
