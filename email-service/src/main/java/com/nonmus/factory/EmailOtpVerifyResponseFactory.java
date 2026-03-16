@@ -103,16 +103,6 @@ public class EmailOtpVerifyResponseFactory {
             response.setStatusCode(200);
             response.setMessage("OTP verified successfully");
             
-            // Todo: Add user object, token details (accessToke, refreshToken, accessTokenExpiry, refreshTokenExpiry) in response data    
-            UserTokenInfo userTokenInfo = new UserTokenInfo();
-
-            UserData userData = emailOtpVerifyResponse.getUserData();
-            TokenData tokenData = emailOtpVerifyResponse.getTokenData();
-            userTokenInfo.setUser(userData);
-            userTokenInfo.setToken(tokenData);
-
-            response.setData(userTokenInfo);
-
             Meta meta = new Meta();
             meta.setTimeStamp(Instant.now());
 
