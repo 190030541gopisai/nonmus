@@ -12,4 +12,5 @@ public final class AppConstants {
 
     public static final String OTP_SENT = "OTP_SENT";
     public static final String OTP_NOT_SENT = "OTP_NOT_SENT";
+    public static final String INTERNAL_SERVER_ERROR = "INTERNAL_SERVER_ERROR";
 }

@@ -12,6 +12,4 @@ public class RegisterResponse {
     private String lastName;
     private boolean emailVerified;
     private boolean otpSent;
-    private String otpStatusCode;
-    private String otpMessage;
 }

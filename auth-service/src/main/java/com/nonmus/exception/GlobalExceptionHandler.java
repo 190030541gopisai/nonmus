@@ -30,53 +30,57 @@ public class GlobalExceptionHandler {
 
         Meta meta = new Meta();
         meta.setTimeStamp(Instant.now());
+
         response.setMeta(meta);
 
         Errors errors = new Errors();
         errors.setCode("VALIDATION_ERROR");
         errors.setMessage("One or more fields are invalid");
-
+        
         List<ErrorDetail> errorDetails = new ArrayList<>();
-        exception.getBindingResult().getFieldErrors().forEach(error -> {
+        exception.getBindingResult().getFieldErrors().forEach(error ->{
             ErrorDetail errorDetail = new ErrorDetail();
             errorDetail.setField(error.getField());
             errorDetail.setMessage(error.getDefaultMessage());
+
             errorDetails.add(errorDetail);
         });
 
         errors.setDetails(errorDetails);
+
         response.setErrors(errors);
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
 
-    @ExceptionHandler(UserServiceException.class)
-    public ResponseEntity<ApiResponse<?>> handleUserServiceException(UserServiceException exception) {
+    @ExceptionHandler(value = UserAlreadyExistsException.class)
+    public ResponseEntity<ApiResponse<?>> userAlreadyExistsException(UserAlreadyExistsException exception) {
         ApiResponse<Empty> response = new ApiResponse<>();
         response.setSuccess(false);
-        response.setStatusCode(exception.getStatusCode());
-        response.setMessage("User Service Failure");
+        response.setStatusCode(409);
+        response.setMessage("User Conflict");
         response.setData(null);
 
         Meta meta = new Meta();
         meta.setTimeStamp(Instant.now());
+
         response.setMeta(meta);
 
         Errors errors = new Errors();
-        errors.setCode(exception.getCode());
+        errors.setCode("USER_ALREADY_EXISTS");
         errors.setMessage(exception.getMessage());
 
         response.setErrors(errors);
 
-        return ResponseEntity.status(exception.getStatusCode()).body(response);
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
     }
 
-    @ExceptionHandler(DownstreamServiceException.class)
-    public ResponseEntity<ApiResponse<?>> handleDownstreamServiceException(DownstreamServiceException exception) {
+    @ExceptionHandler(UserServiceException.class)
+    public ResponseEntity<ApiResponse<?>> userServiceException(UserServiceException exception) {
         ApiResponse<Empty> response = new ApiResponse<>();
         response.setSuccess(false);
         response.setStatusCode(exception.getStatusCode());
-        response.setMessage("Downstream Service Failure");
+        response.setMessage(exception.getMessage());
         response.setData(null);
 
         Meta meta = new Meta();
@@ -86,7 +90,6 @@ public class GlobalExceptionHandler {
         Errors errors = new Errors();
         errors.setCode(exception.getCode());
         errors.setMessage(exception.getMessage());
-
         response.setErrors(errors);
 
         return ResponseEntity.status(exception.getStatusCode()).body(response);
@@ -105,7 +108,7 @@ public class GlobalExceptionHandler {
         response.setMeta(meta);
 
         Errors errors = new Errors();
-        errors.setCode(AppConstants.USER_SERVICE_UNAVAILABLE);
+        errors.setCode(AppConstants.INTERNAL_SERVER_ERROR);
         errors.setMessage(exception.getMessage());
         response.setErrors(errors);
 

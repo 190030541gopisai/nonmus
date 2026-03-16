@@ -4,9 +4,8 @@ import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
+import com.nonmus.dto.ApiResponse;
 import com.nonmus.dto.EmailOtpSendRequest;
-
-import feign.Response;
 
 @FeignClient(
     name = "email-service",
@@ -14,5 +13,5 @@ import feign.Response;
 public interface EmailServiceClient {
 
     @PostMapping("/api/v1/email/otp/send")
-    Response sendOtp(@RequestBody EmailOtpSendRequest request);
+    ApiResponse<?> sendOtp(@RequestBody EmailOtpSendRequest request);
 }
