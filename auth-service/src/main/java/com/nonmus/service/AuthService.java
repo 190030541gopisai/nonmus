@@ -14,6 +14,7 @@ import com.nonmus.client.UserServiceClient;
 import com.nonmus.constants.AppConstants;
 import com.nonmus.dto.ApiResponse;
 import com.nonmus.dto.EmailOtpSendRequest;
+import com.nonmus.dto.EmailOtpVerifyRequest;
 import com.nonmus.dto.Errors;
 import com.nonmus.dto.Meta;
 import com.nonmus.dto.RegisterRequest;
@@ -128,6 +129,38 @@ public class AuthService {
             response.setErrors(errors);
             return false;
         }
+    }
+
+    public ApiResponse<?> verifyOtp(EmailOtpVerifyRequest request) {
+        try{
+            ApiResponse<?> response = emailServiceClient.verifyOtp(request);
+            return response;   
+        } catch(RetryableException ex) {
+            ApiResponse<?> response = new ApiResponse<>();
+            response.setSuccess(false);
+            response.setStatusCode(503);
+            response.setMessage("Email service is currently unavailable. Please try again later.");
+
+            Errors errors = new Errors();
+            errors.setCode("EMAIL_SERVICE_UNAVAILABLE");
+            errors.setMessage("Email service is unavailable");
+
+            response.setErrors(errors);
+            return response;
+        }
+        catch(FeignException ex) {
+            ApiResponse<?> response = new ApiResponse<>();
+            response.setSuccess(false);
+            response.setStatusCode(502);
+            response.setMessage("Email service returned an error: " + ex.getMessage());
+
+            Errors errors = new Errors();
+            errors.setCode("EMAIL_SERVICE_ERROR");
+            errors.setMessage("Email service returned an error: " + ex.getMessage());
+
+            response.setErrors(errors);
+            return response;
+        } 
     }
 
 }

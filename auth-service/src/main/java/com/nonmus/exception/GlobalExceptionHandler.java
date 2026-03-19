@@ -10,6 +10,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nonmus.constants.AppConstants;
 import com.nonmus.dto.ApiResponse;
 import com.nonmus.dto.Empty;
@@ -93,6 +94,25 @@ public class GlobalExceptionHandler {
         response.setErrors(errors);
 
         return ResponseEntity.status(exception.getStatusCode()).body(response);
+    }
+
+    @ExceptionHandler(EmailServiceException.class)
+    public ResponseEntity<?> handleEmailServiceException(EmailServiceException ex) {
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+
+            Object jsonBody = mapper.readValue(ex.getResponseBody(), Object.class);
+
+            return ResponseEntity
+                    .status(ex.getStatus())
+                    .body(jsonBody);
+
+        } catch (Exception e) {
+
+            return ResponseEntity
+                    .status(ex.getStatus())
+                    .body(ex.getResponseBody());
+        }
     }
 
     @ExceptionHandler(Exception.class)
