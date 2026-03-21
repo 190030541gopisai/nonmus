@@ -16,4 +16,5 @@ public class AppConstants {
     public static final String USER_BAD_REQUEST = "USER_BAD_REQUEST";
     public static final String INVALID_OTP = "INVALID_OTP";
     public static final String OTP_VERIFIED = "OTP_VERIFIED";
+    public static final String USER_SERVICE = "USER_SERVICE";
 }

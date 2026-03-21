@@ -15,7 +15,6 @@ import com.nonmus.dto.UserData;
 import com.nonmus.dto.UserTokenInfo;
 import com.nonmus.dto.UserValidateRequest;
 import com.nonmus.dto.UserValidateResponse;
-import com.nonmus.exception.DownStreamServiceException;
 import com.nonmus.utils.OtpUtils;
 
 import feign.FeignException;
@@ -50,23 +49,7 @@ public class EmailOtpService {
         userValidateRequest.setUserId(userId);
         userValidateRequest.setEmail(email);
 
-        UserValidateResponse userValidateResponse;
-
-        try {
-            userValidateResponse = userServiceClient.validate(userValidateRequest);
-        }  catch (RetryableException ex) {
-            throw new DownStreamServiceException(
-                    AppConstants.USER_SERVICE_UNAVAILABLE,
-                    "User service is unavailable",
-                    ex
-            );
-        } catch (FeignException ex) {
-            throw new DownStreamServiceException(
-                    AppConstants.USER_SERVICE_ERROR,
-                    "User service returned an error",
-                    ex
-            );
-        }
+        UserValidateResponse userValidateResponse = userServiceClient.validate(userValidateRequest);
         
         if(!userValidateResponse.isBelongsToSameUser()) {
             response.setCode(AppConstants.USER_NOT_FOUND);
@@ -106,23 +89,7 @@ public class EmailOtpService {
         userValidateRequest.setUserId(userId);
         userValidateRequest.setEmail(email);
 
-        UserValidateResponse userValidateResponse;
-
-        try {
-            userValidateResponse = userServiceClient.validate(userValidateRequest);
-        }  catch (RetryableException ex) {
-            throw new DownStreamServiceException(
-                    AppConstants.USER_SERVICE_UNAVAILABLE,
-                    "User service is unavailable",
-                    ex
-            );
-        } catch (FeignException ex) {
-            throw new DownStreamServiceException(
-                    AppConstants.USER_SERVICE_ERROR,
-                    "User service returned an error",
-                    ex
-            );
-        }
+        UserValidateResponse userValidateResponse = userServiceClient.validate(userValidateRequest);
         
         if(!userValidateResponse.isBelongsToSameUser()) {
             response.setCode(AppConstants.USER_NOT_FOUND);
@@ -136,15 +103,9 @@ public class EmailOtpService {
             return response;
         }
 
-        UserData userData = userServiceClient.getUserDataByUserId(userId);
-        TokenData tokenData = tokenService.generateTokenDataForUser(userData);
-
         response.setCode(AppConstants.OTP_VERIFIED);
-        response.setUserData(userData);
-        response.setTokenData(tokenData);
 
         otpCacheService.deleteOtp(userId);
-        // Todo: Update user record in user service to mark email as verified
         return response;
     }
 
