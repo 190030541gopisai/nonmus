@@ -65,4 +65,13 @@ public class UserService {
     public User getUserData(String email) {
         return userRepository.findByEmail(email).orElse(null);
     }
+
+    public User updateEmailVerified(UUID userId) {
+        User user = getUserData(userId);
+        if(user != null) {
+            user.setEmailVerified(true);
+            userRepository.save(user);
+        }
+        return user;
+    }
 }
