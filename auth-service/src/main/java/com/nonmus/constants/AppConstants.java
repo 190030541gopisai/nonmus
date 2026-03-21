@@ -18,4 +18,5 @@ public final class AppConstants {
     public static final String USER_ENDPOINT_NOT_FOUND = "USER_ENDPOINT_NOT_FOUND";
     public static final String EMAIL_SERVICE = "EMAIL_SERVICE";
     public static final String USER_SERVICE = "USER_SERVICE";
+    public static final String OTP_VERIFIED_SUCCESSFULLY = "OTP verified successfully";
 }
