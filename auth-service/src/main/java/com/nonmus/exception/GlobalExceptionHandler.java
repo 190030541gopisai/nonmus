@@ -81,6 +81,10 @@ public class GlobalExceptionHandler {
         response.setStatusCode(503);
         response.setMessage("Service temporarily unavailable");
 
+        Meta meta = new Meta();
+        meta.setTimeStamp(Instant.now());
+        response.setMeta(meta);
+
         Errors errors = new Errors();
         errors.setCode("SERVICE_UNAVAILABLE");
         errors.setMessage("Downstream service is unavailable");
