@@ -19,6 +19,8 @@ import com.nonmus.dto.UserCreateRequest;
 import com.nonmus.dto.UserCreateResponse;
 import com.nonmus.dto.UserData;
 
+import jakarta.validation.Valid;
+
 @Service
 public class AuthService {
 
@@ -107,6 +109,11 @@ public class AuthService {
         tokenInfo.setRefreshToken(UUID.randomUUID().toString());
         tokenInfo.setExpiresIn(3600); // 1 hour expiry for access token
         return tokenInfo;
+    }
+
+    public ApiResponse<?> resendOtp(EmailOtpSendRequest request) {
+        ApiResponse<?> response = emailServiceClient.sendOtp(request);
+        return response;
     }
 
 }

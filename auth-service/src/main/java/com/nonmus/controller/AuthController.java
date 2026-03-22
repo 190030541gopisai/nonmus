@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.nonmus.dto.ApiResponse;
+import com.nonmus.dto.EmailOtpSendRequest;
 import com.nonmus.dto.EmailOtpVerifyRequest;
 import com.nonmus.dto.RegisterRequest;
 import com.nonmus.dto.RegisterResponse;
@@ -38,5 +39,12 @@ public class AuthController {
         ApiResponse<?> response = authService.verifyOtp(request);
         return ResponseEntity.status(response.getStatusCode()).body(response);
     }
+
+    @PostMapping("/resend-otp")
+    public ResponseEntity<ApiResponse<?>> resendOtp(@Valid @RequestBody EmailOtpSendRequest request) {
+        ApiResponse<?> response = authService.resendOtp(request);
+        return ResponseEntity.status(response.getStatusCode()).body(response);
+    }
+    
     
 }
