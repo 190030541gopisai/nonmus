@@ -23,6 +23,6 @@ public interface UserServiceClient {
     @PostMapping("/api/v1/users")
     ApiResponse<UserCreateResponse> createUser(@RequestBody UserCreateRequest request);
 
-    @PutMapping("/email/verified/{id}")
+    @PutMapping("/api/v1/users/email/verified/{id}")
     UserData updateEmailVerified(@PathVariable("id") UUID userId); 
 }
