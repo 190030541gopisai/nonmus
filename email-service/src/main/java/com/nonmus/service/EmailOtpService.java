@@ -23,7 +23,7 @@ import jakarta.validation.Valid;
 
 @Service
 public class EmailOtpService {
-    private static final int MAX_OTPS = 1; 
+    private static final int MAX_OTPS = 5; 
 
     private final OtpCacheService otpCacheService;
     private final MailService mailService;
