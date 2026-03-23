@@ -11,8 +11,10 @@ import org.springframework.web.bind.annotation.RestController;
 import com.nonmus.dto.ApiResponse;
 import com.nonmus.dto.EmailOtpSendRequest;
 import com.nonmus.dto.EmailOtpVerifyRequest;
+import com.nonmus.dto.LoginResponse;
 import com.nonmus.dto.RegisterRequest;
 import com.nonmus.dto.RegisterResponse;
+import com.nonmus.dto.UserAuthRequest;
 import com.nonmus.service.AuthService;
 
 import jakarta.validation.Valid;
@@ -45,6 +47,10 @@ public class AuthController {
         ApiResponse<?> response = authService.resendOtp(request);
         return ResponseEntity.status(response.getStatusCode()).body(response);
     }
-    
-    
+
+    @PostMapping("/login")
+    public ResponseEntity<ApiResponse<LoginResponse>> login(@Valid @RequestBody UserAuthRequest request) {
+        ApiResponse<LoginResponse> response = authService.login(request);
+        return ResponseEntity.status(response.getStatusCode()).body(response);
+    }
 }

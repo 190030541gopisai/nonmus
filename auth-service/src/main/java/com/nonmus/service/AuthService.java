@@ -3,6 +3,10 @@ package com.nonmus.service;
 import java.time.Instant;
 import java.util.UUID;
 
+import org.springframework.boot.autoconfigure.security.SecurityProperties.User;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import com.nonmus.client.EmailServiceClient;
@@ -11,15 +15,18 @@ import com.nonmus.constants.AppConstants;
 import com.nonmus.dto.ApiResponse;
 import com.nonmus.dto.EmailOtpSendRequest;
 import com.nonmus.dto.EmailOtpVerifyRequest;
+import com.nonmus.dto.LoginResponse;
 import com.nonmus.dto.Meta;
 import com.nonmus.dto.RegisterRequest;
 import com.nonmus.dto.RegisterResponse;
 import com.nonmus.dto.TokenInfo;
+import com.nonmus.dto.UserAuthRequest;
 import com.nonmus.dto.UserCreateRequest;
 import com.nonmus.dto.UserCreateResponse;
 import com.nonmus.dto.UserData;
 
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Email;
 
 @Service
 public class AuthService {
@@ -116,6 +123,60 @@ public class AuthService {
         return response;
     }
 
+    public ApiResponse<LoginResponse> login(UserAuthRequest request) {
+        ApiResponse<LoginResponse> response = new ApiResponse<>();
+        
+        Meta meta = new Meta();
+        meta.setTimeStamp(Instant.now());
+        response.setMeta(meta);
+
+        ResponseEntity<UserData> userDataResponse = userServiceClient.authenticate(request);
+
+        if(isUnauthorized(userDataResponse)) {
+            response.setSuccess(false);
+            response.setStatusCode(401);
+            response.setMessage("Invalid email or password");
+            return response;
+        }
+
+        UserData userData = userDataResponse.getBody();
+
+        if(userData == null) {
+            response.setSuccess(false);
+            response.setStatusCode(401);
+            response.setMessage("Invalid email or password");
+            return response;
+        }
+
+        if(!userData.isEmailVerified()) {
+            EmailOtpSendRequest otpRequest = new EmailOtpSendRequest();
+            otpRequest.setUserId(userData.getUserId());
+            otpRequest.setEmail(userData.getEmail());
+            
+            resendOtp(otpRequest);
+
+            response.setSuccess(false);
+            response.setStatusCode(403);
+            response.setMessage("Email not verified. OTP has been resent.");
+            return response;
+        }
+        
+        LoginResponse loginResponse = new LoginResponse();
+        loginResponse.setUser(userData);
+        loginResponse.setTokenInfo(generateTokenInfo(userData));
+
+        response.setSuccess(true);
+        response.setStatusCode(200);
+        response.setMessage("Login successful");
+        response.setData(loginResponse);
+    
+        return response;
+    }
+
+
+    private boolean isUnauthorized(ResponseEntity<UserData> userDataResponse) {
+        return userDataResponse.getStatusCode() == HttpStatus.UNAUTHORIZED || userDataResponse.getBody() == null;
+    }
 }
 
 

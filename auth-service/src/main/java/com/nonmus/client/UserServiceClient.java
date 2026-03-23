@@ -3,6 +3,7 @@ package com.nonmus.client;
 import java.util.UUID;
 
 import org.springframework.cloud.openfeign.FeignClient;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -10,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 
 import com.nonmus.decoder.UserServiceFeignErrorDecoder;
 import com.nonmus.dto.ApiResponse;
+import com.nonmus.dto.UserAuthRequest;
 import com.nonmus.dto.UserCreateRequest;
 import com.nonmus.dto.UserCreateResponse;
 import com.nonmus.dto.UserData;
@@ -25,4 +27,7 @@ public interface UserServiceClient {
 
     @PutMapping("/api/v1/users/email/verified/{id}")
     UserData updateEmailVerified(@PathVariable("id") UUID userId); 
+
+     @PostMapping("/api/v1/users/authenticate")
+    public ResponseEntity<UserData> authenticate(@RequestBody UserAuthRequest request);
 }
