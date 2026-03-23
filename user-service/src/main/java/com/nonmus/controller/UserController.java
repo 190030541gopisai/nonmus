@@ -4,6 +4,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.nonmus.dto.ApiResponse;
 import com.nonmus.dto.Meta;
+import com.nonmus.dto.UserAuthRequest;
 import com.nonmus.dto.UserCreateRequest;
 import com.nonmus.dto.UserCreateResponse;
 import com.nonmus.dto.UserData;
@@ -109,4 +110,14 @@ public class UserController {
         
         return userData;
     }
+
+    @PostMapping("/authenticate")
+    public ResponseEntity<UserData> authenticate(@RequestBody UserAuthRequest request) {
+        User user = userService.authenticate(request.getEmail(), request.getPassword());
+        if(user == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+        return ResponseEntity.ok(mapToUserData(user));
+    }
+    
 }
