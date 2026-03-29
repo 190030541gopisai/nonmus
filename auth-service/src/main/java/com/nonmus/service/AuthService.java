@@ -24,6 +24,7 @@ import com.nonmus.dto.UserAuthRequest;
 import com.nonmus.dto.UserCreateRequest;
 import com.nonmus.dto.UserCreateResponse;
 import com.nonmus.dto.UserData;
+import com.nonmus.util.JwtUtil;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
@@ -33,10 +34,12 @@ public class AuthService {
 
     private final UserServiceClient userServiceClient;
     private final EmailServiceClient emailServiceClient;
+    private final JwtUtil jwtUtil;
 
-    public AuthService(UserServiceClient userServiceClient, EmailServiceClient emailServiceClient) {
+    public AuthService(UserServiceClient userServiceClient, EmailServiceClient emailServiceClient, JwtUtil jwtUtil) {
         this.userServiceClient = userServiceClient;
         this.emailServiceClient = emailServiceClient;
+        this.jwtUtil = jwtUtil;
     }
 
     public ApiResponse<RegisterResponse> register(RegisterRequest request) {
@@ -111,10 +114,13 @@ public class AuthService {
     }
 
     private TokenInfo generateTokenInfo(UserData userData) {
+        String accessToken = jwtUtil.generateToken(userData.getUserId().toString());
+        String refreshToken = jwtUtil.generateRefreshToken(userData.getUserId().toString());
+
         TokenInfo tokenInfo = new TokenInfo();
-        tokenInfo.setAccessToken(UUID.randomUUID().toString());
-        tokenInfo.setRefreshToken(UUID.randomUUID().toString());
-        tokenInfo.setExpiresIn(3600); // 1 hour expiry for access token
+        tokenInfo.setAccessToken(accessToken);
+        tokenInfo.setRefreshToken(refreshToken);
+        tokenInfo.setExpiresIn(jwtUtil.getTokenExpirationInSeconds()); // 1 hour expiry for access token
         return tokenInfo;
     }
 

@@ -9,3 +9,8 @@ services:
         url: http://localhost:8001
     email:
         url: http://localhost:8002
+
+jwt:
+    secret: your-secret-key-minimum-256-bits-long-for-HS256-algorithm
+    expiration: 3600000
+    refresh-token-expiration: 604800000
