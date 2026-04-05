@@ -13,6 +13,7 @@ import com.nonmus.client.EmailServiceClient;
 import com.nonmus.client.UserServiceClient;
 import com.nonmus.constants.AppConstants;
 import com.nonmus.dto.ApiResponse;
+import com.nonmus.dto.EmailNotVerifiedResponse;
 import com.nonmus.dto.EmailOtpSendRequest;
 import com.nonmus.dto.EmailOtpVerifyRequest;
 import com.nonmus.dto.LoginResponse;
@@ -24,6 +25,7 @@ import com.nonmus.dto.UserAuthRequest;
 import com.nonmus.dto.UserCreateRequest;
 import com.nonmus.dto.UserCreateResponse;
 import com.nonmus.dto.UserData;
+import com.nonmus.exception.DownStreamException;
 import com.nonmus.util.JwtUtil;
 
 import jakarta.validation.Valid;
@@ -129,25 +131,33 @@ public class AuthService {
         return response;
     }
 
-    public ApiResponse<LoginResponse> login(UserAuthRequest request) {
-        ApiResponse<LoginResponse> response = new ApiResponse<>();
+    public ApiResponse<?> login(UserAuthRequest request) {
         
         Meta meta = new Meta();
         meta.setTimeStamp(Instant.now());
-        response.setMeta(meta);
 
-        ResponseEntity<UserData> userDataResponse = userServiceClient.authenticate(request);
-
-        if(isUnauthorized(userDataResponse)) {
-            response.setSuccess(false);
-            response.setStatusCode(401);
-            response.setMessage("Invalid email or password");
-            return response;
+        ResponseEntity<UserData> userDataResponse;
+        
+        UserData userData;
+        
+        try {
+            userDataResponse = userServiceClient.authenticate(request);
+            userData = userDataResponse.getBody();
+        } catch (DownStreamException e) {
+            if(e.getStatus() == 401) {
+                ApiResponse<LoginResponse> response = new ApiResponse<>();
+                response.setMeta(meta);
+                response.setSuccess(false);
+                response.setStatusCode(401);
+                response.setMessage("Invalid email or password");
+                return response;
+            }
+            throw e;
         }
 
-        UserData userData = userDataResponse.getBody();
-
         if(userData == null) {
+            ApiResponse<LoginResponse> response = new ApiResponse<>();
+            response.setMeta(meta);
             response.setSuccess(false);
             response.setStatusCode(401);
             response.setMessage("Invalid email or password");
@@ -155,17 +165,26 @@ public class AuthService {
         }
 
         if(!userData.isEmailVerified()) {
-            EmailOtpSendRequest otpRequest = new EmailOtpSendRequest();
-            otpRequest.setUserId(userData.getUserId());
-            otpRequest.setEmail(userData.getEmail());
+            // Don't auto-resend OTP during login to avoid rate limit issues
+            // Let user manually trigger resend on the OTP verification page
             
-            resendOtp(otpRequest);
-
+            ApiResponse<EmailNotVerifiedResponse> response = new ApiResponse<>();
+            response.setMeta(meta);
             response.setSuccess(false);
             response.setStatusCode(403);
-            response.setMessage("Email not verified. OTP has been resent.");
+            response.setMessage("Email not verified. Please verify your email.");
+            
+            // Include userId in response so frontend can navigate to verify-otp page
+            EmailNotVerifiedResponse data = new EmailNotVerifiedResponse();
+            data.setUserId(userData.getUserId());
+            data.setEmail(userData.getEmail());
+            response.setData(data);
+            
             return response;
         }
+        
+        ApiResponse<LoginResponse> response = new ApiResponse<>();
+        response.setMeta(meta);
         
         LoginResponse loginResponse = new LoginResponse();
         loginResponse.setUser(userData);
@@ -177,11 +196,6 @@ public class AuthService {
         response.setData(loginResponse);
     
         return response;
-    }
-
-
-    private boolean isUnauthorized(ResponseEntity<UserData> userDataResponse) {
-        return userDataResponse.getStatusCode() == HttpStatus.UNAUTHORIZED || userDataResponse.getBody() == null;
     }
 }
 
