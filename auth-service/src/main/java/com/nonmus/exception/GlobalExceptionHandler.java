@@ -10,6 +10,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nonmus.constants.AppConstants;
 import com.nonmus.dto.ApiResponse;
 import com.nonmus.dto.Empty;
@@ -53,46 +54,44 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
 
-    @ExceptionHandler(value = UserAlreadyExistsException.class)
-    public ResponseEntity<ApiResponse<?>> userAlreadyExistsException(UserAlreadyExistsException exception) {
-        ApiResponse<Empty> response = new ApiResponse<>();
-        response.setSuccess(false);
-        response.setStatusCode(409);
-        response.setMessage("User Conflict");
-        response.setData(null);
+    @ExceptionHandler(DownStreamException.class)
+    public ResponseEntity<?> handleDownStreamException(DownStreamException ex) {
+        try {
+            ObjectMapper mapper = new ObjectMapper();
 
-        Meta meta = new Meta();
-        meta.setTimeStamp(Instant.now());
+            Object jsonBody = mapper.readValue(ex.getResponseBody(), Object.class);
 
-        response.setMeta(meta);
+            return ResponseEntity
+                    .status(ex.getStatus())
+                    .body(jsonBody);
 
-        Errors errors = new Errors();
-        errors.setCode("USER_ALREADY_EXISTS");
-        errors.setMessage(exception.getMessage());
+        } catch (Exception e) {
 
-        response.setErrors(errors);
-
-        return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
+            return ResponseEntity
+                    .status(ex.getStatus())
+                    .body(ex.getResponseBody());
+        }
     }
 
-    @ExceptionHandler(UserServiceException.class)
-    public ResponseEntity<ApiResponse<?>> userServiceException(UserServiceException exception) {
-        ApiResponse<Empty> response = new ApiResponse<>();
+    @ExceptionHandler(feign.RetryableException.class)
+    public ResponseEntity<ApiResponse<?>> handleRetryableException(feign.RetryableException ex) {
+
+        ApiResponse<?> response = new ApiResponse<>();
         response.setSuccess(false);
-        response.setStatusCode(exception.getStatusCode());
-        response.setMessage(exception.getMessage());
-        response.setData(null);
+        response.setStatusCode(503);
+        response.setMessage("Service temporarily unavailable");
 
         Meta meta = new Meta();
         meta.setTimeStamp(Instant.now());
         response.setMeta(meta);
 
         Errors errors = new Errors();
-        errors.setCode(exception.getCode());
-        errors.setMessage(exception.getMessage());
+        errors.setCode("SERVICE_UNAVAILABLE");
+        errors.setMessage("Downstream service is unavailable");
+
         response.setErrors(errors);
 
-        return ResponseEntity.status(exception.getStatusCode()).body(response);
+        return ResponseEntity.status(503).body(response);
     }
 
     @ExceptionHandler(Exception.class)

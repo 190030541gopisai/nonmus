@@ -54,52 +54,25 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
 
-    @ExceptionHandler(UserServiceException.class)
-    public ResponseEntity<ApiResponse<?>> handleUserServiceException(UserServiceException exception) {
-        ApiResponse<Empty> response = new ApiResponse<>();
+    @ExceptionHandler(feign.RetryableException.class)
+    public ResponseEntity<ApiResponse<?>> handleRetryableException(feign.RetryableException ex) {
+
+        ApiResponse<?> response = new ApiResponse<>();
         response.setSuccess(false);
         response.setStatusCode(503);
-        response.setMessage("User Service Failure");
-        response.setData(null);
+        response.setMessage("Service temporarily unavailable");
 
         Meta meta = new Meta();
         meta.setTimeStamp(Instant.now());
-
         response.setMeta(meta);
 
         Errors errors = new Errors();
-        errors.setCode(exception.getCode());
-        errors.setMessage(exception.getMessage());
-
-        log.error("User service error: {}", exception.getMessage());
+        errors.setCode("SERVICE_UNAVAILABLE");
+        errors.setMessage("Downstream service is unavailable");
 
         response.setErrors(errors);
 
-        return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(response);
-    }
-
-    @ExceptionHandler(DownStreamServiceException.class)
-    public ResponseEntity<ApiResponse<?>> handleDownStreamServiceException(DownStreamServiceException exception) {
-        ApiResponse<Empty> response = new ApiResponse<>();
-        response.setSuccess(false);
-        response.setStatusCode(503);
-        response.setMessage("Downstream Service Failure");
-        response.setData(null);
-
-        Meta meta = new Meta();
-        meta.setTimeStamp(Instant.now());
-
-        response.setMeta(meta);
-
-        Errors errors = new Errors();
-        errors.setCode(exception.getCode());
-        errors.setMessage(exception.getMessage());
-
-        log.error("Downstream service error: {}", exception.getActualException().getMessage());
-
-        response.setErrors(errors);
-
-        return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(response);
+        return ResponseEntity.status(503).body(response);
     }
 
 

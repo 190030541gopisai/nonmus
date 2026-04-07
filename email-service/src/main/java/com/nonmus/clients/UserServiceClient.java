@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import com.nonmus.config.UserServiceFeignConfig;
+import com.nonmus.decoder.UserServiceFeignErrorDecoder;
 import com.nonmus.dto.UserData;
 import com.nonmus.dto.UserValidateRequest;
 import com.nonmus.dto.UserValidateResponse;
@@ -16,7 +16,7 @@ import com.nonmus.dto.UserValidateResponse;
 @FeignClient(
     name = "user-service", 
     url = "http://localhost:8001",
-    configuration = UserServiceFeignConfig.class)
+    configuration = UserServiceFeignErrorDecoder.class)
 public interface UserServiceClient {
     @PostMapping("/api/v1/users/validate")
     public UserValidateResponse validate(@RequestBody UserValidateRequest request);

@@ -1,6 +1,5 @@
 package com.nonmus.dto;
 
-import lombok.Builder;
 import lombok.Data;
 
 @Data
