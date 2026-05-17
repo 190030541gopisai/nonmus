@@ -2,6 +2,7 @@ package com.nonmus.nonmus.modules.auth.service;
 
 import org.springframework.stereotype.Service;
 
+import com.nonmus.nonmus.exception.UserAlreadyExistsException;
 import com.nonmus.nonmus.modules.auth.dto.request.SignUpRequest;
 import com.nonmus.nonmus.modules.auth.dto.response.AuthResponse;
 import com.nonmus.nonmus.modules.user.dto.request.UserCreateRequest;
@@ -22,7 +23,7 @@ public class AuthService {
 
     public AuthResponse signup(SignUpRequest request) {
         if(userAlreadyExists(request.getEmail())) {
-            throw new RuntimeException("User already exists");
+            throw new UserAlreadyExistsException("User already exists");
         }
 
         UserCreateRequest userCreateRequest = new UserCreateRequest();
