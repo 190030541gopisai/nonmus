@@ -1,8 +1,0 @@
-.git
-.gitignore
-target
-node_modules
-*.log
-.idea
-.vscode
-.DS_Store

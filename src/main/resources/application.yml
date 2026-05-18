@@ -1,0 +1,20 @@
+spring:
+  application:
+    name: nonmus
+  datasource:
+    url: jdbc:postgresql://localhost:5432/nonmus
+    username: postgres
+    password: ${DB_PASSWORD:root}
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+    show-sql: true
+
+jwt:
+  secret: ${JWT_SECRET:my_secret_key_this_should_be_very_long_and_secure_change_in_production}
+  expiration: 3600000
+  refresh-expiration: 604800000
