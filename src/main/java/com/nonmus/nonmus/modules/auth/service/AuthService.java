@@ -2,13 +2,13 @@ package com.nonmus.nonmus.modules.auth.service;
 
 import org.springframework.stereotype.Service;
 
-import com.nonmus.nonmus.exception.UserAlreadyExistsException;
 import com.nonmus.nonmus.modules.auth.dto.request.SignUpRequest;
 import com.nonmus.nonmus.modules.auth.dto.response.AuthResponse;
+import com.nonmus.nonmus.modules.common.exception.UserAlreadyExistsException;
+import com.nonmus.nonmus.modules.common.util.JwtUtil;
 import com.nonmus.nonmus.modules.user.dto.request.UserCreateRequest;
 import com.nonmus.nonmus.modules.user.entity.Users;
 import com.nonmus.nonmus.modules.user.service.UsersService;
-import com.nonmus.nonmus.util.JwtUtil;
 
 @Service
 public class AuthService {

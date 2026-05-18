@@ -1,4 +1,4 @@
-package com.nonmus.nonmus.util;
+package com.nonmus.nonmus.modules.common.util;
 
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;

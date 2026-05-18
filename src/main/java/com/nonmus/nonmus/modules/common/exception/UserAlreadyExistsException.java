@@ -1,4 +1,4 @@
-package com.nonmus.nonmus.exception;
+package com.nonmus.nonmus.modules.common.exception;
 
 public class UserAlreadyExistsException extends RuntimeException{
     public UserAlreadyExistsException(String message) {

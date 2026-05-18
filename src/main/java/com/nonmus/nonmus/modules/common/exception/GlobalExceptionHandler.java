@@ -1,4 +1,4 @@
-package com.nonmus.nonmus.exception;
+package com.nonmus.nonmus.modules.common.exception;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
