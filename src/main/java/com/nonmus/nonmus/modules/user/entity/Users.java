@@ -1,20 +1,22 @@
 package com.nonmus.nonmus.modules.user.entity;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
 import com.nonmus.nonmus.modules.channel.entity.Channels;
-import com.nonmus.nonmus.modules.subscribe.entity.Subscribers;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import lombok.Data;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 @Entity
 @Data
-public class Users {
+public class Users implements UserDetails {
     @Id
     private UUID id = UUID.randomUUID();
     private String name;
@@ -24,11 +26,19 @@ public class Users {
 
     @Column(name = "password_hash")
     private String password;
-    private String profilePictureUrl;
+
+    private String profilePicture;
 
     @OneToMany(mappedBy = "user")
     private List<Channels> channels;
 
-    @OneToMany(mappedBy = "user")
-    private List<Subscribers> subscriptions;
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return List.of();
+    }
+
+    @Override
+    public String getUsername() {
+        return email;
+    }
 }
