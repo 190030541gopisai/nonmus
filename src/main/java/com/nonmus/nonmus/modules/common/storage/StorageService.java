@@ -6,4 +6,5 @@ public interface StorageService {
     // Accepts any dynamic bucket name
     String uploadFile(String bucketName, MultipartFile file, String folderPath);
     String generatePublicUrl(String key);
+    void deleteFile(String bucketName, String key);
 }

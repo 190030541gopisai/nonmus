@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import java.util.UUID;
 
@@ -50,4 +51,19 @@ public class S3StorageService implements StorageService {
         String cleanDomain = cdnDomain.endsWith("/") ? cdnDomain.substring(0, cdnDomain.length() - 1) : cdnDomain;
         return cleanDomain + "/" + key;
     }
+
+    @Override
+    public void deleteFile(String bucketName, String key) {
+        try{
+            DeleteObjectRequest request = DeleteObjectRequest.builder()
+                        .bucket(bucketName)
+                        .key(key)
+                        .build();
+
+            s3Client.deleteObject(request);
+        }catch (Exception e) {
+            throw new RuntimeException("Cloud storage upload failed", e);
+        }
+    }
 }
+
