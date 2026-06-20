@@ -18,3 +18,8 @@ jwt:
   secret: ${JWT_SECRET:my_secret_key_this_should_be_very_long_and_secure_change_in_production}
   expiration: 3600000
   refresh-expiration: 604800000
+
+
+app:
+  cdn:
+    domain: http://localhost:4566/nonmus-profile-pics
