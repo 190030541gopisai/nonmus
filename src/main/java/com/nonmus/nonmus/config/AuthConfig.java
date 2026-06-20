@@ -10,8 +10,14 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @Configuration
 public class AuthConfig {
 
+    private final CustomUserDetailsService customUserDetailsService;
+
+    public AuthConfig(CustomUserDetailsService customUserDetailsService) {
+        this.customUserDetailsService = customUserDetailsService;
+    }
+
     @Bean
-    public UserDetailsService userDetailsService(CustomUserDetailsService customUserDetailsService) {
+    public UserDetailsService userDetailsService() {
         return customUserDetailsService;
     }
 
