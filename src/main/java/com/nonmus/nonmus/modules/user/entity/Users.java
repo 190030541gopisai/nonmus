@@ -6,16 +6,16 @@ import java.util.UUID;
 
 import com.nonmus.nonmus.modules.channel.entity.Channels;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
+import jakarta.persistence.*;
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 @Entity
-@Data
+@Getter
+@Setter
 public class Users implements UserDetails {
     @Id
     private UUID id = UUID.randomUUID();
@@ -29,7 +29,7 @@ public class Users implements UserDetails {
 
     private String profilePicture;
 
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
     private List<Channels> channels;
 
     @Override
