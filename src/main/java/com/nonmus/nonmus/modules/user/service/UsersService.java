@@ -2,6 +2,7 @@ package com.nonmus.nonmus.modules.user.service;
 
 import java.util.UUID;
 
+import com.nonmus.nonmus.modules.common.exception.UserNotFoundException;
 import org.springframework.stereotype.Service;
 
 import com.nonmus.nonmus.modules.user.dto.request.UserCreateRequest;
@@ -26,6 +27,6 @@ public class UsersService {
     }
 
     public Users getUserByEmail(String email) {
-        return usersRepository.findByEmail(email).orElseThrow(() -> new RuntimeException("User not found"));
+        return usersRepository.findByEmail(email).orElseThrow(() -> new UserNotFoundException("User not found"));
     }
 }
