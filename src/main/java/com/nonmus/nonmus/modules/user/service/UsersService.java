@@ -3,6 +3,9 @@ package com.nonmus.nonmus.modules.user.service;
 import java.util.UUID;
 
 import com.nonmus.nonmus.modules.common.exception.UserNotFoundException;
+import com.nonmus.nonmus.modules.common.storage.StorageService;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import com.nonmus.nonmus.modules.user.dto.request.UserCreateRequest;
@@ -13,9 +16,12 @@ import com.nonmus.nonmus.modules.user.repository.UsersRepository;
 @Service
 public class UsersService {
     private final UsersRepository usersRepository;
+    private final StorageService storageService;
 
-    public UsersService(UsersRepository usersRepository) {
+
+    public UsersService(UsersRepository usersRepository, StorageService storageService) {
         this.usersRepository = usersRepository;
+        this.storageService = storageService;
     }
 
     public Users createUser(UserCreateRequest request) {
@@ -27,6 +33,10 @@ public class UsersService {
     }
 
     public Users getUserByEmail(String email) {
-        return usersRepository.findByEmail(email).orElseThrow(() -> new UserNotFoundException("User not found"));
+        Users user = usersRepository.findByEmail(email).orElseThrow(() -> new UserNotFoundException("User not found"));
+        String key = user.getProfilePicture();
+        String cdnUrl = storageService.generatePublicUrl(key);
+        user.setProfilePicture(cdnUrl);
+        return user;
     }
 }

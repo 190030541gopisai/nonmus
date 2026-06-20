@@ -2,6 +2,8 @@ package com.nonmus.nonmus.modules.user.controller;
 
 import java.util.UUID;
 
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -28,8 +30,10 @@ public class UserController {
         return usersService.createUser(request);
     }
 
-    @GetMapping("/{email}")
-    public Users getUserById(@PathVariable String email) {
+    @GetMapping("/me")
+    public Users getUserById() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String email = (String) authentication.getPrincipal();
         return usersService.getUserByEmail(email);
     }
 }

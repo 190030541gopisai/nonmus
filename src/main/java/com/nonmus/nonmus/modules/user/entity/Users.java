@@ -29,7 +29,7 @@ public class Users implements UserDetails {
 
     private String profilePicture;
 
-    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "user")
     private List<Channels> channels;
 
     @Override
