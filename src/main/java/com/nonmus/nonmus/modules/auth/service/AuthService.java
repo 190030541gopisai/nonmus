@@ -18,11 +18,7 @@ public class AuthService {
 
     private final UsersService usersService;
     private final JwtUtil jwtUtil;
-
-    public AuthService(UsersService usersService, JwtUtil jwtUtil) {
-        this.usersService = usersService;
-        this.jwtUtil = jwtUtil;
-    }
+    private final PasswordEncoder passwordEncoder;
 
     public AuthResponse signup(SignUpRequest request) {
         if(userAlreadyExists(request.getEmail())) {
@@ -35,33 +31,38 @@ public class AuthService {
         userCreateRequest.setPassword(request.getPassword());
 
         Users user = usersService.createUser(userCreateRequest);
-        
-        String accessToken = jwtUtil.generateAccessToken(user.getEmail(), user.getName());
-        String refreshToken = jwtUtil.generateRefreshToken(user.getEmail());
-        
-        return new AuthResponse(accessToken, refreshToken, "User created successfully", 
-                                user.getEmail(), user.getName());
+        return generateAuthResponse(user, "User created successfully");
     }
 
     public AuthResponse login(String email, String password) {
-        var user = usersService.getUserByEmail(email);
-        if(!user.getPassword().equals(password)) {
+        Users user = usersService.getUserByEmail(email);
+
+        if(user == null || !passwordEncoder.matches(password, user.getPassword())) {
             throw new RuntimeException("Invalid credentials");
         }
 
-        String accessToken = jwtUtil.generateAccessToken(user.getEmail(), user.getName());
-        String refreshToken = jwtUtil.generateRefreshToken(user.getEmail());
-        
-        return new AuthResponse(accessToken, refreshToken, "Login successful", 
-                                user.getEmail(), user.getName());
+        return generateAuthResponse(user, "Login successful");
     }
 
     private boolean userAlreadyExists(String email) {
         try {
-            usersService.getUserByEmail(email);
-            return true;
+            Users user = usersService.getUserByEmail(email);
+            return user != null;
         } catch (RuntimeException e) {
             return false;
         }
+    }
+
+    private AuthResponse generateAuthResponse(Users user, String message) {
+        String accessToken = jwtUtil.generateAccessToken(user.getEmail(), user.getName());
+        String refreshToken = jwtUtil.generateRefreshToken(user.getEmail());
+
+        return new AuthResponse(
+                accessToken,
+                refreshToken,
+                message,
+                user.getEmail(),
+                user.getName()
+        );
     }
 }

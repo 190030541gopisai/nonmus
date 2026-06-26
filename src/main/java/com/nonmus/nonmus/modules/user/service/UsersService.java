@@ -26,7 +26,7 @@ public class UsersService {
         Users user = new Users();
         user.setName(request.getName());
         user.setEmail(request.getEmail());
-        user.setPassword(request.getPassword());
+        user.setPassword(passwordEncoder.encode(request.getPassword()));
         return usersRepository.save(user);
     }
 
