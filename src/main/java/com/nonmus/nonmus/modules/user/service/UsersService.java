@@ -4,8 +4,10 @@ import java.util.UUID;
 
 import com.nonmus.nonmus.modules.common.exception.UserNotFoundException;
 import com.nonmus.nonmus.modules.common.storage.StorageService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.nonmus.nonmus.modules.user.dto.request.UserCreateRequest;
@@ -14,15 +16,11 @@ import com.nonmus.nonmus.modules.user.repository.UsersRepository;
 
 
 @Service
+@RequiredArgsConstructor
 public class UsersService {
     private final UsersRepository usersRepository;
     private final StorageService storageService;
-
-
-    public UsersService(UsersRepository usersRepository, StorageService storageService) {
-        this.usersRepository = usersRepository;
-        this.storageService = storageService;
-    }
+    private final PasswordEncoder passwordEncoder;
 
     public Users createUser(UserCreateRequest request) {
         Users user = new Users();

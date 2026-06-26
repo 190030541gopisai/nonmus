@@ -1,9 +1,11 @@
 package com.nonmus.nonmus.modules.user.controller;
 
 import com.nonmus.nonmus.modules.common.exception.UserNotFoundException;
+import com.nonmus.nonmus.modules.common.util.AuthUtil;
 import com.nonmus.nonmus.modules.user.entity.Users;
 import com.nonmus.nonmus.modules.user.repository.UsersRepository;
 import com.nonmus.nonmus.modules.user.service.ProfilePictureService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
@@ -13,14 +15,9 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/v1/users")
+@RequiredArgsConstructor
 public class ProfilePictureController {
-    private final UsersRepository usersRepository;
     private final ProfilePictureService profilePictureService;
-
-    public ProfilePictureController(UsersRepository usersRepository, ProfilePictureService profilePictureService) {
-        this.usersRepository = usersRepository;
-        this.profilePictureService = profilePictureService;
-    }
 
     @PutMapping("/profile-picture")
     public String uploadProfilePicture(@RequestParam("profilePicture") MultipartFile profilePicture) {

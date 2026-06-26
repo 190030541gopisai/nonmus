@@ -1,5 +1,7 @@
 package com.nonmus.nonmus.modules.auth.service;
 
+import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.nonmus.nonmus.modules.auth.dto.request.SignUpRequest;
@@ -11,6 +13,7 @@ import com.nonmus.nonmus.modules.user.entity.Users;
 import com.nonmus.nonmus.modules.user.service.UsersService;
 
 @Service
+@RequiredArgsConstructor
 public class AuthService {
 
     private final UsersService usersService;
