@@ -23,3 +23,10 @@ jwt:
 app:
   cdn:
     domain: http://localhost:4566/nonmus-profile-pics
+
+aws:
+  region: us-east-1
+  s3:
+    endpoint: http://localhost.floci.io:4566
+  access-key: test
+  secret-key: test
