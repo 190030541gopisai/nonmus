@@ -30,9 +30,8 @@ public class UserController {
     }
 
     @GetMapping("/me")
-    public Users getUserById() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String email = (String) authentication.getPrincipal();
+    public Users getLoggedInUser() {
+        String email = AuthUtil.getPrincipal();
         return usersService.getUserByEmail(email);
     }
 }
