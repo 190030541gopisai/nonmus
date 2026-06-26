@@ -21,8 +21,7 @@ public class ProfilePictureController {
 
     @PutMapping("/profile-picture")
     public String uploadProfilePicture(@RequestParam("profilePicture") MultipartFile profilePicture) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String email = (String) authentication.getPrincipal();
+        String email = AuthUtil.getPrincipal();
         return profilePictureService.upload(profilePicture, email);
     }
 }
