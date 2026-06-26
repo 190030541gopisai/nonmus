@@ -1,9 +1,9 @@
 package com.nonmus.nonmus.modules.channel.entity;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
-import com.nonmus.nonmus.modules.subscribe.entity.Subscribers;
 import com.nonmus.nonmus.modules.user.entity.Users;
 import com.nonmus.nonmus.modules.videos.entity.Videos;
 
@@ -13,6 +13,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import lombok.Data;
+import org.springframework.data.annotation.CreatedDate;
 
 @Entity
 @Data
@@ -21,7 +22,12 @@ public class Channels {
     private UUID id = UUID.randomUUID();
     private String name;
     private String description;
-    private String imageUrl;
+    private String logo;
+    private String joinLink;
+    private ChannelType type;
+
+    @CreatedDate
+    private Instant createdAt;
 
     @ManyToOne
     @JoinColumn(name = "owner_id")
@@ -29,7 +35,10 @@ public class Channels {
 
     @OneToMany(mappedBy = "channel")
     private List<Videos> videos;
+}
 
-    @OneToMany(mappedBy = "channel")
-    private List<Subscribers> subscribers;
+
+enum ChannelType {
+    PRIVATE,
+    PUBLIC
 }
