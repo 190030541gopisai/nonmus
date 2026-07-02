@@ -8,6 +8,7 @@ import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.S3ClientBuilder;
+import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 
 import java.net.URI;
 
@@ -52,5 +53,32 @@ public class S3Config {
         return builder
                 .forcePathStyle(true)
                 .build();
+    }
+
+    /**
+     * S3Presigner is a separate AWS SDK class from S3Client.
+     * It is used exclusively to generate short-lived presigned PUT and GET URLs.
+     * Uses the same region, endpoint, and credential configuration as S3Client.
+     */
+    @Bean
+    public S3Presigner s3Presigner() {
+        S3Presigner.Builder builder = S3Presigner.builder();
+
+        if (region != null && !region.trim().isEmpty()) {
+            builder.region(Region.of(region.toLowerCase().replace("_", "-")));
+        }
+
+        if (endpoint != null && !endpoint.trim().isEmpty()) {
+            builder.endpointOverride(URI.create(endpoint));
+        }
+
+        if (accessKey != null && !accessKey.trim().isEmpty() &&
+                secretKey != null && !secretKey.trim().isEmpty()) {
+            builder.credentialsProvider(
+                    StaticCredentialsProvider.create(
+                            AwsBasicCredentials.create(accessKey, secretKey)));
+        }
+
+        return builder.build();
     }
 }
