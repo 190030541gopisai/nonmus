@@ -9,4 +9,5 @@ import com.nonmus.nonmus.modules.user.entity.Users;
 
 public interface UsersRepository extends JpaRepository<Users, UUID> {
     Optional<Users> findByEmail(String email);
+    boolean existsByEmail(String email);
 }

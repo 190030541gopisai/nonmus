@@ -8,6 +8,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 @Service
 @RequiredArgsConstructor
 public class UsersService {
@@ -28,8 +30,11 @@ public class UsersService {
      * To get a renderable URL for the profile picture, call
      * ProfilePictureService.getViewUrl(email) — it generates a fresh presigned GET URL.
      */
-    public Users getUserByEmail(String email) {
-        return usersRepository.findByEmail(email)
-                .orElseThrow(() -> new UserNotFoundException("User not found"));
+    public Optional<Users> getUserByEmail(String email) {
+        return usersRepository.findByEmail(email);
+    }
+
+    public boolean existsByEmail(String email) {
+        return usersRepository.existsByEmail(email);
     }
 }
