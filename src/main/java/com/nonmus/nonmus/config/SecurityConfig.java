@@ -22,9 +22,6 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-                // Tell Spring Security to honour the CORS config from WebMvcConfigurer.
-                // Without this, Spring Security intercepts OPTIONS preflights and returns
-                // 403 before WebConfig's CORS mapping ever runs.
                 .cors(withDefaults())
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(requests -> requests
