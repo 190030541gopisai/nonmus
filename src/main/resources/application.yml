@@ -30,6 +30,7 @@ app:
     max-profile-picture-bytes: 5242880
     # Allowed MIME types for profile pictures
     allowed-image-types: [ image/jpeg, image/png, image/webp, image/gif ]
+    channel-logo-bucket: nonmus-channel
 
 aws:
   region: us-east-1
