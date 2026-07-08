@@ -2,6 +2,7 @@ package com.nonmus.nonmus.modules.user.controller;
 
 import java.util.UUID;
 
+import com.nonmus.nonmus.modules.common.exception.UserNotFoundException;
 import com.nonmus.nonmus.modules.common.util.AuthUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
@@ -32,6 +33,6 @@ public class UserController {
     @GetMapping("/me")
     public Users getLoggedInUser() {
         String email = AuthUtil.getPrincipal();
-        return usersService.getUserByEmail(email);
+        return usersService.getUserByEmail(email).orElseThrow(() -> new UserNotFoundException("User not found"));
     }
 }
