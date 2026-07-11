@@ -15,6 +15,11 @@ public class GlobalExceptionHandler {
         return buildErrorResponse("INTERNAL_SERVER_ERROR", "An unexpected error occurred", HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
+    @ExceptionHandler(BadCredentialsException.class)
+    public ResponseEntity<ErrorResponse> handleBadCredentialsException(BadCredentialsException e) {
+        return buildErrorResponse("INVALID_CREDENTIALS", "Invalid username or password.", HttpStatus.UNAUTHORIZED);
+    }
+
     @ExceptionHandler(UserAlreadyExistsException.class)
     public ResponseEntity<ErrorResponse> handleUserAlreadyExistsException(UserAlreadyExistsException e) {
        return buildErrorResponse("USER_ALREADY_EXISTS", e.getMessage(), HttpStatus.CONFLICT);
