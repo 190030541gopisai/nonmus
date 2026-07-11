@@ -2,6 +2,7 @@ package com.nonmus.nonmus.modules.common.exception;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -30,19 +31,11 @@ public class GlobalExceptionHandler {
         return buildErrorResponse("USER_NOT_FOUND", e.getMessage(), HttpStatus.NOT_FOUND);
     }
 
-    /**
-     * File validation failure — bad MIME type or oversized file.
-     * Returns 400 so the client knows it sent invalid input.
-     */
     @ExceptionHandler(InvalidFileException.class)
     public ResponseEntity<ErrorResponse> handleInvalidFileException(InvalidFileException e) {
         return buildErrorResponse("INVALID_FILE", e.getMessage(), HttpStatus.BAD_REQUEST);
     }
 
-    /**
-     * S3 / storage layer failure — upstream dependency issue, not a client error.
-     * Returns 502 Bad Gateway.
-     */
     @ExceptionHandler(StorageException.class)
     public ResponseEntity<ErrorResponse> handleStorageException(StorageException e) {
         return buildErrorResponse("STORAGE_ERROR", "File storage operation failed. Please try again.", HttpStatus.BAD_GATEWAY);
