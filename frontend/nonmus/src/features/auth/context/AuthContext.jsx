@@ -1,19 +1,46 @@
-import { createContext, useState } from "react";
+import { createContext, useEffect, useState } from "react";
+import { meApi } from "../api/userApi";
+import {refreshApi} from "../api/authApi.js";
 
-export const AuthContext = createContext({
-  email: "",
-  setEmail: () => {},
-  name: "",
-  setName: () => {},
-});
+export const AuthContext = createContext();
 
-export const AuthProvider = ({ children }) => {
-  const [email, setEmail] = useState("");
-  const [name, setName] = useState("");
+export function AuthProvider({ children }) {
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const userData = await meApi();
+        setUser(userData);
+      } catch (err) {
+        try {
+            await refreshApi();
+            const userData = await meApi();
+            setUser(userData);
+        } catch(retryErr) {
+            setUser(null);
+            setError(retryErr);
+        }
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUser();
+  }, []);
 
   return (
-    <AuthContext.Provider value={{ email, setEmail, name, setName }}>
-      {children}
-    </AuthContext.Provider>
+      <AuthContext.Provider
+          value={{
+            user,
+            setUser,
+            loading,
+            error
+          }}
+      >
+        {children}
+      </AuthContext.Provider>
   );
-};
+}

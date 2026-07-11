@@ -9,8 +9,7 @@ const SignUpPage = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
-  const { setEmail: setAuthEmail, setName: setAuthName } =
-    useContext(AuthContext);
+
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -24,12 +23,8 @@ const SignUpPage = () => {
     e.preventDefault();
 
     try {
-      const response = await signupApi({ name, email, password });
-      setAuthEmail(response.email);
-      setAuthName(response.name);
-      saveTokens(response.accessToken, response.refreshToken);
-
-      navigate("/dashboard");
+      await signupApi({ name, email, password });
+      navigate("/");
     } catch (error) {
       console.error("Signup failed:", error);
       const response = error.response;
@@ -54,6 +49,10 @@ const SignUpPage = () => {
       }
     }
   };
+
+  const loginWithGoogle = () => {
+    window.location.href = "http://localhost:8080/oauth2/authorization/google"    
+  }
 
   return (
     <section className="min-h-screen bg-slate-100 px-4 py-8 sm:py-12">
@@ -124,6 +123,7 @@ const SignUpPage = () => {
           <button
             type="button"
             className="flex w-full items-center justify-center gap-3 rounded-xl border border-slate-300 bg-white py-3 text-lg font-semibold text-slate-900 transition hover:bg-slate-50"
+            onClick={() => loginWithGoogle()}
           >
             <span className="inline-flex h-6 w-6 items-center justify-center rounded-full border border-slate-300 bg-white text-sm font-bold text-[#4285F4]">
               G
