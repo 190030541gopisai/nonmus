@@ -35,8 +35,13 @@ public class AuthController {
         return ResponseEntity.status(HttpStatus.OK).body(loginResponse);
     }
 
-    @GetMapping("/refresh")
+    @PostMapping("/refresh")
     public void refresh(HttpServletRequest request, HttpServletResponse response) {
         authService.refreshAccessToken(request, response);
+    }
+
+    @PostMapping("/logout")
+    public void logout(HttpServletResponse response) {
+        authService.logout(response);
     }
 }

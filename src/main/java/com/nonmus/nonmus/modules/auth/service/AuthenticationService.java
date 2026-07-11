@@ -95,4 +95,8 @@ public class AuthenticationService {
 
         return null;
     }
+
+    public void logout(HttpServletResponse response) {
+        authUtil.removeJwtTokenCookiesFromResponse(response);
+    }
 }

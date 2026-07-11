@@ -22,6 +22,11 @@ public class AuthUtil {
         addJwtTokenCookiesToResponse(accessToken, refreshToken, response);
     }
 
+    public void removeJwtTokenCookiesFromResponse(HttpServletResponse response) {
+        removeAccessTokenCookieFromResponse(response);
+        removeRefreshTokenCookieFromResponse(response);
+    }
+
     public void addAccessTokenCookieToResponse(Users user, HttpServletResponse response) {
         String accessToken = jwtUtil.generateAccessToken(user.getEmail(), user.getName());
         addAccessTokenCookieToResponse(accessToken, response);
@@ -39,6 +44,34 @@ public class AuthUtil {
                 .build();
 
         response.addHeader(HttpHeaders.SET_COOKIE, accessCookie.toString());
+    }
+
+    private void removeAccessTokenCookieFromResponse(HttpServletResponse response) {
+        ResponseCookie accessCookie = ResponseCookie.from(
+                        "access_token",
+                        "")
+                .httpOnly(true)
+                .secure(true)              // false for local HTTP development
+                .path("/")
+                .sameSite("Lax")           // or "None" if cross-site
+                .maxAge(Duration.ZERO)
+                .build();
+
+        response.addHeader(HttpHeaders.SET_COOKIE, accessCookie.toString());
+    }
+
+    private void removeRefreshTokenCookieFromResponse(HttpServletResponse response) {
+        ResponseCookie refreshCookie = ResponseCookie.from(
+                        "refresh_token",
+                        "")
+                .httpOnly(true)
+                .secure(true)
+                .path("/")
+                .sameSite("Lax")
+                .maxAge(Duration.ZERO)
+                .build();
+
+        response.addHeader(HttpHeaders.SET_COOKIE, refreshCookie.toString());
     }
 
     private void addRefreshTokenCookieToResponse(String refreshToken, HttpServletResponse response) {
