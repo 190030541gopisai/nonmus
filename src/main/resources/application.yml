@@ -6,9 +6,12 @@ spring:
     username: postgres
     password: ${DB_PASSWORD:root}
     driver-class-name: org.postgresql.Driver
+    hikari:
+      data-source-properties:
+        serverTimezone: Asia/Kolkata
   jpa:
     hibernate:
-      ddl-auto: create-drop
+      ddl-auto: update
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
