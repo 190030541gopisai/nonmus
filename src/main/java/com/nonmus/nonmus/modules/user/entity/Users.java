@@ -5,10 +5,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
-import com.nonmus.nonmus.modules.channel.entity.Channels;
-
+import com.nonmus.nonmus.modules.user.enums.Provider;
 import jakarta.persistence.*;
-import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.data.annotation.CreatedDate;
@@ -29,10 +27,15 @@ public class Users implements UserDetails {
     @Column(unique = true)
     private String email;
 
-    @Column(name = "password_hash")
+    @Column(name = "password_hash", nullable = true)
     private String password;
 
     private String profilePicture;
+
+    @Enumerated(EnumType.STRING)
+    private Provider provider;
+
+    private String externalProfilePictureUrl;
 
     @CreatedDate
     @Column(updatable = false)

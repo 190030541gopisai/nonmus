@@ -1,16 +1,18 @@
 package com.nonmus.nonmus.modules.auth.controller;
 
 import com.nonmus.nonmus.modules.auth.dto.request.LoginRequest;
+import com.nonmus.nonmus.modules.auth.dto.response.LoginResponse;
+import com.nonmus.nonmus.modules.auth.dto.response.SignUpResponse;
 import com.nonmus.nonmus.modules.auth.service.AuthenticationService;
 import com.nonmus.nonmus.modules.auth.service.UserRegistrationService;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 import com.nonmus.nonmus.modules.auth.dto.request.SignUpRequest;
-import com.nonmus.nonmus.modules.auth.dto.response.AuthResponse;
 
 
 @RestController
@@ -22,12 +24,19 @@ public class AuthController {
     private final UserRegistrationService userRegistrationService;
 
     @PostMapping("/signup")
-    public AuthResponse signup(@RequestBody SignUpRequest request) {
-        return userRegistrationService.signup(request);
+    public ResponseEntity<SignUpResponse> signup(@RequestBody SignUpRequest request, HttpServletResponse response) {
+        SignUpResponse signUpResponse = userRegistrationService.signup(request, response);
+        return ResponseEntity.status(HttpStatus.CREATED).body(signUpResponse);
     }
 
     @PostMapping("/login")
-    public AuthResponse login(@RequestBody LoginRequest request) {
-        return authService.login(request.getEmail(), request.getPassword());
+    public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest request, HttpServletResponse response) {
+        LoginResponse loginResponse = authService.login(request.getEmail(), request.getPassword(), response);
+        return ResponseEntity.status(HttpStatus.OK).body(loginResponse);
+    }
+
+    @GetMapping("/refresh")
+    public void refresh(HttpServletRequest request, HttpServletResponse response) {
+        authService.refreshAccessToken(request, response);
     }
 }

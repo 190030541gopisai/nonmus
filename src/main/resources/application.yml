@@ -13,6 +13,13 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
     show-sql: true
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: ${GOOGLE_OAUTH_CLIENT_ID}
+            client-secret: ${GOOGLE_OAUTH_CLIENT_SECRET}
 
 jwt:
   secret: ${JWT_SECRET:my_secret_key_this_should_be_very_long_and_secure_change_in_production}

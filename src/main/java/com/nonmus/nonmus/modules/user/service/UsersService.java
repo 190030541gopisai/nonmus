@@ -1,6 +1,6 @@
 package com.nonmus.nonmus.modules.user.service;
 
-import com.nonmus.nonmus.modules.common.exception.UserNotFoundException;
+import com.nonmus.nonmus.modules.user.dto.request.OAuthUserCreateRequest;
 import com.nonmus.nonmus.modules.user.dto.request.UserCreateRequest;
 import com.nonmus.nonmus.modules.user.entity.Users;
 import com.nonmus.nonmus.modules.user.repository.UsersRepository;
@@ -22,6 +22,13 @@ public class UsersService {
         user.setName(request.getName());
         user.setEmail(request.getEmail());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
+    public Users createOAuthUser(OAuthUserCreateRequest request) {
+        Users user = new Users();
+        user.setName(request.getName());
+        user.setEmail(request.getEmail());
+        user.setExternalProfilePictureUrl(request.getExternalProfilePictureUrl());
+
+        user.setProfilePicture("users/" + request.getEmail() + "/default-avatar.png");
         return usersRepository.save(user);
     }
 
