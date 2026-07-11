@@ -1,13 +1,13 @@
 package com.nonmus.nonmus.modules.auth.service;
 
 import com.nonmus.nonmus.modules.auth.dto.request.SignUpRequest;
-import com.nonmus.nonmus.modules.auth.dto.response.AuthResponse;
-import com.nonmus.nonmus.modules.auth.util.AuthResponseGenerator;
+import com.nonmus.nonmus.modules.auth.dto.response.SignUpResponse;
 import com.nonmus.nonmus.modules.common.exception.UserAlreadyExistsException;
-import com.nonmus.nonmus.modules.common.util.JwtUtil;
+import com.nonmus.nonmus.modules.common.util.AuthUtil;
 import com.nonmus.nonmus.modules.user.dto.request.UserCreateRequest;
 import com.nonmus.nonmus.modules.user.entity.Users;
 import com.nonmus.nonmus.modules.user.service.UsersService;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -17,9 +17,9 @@ import org.springframework.stereotype.Service;
 public class UserRegistrationService {
     private final UsersService usersService;
     private final PasswordEncoder passwordEncoder;
-    private final AuthResponseGenerator authResponseGenerator;
+    private final AuthUtil authUtil;
 
-    public AuthResponse signup(SignUpRequest request) {
+    public SignUpResponse signup(SignUpRequest request, HttpServletResponse response) {
         if(usersService.existsByEmail(request.getEmail())) {
             throw new UserAlreadyExistsException("User already exists");
         }
@@ -30,6 +30,11 @@ public class UserRegistrationService {
         userCreateRequest.setPassword(request.getPassword());
 
         Users user = usersService.createUser(userCreateRequest);
-        return authResponseGenerator.generateAuthResponse(user, "User created successfully");
+        authUtil.addJwtTokenCookiesToResponse(user, response);
+
+        SignUpResponse signUpResponse = new SignUpResponse();
+        signUpResponse.setMessage("Signup successful");
+
+        return signUpResponse;
     }
 }
