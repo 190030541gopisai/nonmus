@@ -1,6 +1,6 @@
 package com.nonmus.nonmus.modules.user.service;
 
-import com.nonmus.nonmus.config.StorageProperties;
+import com.nonmus.nonmus.config.props.StorageProperties;
 import com.nonmus.nonmus.modules.common.exception.InvalidFileException;
 import com.nonmus.nonmus.modules.common.storage.StorageService;
 import com.nonmus.nonmus.modules.common.storage.dto.PresignedUploadResult;
@@ -87,7 +87,7 @@ public class ProfilePictureService {
 
         // Delete old profile picture from S3 before replacing it
         String previousKey = user.getProfilePicture();
-        if (StringUtils.hasText(previousKey)) {
+        if (StringUtils.hasText(previousKey) && !previousKey.equals(req.s3Key())) {
             try {
                 storageService.deleteFile(storageProperties.getProfilePictureBucket(), previousKey);
                 log.info("Deleted old profile picture key={} for user={}", previousKey, email);
