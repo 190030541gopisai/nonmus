@@ -22,6 +22,11 @@ public class UsersService {
         user.setName(request.getName());
         user.setEmail(request.getEmail());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
+        // Set default profile picture key
+        user.setProfilePicture("users/" + request.getEmail() + "/default-avatar.png");
+        return usersRepository.save(user);
+    }
+
     public Users createOAuthUser(OAuthUserCreateRequest request) {
         Users user = new Users();
         user.setName(request.getName());
