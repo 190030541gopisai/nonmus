@@ -9,25 +9,25 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  useEffect(() => {
     const fetchUser = async () => {
-      try {
-        const userData = await meApi();
-        setUser(userData);
-      } catch (err) {
         try {
-            await refreshApi();
             const userData = await meApi();
             setUser(userData);
-        } catch(retryErr) {
-            setUser(null);
-            setError(retryErr);
+        } catch (err) {
+            try {
+                await refreshApi();
+                const userData = await meApi();
+                setUser(userData);
+            } catch(retryErr) {
+                setUser(null);
+                setError(retryErr);
+            }
+        } finally {
+            setLoading(false);
         }
-      } finally {
-        setLoading(false);
-      }
     };
 
+  useEffect(() => {
     fetchUser();
   }, []);
 

@@ -13,5 +13,9 @@ export const signupApi = async (data) => {
 };
 
 export const refreshApi = async () => {
-  await apiClient.get(`${PREFIX}/refresh`);
+  await apiClient.post(`${PREFIX}/refresh`);
 };
+
+export const logoutApi = async () => {
+  await apiClient.post(`${PREFIX}/logout`)
+}

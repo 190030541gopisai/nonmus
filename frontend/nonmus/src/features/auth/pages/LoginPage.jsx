@@ -1,36 +1,25 @@
 import { loginApi } from "../api/authApi";
-import { saveTokens, getAccessToken } from "../utils/tokenStorage";
-import { useContext, useState, useEffect } from "react";
-import { AuthContext } from "../context/AuthContext";
+import {useContext, useState} from "react";
 import { Link, useNavigate } from "react-router-dom";
+import {loginWithGoogle} from "../utils/GoogleUtil.js";
 
 const LoginPage = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
 
-  const { setEmail: setAuthEmail, setName: setAuthName } =
-    useContext(AuthContext);
-
   const navigate = useNavigate();
-
-  useEffect(() => {
-    // If user already has a valid access token, redirect to dashboard
-    if (getAccessToken()) {
-      navigate("/", { replace: true });
-    }
-  }, [navigate]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       const response = await loginApi({ email, password });
-      setAuthEmail(response.email);
-      setAuthName(response.name);
 
-      saveTokens(response.accessToken, response.refreshToken);
+      const message = response?.message;
 
-      navigate("/");
+      if(message == "Login Successfull") {
+        navigate("/")
+      }
     } catch (error) {
       console.error("Login failed:", error);
       setError("Login failed. Please check your credentials and try again.");
@@ -113,6 +102,7 @@ const LoginPage = () => {
           </div>
 
           <button
+              onClick={loginWithGoogle}
             type="button"
             className="flex w-full items-center justify-center gap-3 rounded-xl border border-slate-300 bg-white py-3 text-lg font-semibold text-slate-900 transition hover:bg-slate-50"
           >

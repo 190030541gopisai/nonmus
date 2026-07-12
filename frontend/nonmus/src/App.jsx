@@ -3,7 +3,7 @@ import SignUpPage from "./features/auth/pages/SignUpPage";
 import DashboardPage from "./features/auth/pages/DashboardPage";
 import ProtectedRoute from "./routes/ProtectedRoute";
 import {BrowserRouter, Navigate, Route, Routes} from "react-router-dom";
-import {PublicRoute} from "./routes/PublicRoute.jsx";
+import PublicRoute from "./routes/PublicRoute.jsx";
 
 function App() {
     return (

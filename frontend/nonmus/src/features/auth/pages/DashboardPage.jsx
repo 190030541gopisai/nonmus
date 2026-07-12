@@ -1,18 +1,22 @@
-import { clearTokens } from "../utils/tokenStorage";
 import { useContext } from "react";
 import { AuthContext } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
-import ProfilePictureUploader from "../components/ProfilePictureUploader"; 
-import { useAuth } from "../hooks/useAuth";
+import ProfilePictureUploader from "../components/ProfilePictureUploader";
+import {logoutApi} from "../api/authApi.js";
 
 const DashboardPage = () => {
-  const { user } = useContext(AuthContext);
+  const { user, setUser } = useContext(AuthContext);
   const { name, email } = user || {};
   const navigate = useNavigate();
 
-  const handleLogout = () => {
-    clearTokens();
-    navigate("/login", { replace: true });
+  const handleLogout = async () => {
+        try{
+          await logoutApi();
+        }
+        finally {
+          setUser(null);
+        }
+        navigate("/login", { replace: true });
   };
 
   // Derive initials for the greeting avatar fallback

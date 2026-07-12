@@ -1,8 +1,7 @@
 import { signupApi } from "../api/authApi";
-import { saveTokens, getAccessToken } from "../utils/tokenStorage";
-import { useContext, useState, useEffect } from "react";
-import { AuthContext } from "../context/AuthContext";
+import {useState, useEffect, useContext} from "react";
 import { Link, useNavigate } from "react-router-dom";
+import {loginWithGoogle} from "../utils/GoogleUtil.js";
 
 const SignUpPage = () => {
   const [name, setName] = useState("");
@@ -11,13 +10,6 @@ const SignUpPage = () => {
   const [error, setError] = useState("");
 
   const navigate = useNavigate();
-
-  useEffect(() => {
-    // If user already has a valid access token, redirect to dashboard
-    if (getAccessToken()) {
-      navigate("/", { replace: true });
-    }
-  }, [navigate]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -49,10 +41,6 @@ const SignUpPage = () => {
       }
     }
   };
-
-  const loginWithGoogle = () => {
-    window.location.href = "http://localhost:8080/oauth2/authorization/google"    
-  }
 
   return (
     <section className="min-h-screen bg-slate-100 px-4 py-8 sm:py-12">
