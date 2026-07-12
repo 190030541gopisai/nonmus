@@ -5,17 +5,12 @@ import ProfilePictureUploader from "../components/ProfilePictureUploader";
 import {logoutApi} from "../api/authApi.js";
 
 const DashboardPage = () => {
-  const { user, setUser } = useContext(AuthContext);
+  const { user, logout } = useContext(AuthContext);
   const { name, email } = user || {};
   const navigate = useNavigate();
 
   const handleLogout = async () => {
-        try{
-          await logoutApi();
-        }
-        finally {
-          setUser(null);
-        }
+        await logout();
         navigate("/login", { replace: true });
   };
 
