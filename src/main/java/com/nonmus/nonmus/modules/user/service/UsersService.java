@@ -3,6 +3,7 @@ package com.nonmus.nonmus.modules.user.service;
 import com.nonmus.nonmus.modules.user.dto.request.OAuthUserCreateRequest;
 import com.nonmus.nonmus.modules.user.dto.request.UserCreateRequest;
 import com.nonmus.nonmus.modules.user.entity.Users;
+import com.nonmus.nonmus.modules.user.enums.Provider;
 import com.nonmus.nonmus.modules.user.repository.UsersRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -22,8 +23,8 @@ public class UsersService {
         user.setName(request.getName());
         user.setEmail(request.getEmail());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
-        // Set default profile picture key
-        user.setProfilePicture("users/" + request.getEmail() + "/default-avatar.png");
+        user.setProfilePicture("users/default-avatar.png");
+        user.setProvider(Provider.LOCAL);
         return usersRepository.save(user);
     }
 
@@ -31,9 +32,8 @@ public class UsersService {
         Users user = new Users();
         user.setName(request.getName());
         user.setEmail(request.getEmail());
-        user.setExternalProfilePictureUrl(request.getExternalProfilePictureUrl());
-
-        user.setProfilePicture("users/" + request.getEmail() + "/default-avatar.png");
+        user.setProfilePicture(request.getExternalProfilePictureUrl());
+        user.setProvider(request.getProvider());
         return usersRepository.save(user);
     }
 

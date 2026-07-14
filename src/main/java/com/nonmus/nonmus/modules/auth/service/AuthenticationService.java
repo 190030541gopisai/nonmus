@@ -6,6 +6,7 @@ import com.nonmus.nonmus.modules.common.exception.UserNotFoundException;
 import com.nonmus.nonmus.modules.common.util.AuthUtil;
 import com.nonmus.nonmus.modules.common.util.JwtUtil;
 import com.nonmus.nonmus.modules.user.dto.request.OAuthUserCreateRequest;
+import com.nonmus.nonmus.modules.user.enums.Provider;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -46,7 +47,7 @@ public class AuthenticationService {
         return loginResponse;
     }
 
-    public OAuth2Response oauthSingIn(OAuth2User oauthUser, HttpServletResponse response){
+    public OAuth2Response oauthSingIn(OAuth2User oauthUser, Provider provider, HttpServletResponse response){
         String email = oauthUser.getAttribute("email");
 
         if(usersService.existsByEmail(email)) {
@@ -63,6 +64,7 @@ public class AuthenticationService {
         request.setName(oauthUser.getAttribute("name"));
         request.setEmail(oauthUser.getAttribute("email"));
         request.setExternalProfilePictureUrl(oauthUser.getAttribute("picture"));
+        request.setProvider(provider);
 
         Users user = usersService.createOAuthUser(request);
         authUtil.addJwtTokenCookiesToResponse(user, response);

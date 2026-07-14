@@ -35,8 +35,6 @@ public class Users implements UserDetails {
     @Enumerated(EnumType.STRING)
     private Provider provider;
 
-    private String externalProfilePictureUrl;
-
     @CreatedDate
     @Column(updatable = false)
     private Instant createdAt;
