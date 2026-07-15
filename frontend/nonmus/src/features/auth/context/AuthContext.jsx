@@ -33,23 +33,13 @@ export function AuthProvider({children}) {
     }, [fetchUser]);
 
     const login = async (credentials) => {
-        setLoading(true);
-        try {
-            await loginApi(credentials);
-            await fetchUser();
-        } finally {
-            setLoading(false);
-        }
+        await loginApi(credentials);
+        await fetchUser();
     };
 
     const signup = async (data) => {
-        setLoading(true);
-        try {
-            await signupApi(data);
-            await fetchUser();
-        } finally {
-            setLoading(false);
-        }
+        await signupApi(data);
+        await fetchUser();
     };
 
     const logout = async () => {
