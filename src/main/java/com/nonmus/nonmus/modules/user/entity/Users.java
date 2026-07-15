@@ -33,6 +33,9 @@ public class Users implements UserDetails {
     private String profilePicture;
 
     @Enumerated(EnumType.STRING)
+    private Provider profilePictureProvider;
+
+    @Enumerated(EnumType.STRING)
     private Provider provider;
 
     @CreatedDate

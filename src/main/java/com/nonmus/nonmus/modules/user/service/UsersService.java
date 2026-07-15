@@ -19,12 +19,17 @@ public class UsersService {
     private final PasswordEncoder passwordEncoder;
 
     public Users createUser(UserCreateRequest request) {
+
         Users user = new Users();
         user.setName(request.getName());
         user.setEmail(request.getEmail());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
         user.setProfilePicture("users/default-avatar.png");
-        user.setProvider(Provider.LOCAL);
+
+        Provider localProvider = Provider.LOCAL;
+
+        user.setProvider(localProvider);
+        user.setProfilePictureProvider(localProvider);
         return usersRepository.save(user);
     }
 
@@ -34,6 +39,7 @@ public class UsersService {
         user.setEmail(request.getEmail());
         user.setProfilePicture(request.getExternalProfilePictureUrl());
         user.setProvider(request.getProvider());
+        user.setProfilePictureProvider(request.getProvider());
         return usersRepository.save(user);
     }
 

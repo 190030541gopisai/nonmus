@@ -9,6 +9,7 @@ import com.nonmus.nonmus.modules.user.dto.request.PresignedUrlRequest;
 import com.nonmus.nonmus.modules.user.dto.response.PresignedUrlResponse;
 import com.nonmus.nonmus.modules.user.dto.response.ViewUrlResponse;
 import com.nonmus.nonmus.modules.user.entity.Users;
+import com.nonmus.nonmus.modules.user.enums.Provider;
 import com.nonmus.nonmus.modules.user.repository.UsersRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -99,6 +100,7 @@ public class ProfilePictureService {
         }
 
         user.setProfilePicture(req.s3Key());
+        user.setProfilePictureProvider(Provider.LOCAL);
         usersRepository.save(user);
 
         log.info("Profile picture confirmed for user={} key={}", email, req.s3Key());
@@ -128,6 +130,12 @@ public class ProfilePictureService {
         if (!StringUtils.hasText(key)) {
             // No profile picture set — return empty response, not an error
             return new ViewUrlResponse("", 0);
+        }
+
+        Provider profilePictureProvider = user.getProfilePictureProvider();
+
+        if(profilePictureProvider == Provider.GOOGLE) {
+            return new ViewUrlResponse(key, storageProperties.getViewExpirySeconds());
         }
 
         String viewUrl = storageService.generatePresignedViewUrl(
