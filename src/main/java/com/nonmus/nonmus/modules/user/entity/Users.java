@@ -24,7 +24,7 @@ public class Users implements UserDetails {
     private UUID id = UUID.randomUUID();
     private String name;
 
-    @Column(unique = true)
+    @Column
     private String email;
 
     @Column(name = "password_hash", nullable = true)

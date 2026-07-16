@@ -3,6 +3,10 @@ package com.nonmus.nonmus.filter;
 import java.io.IOException;
 import java.util.Collections;
 
+import com.nonmus.nonmus.modules.user.entity.Users;
+import com.nonmus.nonmus.modules.user.enums.Provider;
+import com.nonmus.nonmus.modules.user.service.UsersService;
+import com.nonmus.nonmus.security.AuthenticatedUser;
 import jakarta.servlet.http.Cookie;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -28,14 +32,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
 
     private final JwtUtil jwtUtil;
-    private final UserDetailsService userDetailsService;
+    private final UsersService usersService;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
 
         String token = extractToken(request);
-
         if (token == null) {
             filterChain.doFilter(request, response);
             return;
@@ -43,10 +46,17 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         if (SecurityContextHolder.getContext().getAuthentication() == null && jwtUtil.isTokenValid(token)) {
             String email = jwtUtil.getEmailFromToken(token);
-            UserDetails user = userDetailsService.loadUserByUsername(email);
+            Provider provider = jwtUtil.getProviderFromToken(token);
+
+            Users user = usersService.getUsersByEmailAndProvider(email, provider).orElse(null);
+
             if(user != null) {
+                AuthenticatedUser authenticatedUser = new AuthenticatedUser();
+                authenticatedUser.setEmail(user.getUsername());
+                authenticatedUser.setProvider(provider);
+
                 UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
-                        user.getUsername(),
+                        authenticatedUser,
                         null,
                         Collections.emptyList());
 

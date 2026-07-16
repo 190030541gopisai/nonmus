@@ -43,16 +43,11 @@ public class UsersService {
         return usersRepository.save(user);
     }
 
-    /**
-     * Returns the user entity with the raw S3 key in profilePicture.
-     * To get a renderable URL for the profile picture, call
-     * ProfilePictureService.getViewUrl(email) — it generates a fresh presigned GET URL.
-     */
-    public Optional<Users> getUserByEmail(String email) {
-        return usersRepository.findByEmail(email);
+    public Optional<Users> getUsersByEmailAndProvider(String email, Provider provider) {
+        return usersRepository.findByEmailAndProvider(email, provider);
     }
 
-    public boolean existsByEmail(String email) {
-        return usersRepository.existsByEmail(email);
+    public boolean existsByEmailAndProvider(String email, Provider provider) {
+        return usersRepository.existsByEmailAndProvider(email, provider);
     }
 }

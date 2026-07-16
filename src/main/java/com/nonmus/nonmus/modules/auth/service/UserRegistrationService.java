@@ -6,6 +6,7 @@ import com.nonmus.nonmus.modules.common.exception.UserAlreadyExistsException;
 import com.nonmus.nonmus.modules.common.util.AuthUtil;
 import com.nonmus.nonmus.modules.user.dto.request.UserCreateRequest;
 import com.nonmus.nonmus.modules.user.entity.Users;
+import com.nonmus.nonmus.modules.user.enums.Provider;
 import com.nonmus.nonmus.modules.user.service.UsersService;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -20,7 +21,8 @@ public class UserRegistrationService {
     private final AuthUtil authUtil;
 
     public SignUpResponse signup(SignUpRequest request, HttpServletResponse response) {
-        if(usersService.existsByEmail(request.getEmail())) {
+        Provider provider = Provider.LOCAL;
+        if(usersService.existsByEmailAndProvider(request.getEmail(), provider)) {
             throw new UserAlreadyExistsException("User already exists");
         }
 
@@ -30,7 +32,7 @@ public class UserRegistrationService {
         userCreateRequest.setPassword(request.getPassword());
 
         Users user = usersService.createUser(userCreateRequest);
-        authUtil.addJwtTokenCookiesToResponse(user, response);
+        authUtil.addJwtTokenCookiesToResponse(user, provider, response);
 
         SignUpResponse signUpResponse = new SignUpResponse();
         signUpResponse.setMessage("Signup successful");

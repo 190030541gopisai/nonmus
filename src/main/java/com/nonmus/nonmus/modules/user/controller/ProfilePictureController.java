@@ -5,7 +5,9 @@ import com.nonmus.nonmus.modules.user.dto.request.ConfirmUploadRequest;
 import com.nonmus.nonmus.modules.user.dto.request.PresignedUrlRequest;
 import com.nonmus.nonmus.modules.user.dto.response.PresignedUrlResponse;
 import com.nonmus.nonmus.modules.user.dto.response.ViewUrlResponse;
+import com.nonmus.nonmus.modules.user.enums.Provider;
 import com.nonmus.nonmus.modules.user.service.ProfilePictureService;
+import com.nonmus.nonmus.security.AuthenticatedUser;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -28,8 +30,11 @@ public class ProfilePictureController {
     @PostMapping("/presigned-url")
     public ResponseEntity<PresignedUrlResponse> getPresignedUploadUrl(
             @RequestBody PresignedUrlRequest request) {
-        String email = AuthUtil.getPrincipal();
-        PresignedUrlResponse response = profilePictureService.generatePresignedUploadUrl(request, email);
+        AuthenticatedUser authenticatedUser = AuthUtil.getPrincipal();
+        String email = authenticatedUser.getEmail();
+        Provider provider = authenticatedUser.getProvider();
+
+        PresignedUrlResponse response = profilePictureService.generatePresignedUploadUrl(request, email, provider);
         return ResponseEntity.ok(response);
     }
 
@@ -43,8 +48,11 @@ public class ProfilePictureController {
     @PutMapping("/confirm")
     public ResponseEntity<ViewUrlResponse> confirmUpload(
             @RequestBody ConfirmUploadRequest request) {
-        String email = AuthUtil.getPrincipal();
-        ViewUrlResponse response = profilePictureService.confirmUpload(request, email);
+        AuthenticatedUser authenticatedUser = AuthUtil.getPrincipal();
+        String email = authenticatedUser.getEmail();
+        Provider provider = authenticatedUser.getProvider();
+
+        ViewUrlResponse response = profilePictureService.confirmUpload(request, email, provider);
         return ResponseEntity.ok(response);
     }
 
@@ -57,8 +65,11 @@ public class ProfilePictureController {
      */
     @GetMapping("/view-url")
     public ResponseEntity<ViewUrlResponse> getViewUrl() {
-        String email = AuthUtil.getPrincipal();
-        ViewUrlResponse response = profilePictureService.getViewUrl(email);
+        AuthenticatedUser authenticatedUser = AuthUtil.getPrincipal();
+        String email = authenticatedUser.getEmail();
+        Provider provider = authenticatedUser.getProvider();
+
+        ViewUrlResponse response = profilePictureService.getViewUrl(email, provider);
         return ResponseEntity.ok(response);
     }
 }

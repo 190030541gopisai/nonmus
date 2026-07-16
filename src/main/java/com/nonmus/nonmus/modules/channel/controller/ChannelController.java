@@ -3,6 +3,8 @@ package com.nonmus.nonmus.modules.channel.controller;
 import com.nonmus.nonmus.modules.channel.dto.response.ChannelResponse;
 import com.nonmus.nonmus.modules.channel.service.ChannelService;
 import com.nonmus.nonmus.modules.common.util.AuthUtil;
+import com.nonmus.nonmus.modules.user.enums.Provider;
+import com.nonmus.nonmus.security.AuthenticatedUser;
 import org.apache.coyote.Response;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,8 +25,11 @@ public class ChannelController {
     
     @PostMapping
     public ResponseEntity<ChannelResponse> createChannel(@RequestBody CreateChannelRequest request) {
-        String email = AuthUtil.getPrincipal();
-        ChannelResponse channelResponse = channelService.createChannel(request, email);
+        AuthenticatedUser authenticatedUser = AuthUtil.getPrincipal();
+        String email = authenticatedUser.getEmail();
+        Provider provider = authenticatedUser.getProvider();
+
+        ChannelResponse channelResponse = channelService.createChannel(request, email, provider);
         return ResponseEntity.status(HttpStatus.CREATED).body(channelResponse);
     }
 }

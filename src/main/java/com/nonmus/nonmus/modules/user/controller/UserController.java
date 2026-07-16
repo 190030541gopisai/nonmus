@@ -4,6 +4,8 @@ import java.util.UUID;
 
 import com.nonmus.nonmus.modules.common.exception.UserNotFoundException;
 import com.nonmus.nonmus.modules.common.util.AuthUtil;
+import com.nonmus.nonmus.modules.user.enums.Provider;
+import com.nonmus.nonmus.security.AuthenticatedUser;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -32,7 +34,10 @@ public class UserController {
 
     @GetMapping("/me")
     public Users getLoggedInUser() {
-        String email = AuthUtil.getPrincipal();
-        return usersService.getUserByEmail(email).orElseThrow(() -> new UserNotFoundException("User not found"));
+        AuthenticatedUser authenticatedUser= AuthUtil.getPrincipal();
+        String email = authenticatedUser.getEmail();
+        Provider provider = authenticatedUser.getProvider();
+
+        return usersService.getUsersByEmailAndProvider(email, provider).orElseThrow(() -> new UserNotFoundException("User not found"));
     }
 }

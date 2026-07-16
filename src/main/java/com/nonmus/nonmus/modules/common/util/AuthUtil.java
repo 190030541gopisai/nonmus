@@ -1,6 +1,8 @@
 package com.nonmus.nonmus.modules.common.util;
 
 import com.nonmus.nonmus.modules.user.entity.Users;
+import com.nonmus.nonmus.modules.user.enums.Provider;
+import com.nonmus.nonmus.security.AuthenticatedUser;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
@@ -16,9 +18,9 @@ import java.time.Duration;
 public class AuthUtil {
     private final JwtUtil jwtUtil;
 
-    public void addJwtTokenCookiesToResponse(Users user, HttpServletResponse response) {
-        String accessToken = jwtUtil.generateAccessToken(user.getEmail(), user.getName());
-        String refreshToken = jwtUtil.generateRefreshToken(user.getEmail());
+    public void addJwtTokenCookiesToResponse(Users user, Provider provider, HttpServletResponse response) {
+        String accessToken = jwtUtil.generateAccessToken(user.getEmail(), user.getName(), provider);
+        String refreshToken = jwtUtil.generateRefreshToken(user.getEmail(), provider);
         addJwtTokenCookiesToResponse(accessToken, refreshToken, response);
     }
 
@@ -27,8 +29,8 @@ public class AuthUtil {
         removeRefreshTokenCookieFromResponse(response);
     }
 
-    public void addAccessTokenCookieToResponse(Users user, HttpServletResponse response) {
-        String accessToken = jwtUtil.generateAccessToken(user.getEmail(), user.getName());
+    public void addAccessTokenCookieToResponse(Users user, Provider provider, HttpServletResponse response) {
+        String accessToken = jwtUtil.generateAccessToken(user.getEmail(), user.getName(), provider);
         addAccessTokenCookieToResponse(accessToken, response);
     }
 
@@ -93,8 +95,8 @@ public class AuthUtil {
         addRefreshTokenCookieToResponse(refreshToken, response);
     }
 
-    public static String getPrincipal() {
+    public static AuthenticatedUser getPrincipal() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        return (String) authentication.getPrincipal();
+        return (AuthenticatedUser) authentication.getPrincipal();
     }
 }

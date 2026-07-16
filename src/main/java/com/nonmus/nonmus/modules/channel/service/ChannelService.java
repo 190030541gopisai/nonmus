@@ -7,6 +7,7 @@ import com.nonmus.nonmus.modules.channel.repository.ChannelsRepository;
 import com.nonmus.nonmus.modules.common.exception.UserNotFoundException;
 import com.nonmus.nonmus.modules.common.util.AuthUtil;
 import com.nonmus.nonmus.modules.user.entity.Users;
+import com.nonmus.nonmus.modules.user.enums.Provider;
 import com.nonmus.nonmus.modules.user.repository.UsersRepository;
 import com.nonmus.nonmus.modules.user.service.UsersService;
 import lombok.RequiredArgsConstructor;
@@ -18,8 +19,8 @@ public class ChannelService {
     private final UsersService usersService;
     private final ChannelsRepository channelsRepository;
 
-    public ChannelResponse createChannel(CreateChannelRequest request, String email) {
-        if(!usersService.existsByEmail(email)) {
+    public ChannelResponse createChannel(CreateChannelRequest request, String email, Provider provider) {
+        if(!usersService.existsByEmailAndProvider(email, provider)) {
             throw new UserNotFoundException("User not found");
         }
 
@@ -29,7 +30,7 @@ public class ChannelService {
         channel.setDescription(request.getDescription());
         channel.setType(request.getType());
 
-        Users user = usersService.getUserByEmail(email).orElseThrow(() -> new UserNotFoundException("User not found"));
+        Users user = usersService.getUsersByEmailAndProvider(email, provider).orElseThrow(() -> new UserNotFoundException("User not found"));
         channel.setCreatedBy(user);
         channel.setUpdatedBy(user);
 
