@@ -15,13 +15,13 @@ const SignUpPage = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     setError("");
 
     try {
-      signup({
+      await signup({
         name,
         email,
         password,

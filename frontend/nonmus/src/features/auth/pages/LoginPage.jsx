@@ -13,11 +13,11 @@ const LoginPage = () => {
 
   const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     try {
-      login({ email, password });
+      await login({ email, password });
     } catch (err) {
       console.error(err);
       setError("Login failed. Please check your credentials and try again.");
