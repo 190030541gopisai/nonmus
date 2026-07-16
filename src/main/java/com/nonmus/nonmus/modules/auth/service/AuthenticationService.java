@@ -31,7 +31,7 @@ public class AuthenticationService {
     private final AuthUtil authUtil;
     private final JwtUtil jwtUtil;
 
-    public LoginResponse login(String email, String password, HttpServletResponse response) {
+    public LoginResponse login(String email, String password, boolean rememberMe, HttpServletResponse response) {
         Provider provider = Provider.LOCAL;
         Users user = usersService.getUsersByEmailAndProvider(email, provider)
                 .orElseThrow(() -> new BadCredentialsException("Invalid credentials"));
@@ -40,7 +40,7 @@ public class AuthenticationService {
             throw new BadCredentialsException("Invalid credentials");
         }
 
-        authUtil.addJwtTokenCookiesToResponse(user, provider, response);
+        authUtil.addJwtTokenCookiesToResponse(user, provider, rememberMe, response);
 
         LoginResponse loginResponse = new LoginResponse();
         loginResponse.setMessage("Login Successfull");
@@ -50,10 +50,11 @@ public class AuthenticationService {
 
     public OAuth2Response oauthSingIn(OAuth2User oauthUser, Provider provider, HttpServletResponse response){
         String email = oauthUser.getAttribute("email");
+        boolean rememberMe = true;
 
         if(usersService.existsByEmailAndProvider(email, provider)) {
             Users user = usersService.getUsersByEmailAndProvider(email, provider).get();
-            authUtil.addJwtTokenCookiesToResponse(user, provider, response);
+            authUtil.addJwtTokenCookiesToResponse(user, provider, rememberMe, response);
 
             OAuth2Response oAuth2Response = new OAuth2Response();
             oAuth2Response.setMessage("Authentication successful");
@@ -68,7 +69,7 @@ public class AuthenticationService {
         request.setProvider(provider);
 
         Users user = usersService.createOAuthUser(request);
-        authUtil.addJwtTokenCookiesToResponse(user, provider, response);
+        authUtil.addJwtTokenCookiesToResponse(user, provider, rememberMe, response);
 
         OAuth2Response oAuth2Response = new OAuth2Response();
         oAuth2Response.setMessage("Authentication successful");
