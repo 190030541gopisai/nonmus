@@ -9,6 +9,7 @@ const LoginPage = () => {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [rememberMe, setRememberMe] = useState(false);
   const {login} = useContext(AuthContext)
 
   const navigate = useNavigate();
@@ -17,7 +18,7 @@ const LoginPage = () => {
     e.preventDefault();
 
     try {
-      await login({ email, password });
+      await login({ email, password, rememberMe });
     } catch (err) {
       console.error(err);
       setError("Login failed. Please check your credentials and try again.");
@@ -139,8 +140,9 @@ const LoginPage = () => {
                   <label className="flex items-center gap-2 text-sm text-slate-700">
                     <input
                         type="checkbox"
-                        defaultChecked
+                        defaultChecked={rememberMe}
                         className="h-4 w-4 accent-slate-900"
+                        onChange={e => setRememberMe(e.target.checked)}
                     />
                     Remember me
                   </label>
