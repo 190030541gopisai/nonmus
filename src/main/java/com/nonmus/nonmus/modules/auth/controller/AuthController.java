@@ -1,9 +1,14 @@
 package com.nonmus.nonmus.modules.auth.controller;
 
+import com.nonmus.nonmus.modules.auth.dto.request.ForgotPasswordRequest;
+import com.nonmus.nonmus.modules.auth.dto.request.ForgotPasswordVerifyRequest;
 import com.nonmus.nonmus.modules.auth.dto.request.LoginRequest;
+import com.nonmus.nonmus.modules.auth.dto.response.ForgotPasswordResponse;
+import com.nonmus.nonmus.modules.auth.dto.response.ForgotPasswordVerifyResponse;
 import com.nonmus.nonmus.modules.auth.dto.response.LoginResponse;
 import com.nonmus.nonmus.modules.auth.dto.response.SignUpResponse;
 import com.nonmus.nonmus.modules.auth.service.AuthenticationService;
+import com.nonmus.nonmus.modules.auth.service.ForgotPasswordService;
 import com.nonmus.nonmus.modules.auth.service.UserRegistrationService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -19,7 +24,6 @@ import com.nonmus.nonmus.modules.auth.dto.request.SignUpRequest;
 @RequestMapping("/api/v1/auth")
 @RequiredArgsConstructor
 public class AuthController {
-
     private final AuthenticationService authService;
     private final UserRegistrationService userRegistrationService;
 

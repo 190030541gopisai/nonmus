@@ -1,7 +1,9 @@
 package com.nonmus.nonmus.modules.auth.service;
 
+import com.nonmus.nonmus.modules.auth.dto.request.ForgotPasswordRequest;
 import com.nonmus.nonmus.modules.auth.dto.response.LoginResponse;
 import com.nonmus.nonmus.modules.auth.dto.response.OAuth2Response;
+import com.nonmus.nonmus.modules.auth.events.EmailForgotPasswordEvent;
 import com.nonmus.nonmus.modules.common.exception.UserNotFoundException;
 import com.nonmus.nonmus.modules.common.util.AuthUtil;
 import com.nonmus.nonmus.modules.common.util.JwtUtil;
@@ -11,6 +13,7 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.core.user.OAuth2User;
@@ -30,6 +33,7 @@ public class AuthenticationService {
     private final PasswordEncoder passwordEncoder;
     private final AuthUtil authUtil;
     private final JwtUtil jwtUtil;
+    private final ApplicationEventPublisher publisher;
 
     public LoginResponse login(String email, String password, boolean rememberMe, HttpServletResponse response) {
         Provider provider = Provider.LOCAL;
@@ -107,5 +111,14 @@ public class AuthenticationService {
 
     public void logout(HttpServletResponse response) {
         authUtil.removeJwtTokenCookiesFromResponse(response);
+    }
+
+    public void forgotPassword(ForgotPasswordRequest request) {
+        String email = request.getEmail();
+
+        Users user = usersService.getUsersByEmail(email).orElseThrow(() -> new UserNotFoundException("User not found"));
+
+        EmailForgotPasswordEvent event = new EmailForgotPasswordEvent(user);
+        publisher.publishEvent(event);
     }
 }

@@ -18,5 +18,15 @@ services:
       timeout: 5s
       retries: 5
 
+  cache:
+    image: redis
+    container_name: redis_cache
+    restart: always
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+
 volumes:
   nonmus_data:
+  redis_data:
