@@ -33,14 +33,14 @@ public class AuthenticationService {
 
     public LoginResponse login(String email, String password, boolean rememberMe, HttpServletResponse response) {
         Provider provider = Provider.LOCAL;
-        Users user = usersService.getUsersByEmailAndProvider(email, provider)
+        Users user = usersService.getUsersByEmail(email)
                 .orElseThrow(() -> new BadCredentialsException("Invalid credentials"));
 
         if (!passwordEncoder.matches(password, user.getPassword())) {
             throw new BadCredentialsException("Invalid credentials");
         }
 
-        authUtil.addJwtTokenCookiesToResponse(user, provider, rememberMe, response);
+        authUtil.addJwtTokenCookiesToResponse(user, rememberMe, response);
 
         LoginResponse loginResponse = new LoginResponse();
         loginResponse.setMessage("Login Successfull");
@@ -52,9 +52,13 @@ public class AuthenticationService {
         String email = oauthUser.getAttribute("email");
         boolean rememberMe = true;
 
-        if(usersService.existsByEmailAndProvider(email, provider)) {
-            Users user = usersService.getUsersByEmailAndProvider(email, provider).get();
-            authUtil.addJwtTokenCookiesToResponse(user, provider, rememberMe, response);
+        if(usersService.existsByEmail(email)) {
+            Users user = usersService.getUsersByEmail(email).get();
+            user.setEmailVerified(true);
+
+            usersService.updateUserAndProvider(user, provider);
+
+            authUtil.addJwtTokenCookiesToResponse(user, rememberMe, response);
 
             OAuth2Response oAuth2Response = new OAuth2Response();
             oAuth2Response.setMessage("Authentication successful");
@@ -66,10 +70,11 @@ public class AuthenticationService {
         request.setName(oauthUser.getAttribute("name"));
         request.setEmail(oauthUser.getAttribute("email"));
         request.setExternalProfilePictureUrl(oauthUser.getAttribute("picture"));
+        request.setEmailVerified(Boolean.TRUE.equals(oauthUser.getAttribute("email_verified")));
         request.setProvider(provider);
 
         Users user = usersService.createOAuthUser(request);
-        authUtil.addJwtTokenCookiesToResponse(user, provider, rememberMe, response);
+        authUtil.addJwtTokenCookiesToResponse(user, rememberMe, response);
 
         OAuth2Response oAuth2Response = new OAuth2Response();
         oAuth2Response.setMessage("Authentication successful");
@@ -82,9 +87,8 @@ public class AuthenticationService {
 
         if(StringUtils.hasText(refreshToken) && jwtUtil.isTokenValid(refreshToken)) {
             String email = jwtUtil.getEmailFromToken(refreshToken);
-            Provider provider = jwtUtil.getProviderFromToken(refreshToken);
-            Users user = usersService.getUsersByEmailAndProvider(email, provider).orElseThrow(() -> new UserNotFoundException("User not found"));
-            authUtil.addAccessTokenCookieToResponse(user, provider, response);
+            Users user = usersService.getUsersByEmail(email).orElseThrow(() -> new UserNotFoundException("User not found"));
+            authUtil.addAccessTokenCookieToResponse(user, response);
         }
     }
 

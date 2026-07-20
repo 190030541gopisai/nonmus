@@ -27,9 +27,8 @@ public class ChannelController {
     public ResponseEntity<ChannelResponse> createChannel(@RequestBody CreateChannelRequest request) {
         AuthenticatedUser authenticatedUser = AuthUtil.getPrincipal();
         String email = authenticatedUser.getEmail();
-        Provider provider = authenticatedUser.getProvider();
 
-        ChannelResponse channelResponse = channelService.createChannel(request, email, provider);
+        ChannelResponse channelResponse = channelService.createChannel(request, email);
         return ResponseEntity.status(HttpStatus.CREATED).body(channelResponse);
     }
 }

@@ -18,13 +18,14 @@ import java.time.Duration;
 public class AuthUtil {
     private final JwtUtil jwtUtil;
 
-    public void addJwtTokenCookiesToResponse(Users user, Provider provider, boolean rememberMe, HttpServletResponse response) {
-        String accessToken = jwtUtil.generateAccessToken(user.getEmail(), user.getName(), provider);
-        String refreshToken = jwtUtil.generateRefreshToken(user.getEmail(), provider, rememberMe);
+    public void addJwtTokenCookiesToResponse(Users user, boolean rememberMe, HttpServletResponse response) {
+        String accessToken = jwtUtil.generateAccessToken(user.getEmail(), user.getName());
+        String refreshToken = jwtUtil.generateRefreshToken(user.getEmail(), rememberMe);
         addJwtTokenCookiesToResponse(accessToken, refreshToken, response);
     }
-    public void addJwtTokenCookiesToResponse(Users user, Provider provider, HttpServletResponse response) {
-        addJwtTokenCookiesToResponse(user, provider, false, response);
+
+    public void addJwtTokenCookiesToResponse(Users user, HttpServletResponse response) {
+        addJwtTokenCookiesToResponse(user, false, response);
     }
 
     public void removeJwtTokenCookiesFromResponse(HttpServletResponse response) {
@@ -32,8 +33,8 @@ public class AuthUtil {
         removeRefreshTokenCookieFromResponse(response);
     }
 
-    public void addAccessTokenCookieToResponse(Users user, Provider provider, HttpServletResponse response) {
-        String accessToken = jwtUtil.generateAccessToken(user.getEmail(), user.getName(), provider);
+    public void addAccessTokenCookieToResponse(Users user, HttpServletResponse response) {
+        String accessToken = jwtUtil.generateAccessToken(user.getEmail(), user.getName());
         addAccessTokenCookieToResponse(accessToken, response);
     }
 

@@ -40,7 +40,7 @@ public class ProfilePictureService {
      * @param email authenticated user's email (used to namespace the S3 key)
      * @return      presigned PUT URL, the S3 key, and expiry duration
      */
-    public PresignedUrlResponse generatePresignedUploadUrl(PresignedUrlRequest req, String email, Provider provider) {
+    public PresignedUrlResponse generatePresignedUploadUrl(PresignedUrlRequest req, String email) {
         validateContentType(req.contentType());
         validateFileSize(req.fileSize());
 
@@ -77,14 +77,14 @@ public class ProfilePictureService {
      * @return      a fresh presigned GET URL for the newly uploaded picture
      */
     @Transactional
-    public ViewUrlResponse confirmUpload(ConfirmUploadRequest req, String email, Provider provider) {
+    public ViewUrlResponse confirmUpload(ConfirmUploadRequest req, String email) {
         String expectedPrefix = "users/" + email + "/";
         if (!req.s3Key().startsWith(expectedPrefix)) {
             throw new InvalidFileException(
                     "Invalid file key: key does not belong to the authenticated user.");
         }
 
-        Users user = usersRepository.findByEmailAndProvider(email, provider).orElseThrow();
+        Users user = usersRepository.findByEmail(email).orElseThrow();
 
         // Delete old profile picture from S3 before replacing it
         String previousKey = user.getProfilePicture();
@@ -123,16 +123,17 @@ public class ProfilePictureService {
      * @param email authenticated user's email
      * @return      a fresh presigned GET URL, or an empty ViewUrlResponse if no picture is set
      */
-    public ViewUrlResponse getViewUrl(String email, Provider profilePictureProvider) {
-        Users user = usersRepository.findByEmailAndProvider(email, profilePictureProvider).orElseThrow();
+    public ViewUrlResponse getViewUrl(String email) {
+        Users user = usersRepository.findByEmail(email).orElseThrow();
         String key = user.getProfilePicture();
+        Provider profilePicProvider = user.getProfilePictureProvider();
 
         if (!StringUtils.hasText(key)) {
             // No profile picture set — return empty response, not an error
             return new ViewUrlResponse("", 0);
         }
 
-        if(profilePictureProvider == Provider.GOOGLE) {
+        if(profilePicProvider != Provider.LOCAL) {
             return new ViewUrlResponse(key, storageProperties.getViewExpirySeconds());
         }
 

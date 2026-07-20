@@ -21,8 +21,8 @@ public class UserRegistrationService {
     private final AuthUtil authUtil;
 
     public SignUpResponse signup(SignUpRequest request, HttpServletResponse response) {
-        Provider provider = Provider.LOCAL;
-        if(usersService.existsByEmailAndProvider(request.getEmail(), provider)) {
+        String email = request.getEmail();
+        if(usersService.existsByEmail(email)) {
             throw new UserAlreadyExistsException("User already exists");
         }
 
@@ -32,7 +32,7 @@ public class UserRegistrationService {
         userCreateRequest.setPassword(request.getPassword());
 
         Users user = usersService.createUser(userCreateRequest);
-        authUtil.addJwtTokenCookiesToResponse(user, provider, response);
+        authUtil.addJwtTokenCookiesToResponse(user, response);
 
         SignUpResponse signUpResponse = new SignUpResponse();
         signUpResponse.setMessage("Signup successful");

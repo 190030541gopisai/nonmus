@@ -6,5 +6,4 @@ import lombok.Data;
 @Data
 public class AuthenticatedUser {
     private String email;
-    private Provider provider;
 }

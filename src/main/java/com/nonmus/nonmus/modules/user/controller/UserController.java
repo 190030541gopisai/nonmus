@@ -36,8 +36,7 @@ public class UserController {
     public Users getLoggedInUser() {
         AuthenticatedUser authenticatedUser= AuthUtil.getPrincipal();
         String email = authenticatedUser.getEmail();
-        Provider provider = authenticatedUser.getProvider();
 
-        return usersService.getUsersByEmailAndProvider(email, provider).orElseThrow(() -> new UserNotFoundException("User not found"));
+        return usersService.getUsersByEmail(email).orElseThrow(() -> new UserNotFoundException("User not found"));
     }
 }

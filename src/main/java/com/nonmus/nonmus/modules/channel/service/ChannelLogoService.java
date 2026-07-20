@@ -12,7 +12,7 @@ import org.springframework.stereotype.Service;
 public class ChannelLogoService {
     private final ChannelsRepository channelsRepository;
 
-    public PresignedUrlResponse generatePresignUrl(PresignedUrlRequest request, String email, Provider provider) {
+    public PresignedUrlResponse generatePresignUrl(PresignedUrlRequest request, String email) {
         return null;
     }
 }

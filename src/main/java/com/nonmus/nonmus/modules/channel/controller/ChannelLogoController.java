@@ -22,8 +22,7 @@ public class ChannelLogoController {
     public ResponseEntity<PresignedUrlResponse> updateChannelLogo(@RequestBody PresignedUrlRequest request) {
         AuthenticatedUser authenticatedUser = AuthUtil.getPrincipal();
         String email = authenticatedUser.getEmail();
-        Provider provider = authenticatedUser.getProvider();
-        PresignedUrlResponse response = channelLogoService.generatePresignUrl(request, email, provider);
+        PresignedUrlResponse response = channelLogoService.generatePresignUrl(request, email);
         return ResponseEntity.ok(response);
     }
 }

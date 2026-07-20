@@ -19,8 +19,8 @@ public class ChannelService {
     private final UsersService usersService;
     private final ChannelsRepository channelsRepository;
 
-    public ChannelResponse createChannel(CreateChannelRequest request, String email, Provider provider) {
-        if(!usersService.existsByEmailAndProvider(email, provider)) {
+    public ChannelResponse createChannel(CreateChannelRequest request, String email) {
+        if(!usersService.existsByEmail(email)) {
             throw new UserNotFoundException("User not found");
         }
 
@@ -30,7 +30,7 @@ public class ChannelService {
         channel.setDescription(request.getDescription());
         channel.setType(request.getType());
 
-        Users user = usersService.getUsersByEmailAndProvider(email, provider).orElseThrow(() -> new UserNotFoundException("User not found"));
+        Users user = usersService.getUsersByEmail(email).orElseThrow(() -> new UserNotFoundException("User not found"));
         channel.setCreatedBy(user);
         channel.setUpdatedBy(user);
 

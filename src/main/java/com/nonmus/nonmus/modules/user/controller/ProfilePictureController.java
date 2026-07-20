@@ -32,9 +32,8 @@ public class ProfilePictureController {
             @RequestBody PresignedUrlRequest request) {
         AuthenticatedUser authenticatedUser = AuthUtil.getPrincipal();
         String email = authenticatedUser.getEmail();
-        Provider provider = authenticatedUser.getProvider();
 
-        PresignedUrlResponse response = profilePictureService.generatePresignedUploadUrl(request, email, provider);
+        PresignedUrlResponse response = profilePictureService.generatePresignedUploadUrl(request, email);
         return ResponseEntity.ok(response);
     }
 
@@ -50,9 +49,8 @@ public class ProfilePictureController {
             @RequestBody ConfirmUploadRequest request) {
         AuthenticatedUser authenticatedUser = AuthUtil.getPrincipal();
         String email = authenticatedUser.getEmail();
-        Provider provider = authenticatedUser.getProvider();
 
-        ViewUrlResponse response = profilePictureService.confirmUpload(request, email, provider);
+        ViewUrlResponse response = profilePictureService.confirmUpload(request, email);
         return ResponseEntity.ok(response);
     }
 
@@ -67,9 +65,8 @@ public class ProfilePictureController {
     public ResponseEntity<ViewUrlResponse> getViewUrl() {
         AuthenticatedUser authenticatedUser = AuthUtil.getPrincipal();
         String email = authenticatedUser.getEmail();
-        Provider provider = authenticatedUser.getProvider();
 
-        ViewUrlResponse response = profilePictureService.getViewUrl(email, provider);
+        ViewUrlResponse response = profilePictureService.getViewUrl(email);
         return ResponseEntity.ok(response);
     }
 }
