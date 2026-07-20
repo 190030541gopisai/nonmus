@@ -1,0 +1,42 @@
+---------------------------------------
+curl -fsSL https://floci.io/install.sh | sh
+
+floci start
+
+eval $(floci env)
+# exports AWS_ENDPOINT_URL, AWS_ACCESS_KEY_ID,
+# AWS_SECRET_ACCESS_KEY, AWS_DEFAULT_REGION
+
+# Create a bucket
+aws s3 mb s3://my-bucket
+
+# Write a file and upload it
+echo "Why pay for S3 when floci is free? 🎉" > hello-floci.txt
+aws s3 cp hello-floci.txt \
+  s3://my-bucket/hello-floci.txt
+
+# Download it back and read it
+aws s3 cp s3://my-bucket/hello-floci.txt \
+  hello-back.txt
+cat hello-back.txt
+
+-------------------------------------
+aws s3api create-bucket \
+    --bucket nonmus-profile-pics \
+    --region us-east-1
+
+aws s3api create-bucket \
+    --bucket nonmus-channel \
+    --region us-east-1
+
+--------------------------------------
+aws s3api put-bucket-cors \
+  --bucket nonmus-profile-pics \
+  --cors-configuration file://cors.json
+
+aws s3api get-bucket-cors --bucket nonmus-profile-pics
+
+
+
+
+

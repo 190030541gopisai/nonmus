@@ -11,3 +11,11 @@ export const signupApi = async (data) => {
   const response = await apiClient.post(`${PREFIX}/signup`, data);
   return response.data;
 };
+
+export const refreshApi = async () => {
+  await apiClient.post(`${PREFIX}/refresh`);
+};
+
+export const logoutApi = async () => {
+  await apiClient.post(`${PREFIX}/logout`)
+}

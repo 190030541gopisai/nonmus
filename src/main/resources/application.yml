@@ -6,6 +6,9 @@ spring:
     username: postgres
     password: ${DB_PASSWORD:root}
     driver-class-name: org.postgresql.Driver
+    hikari:
+      data-source-properties:
+        serverTimezone: Asia/Kolkata
   jpa:
     hibernate:
       ddl-auto: update
@@ -13,8 +16,57 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
     show-sql: true
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: ${GOOGLE_OAUTH_CLIENT_ID}
+            client-secret: ${GOOGLE_OAUTH_CLIENT_SECRET}
+
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: ${GMAIL:your-email@gmail.com}
+    password: ${APP_PASSWORD:your-app-password}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+#        debug: true
 
 jwt:
-  secret: ${JWT_SECRET:my_secret_key_this_should_be_very_long_and_secure_change_in_production}
-  expiration: 3600000
-  refresh-expiration: 604800000
+  secret-key: ${JWT_SECRET:my_secret_key_this_should_be_very_long_and_secure_change_in_production}
+  jwt-expiration-ms: 3600000 # 60 min
+  refresh-token-expiration-ms: 604800000 # 7 days
+  remember-me-refresh-token-expiration-ms: 2592000000 # 30 days
+
+app:
+  storage:
+    profile-picture-bucket: nonmus-profile-pics
+    # How long the presigned PUT URL is valid (client must complete upload within this window)
+    upload-expiry-seconds: 600        # 10 minutes
+    # How long a presigned GET URL is valid (frontend should refresh after expiry)
+    view-expiry-seconds: 3600         # 1 hour
+    # Maximum allowed file size for profile pictures in bytes (5 MB)
+    max-profile-picture-bytes: 5242880
+    # Allowed MIME types for profile pictures
+    allowed-image-types: [ image/jpeg, image/png, image/webp, image/gif ]
+    channel-logo-bucket: nonmus-channel
+  email:
+    verification:
+      link: https://localhost:5173/verify-email?token=
+
+aws:
+  region: us-east-1
+  s3:
+    endpoint: http://localhost.floci.io:4566
+  access-key: test
+  secret-key: test
+
+management:
+  endpoint:
+    env:
+      show-values: always

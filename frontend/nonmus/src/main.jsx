@@ -5,6 +5,7 @@ import { AuthProvider } from "./features/auth/context/AuthContext";
 
 import "./index.css";
 
+
 createRoot(document.getElementById("root")).render(
   <StrictMode>
     <AuthProvider>

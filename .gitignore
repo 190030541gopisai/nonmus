@@ -31,3 +31,33 @@ build/
 
 ### VS Code ###
 .vscode/
+# Added by code-review-graph
+.code-review-graph/
+.claude/
+.cursorrules
+.mcp.json
+.opencode.json
+.windsurfrules
+.data/
+
+# Ignore data directory (AWS resource data, etc.)
+data/
+
+# Logs
+*.log
+
+# Environment variables
+.env
+.env.*
+! .env.example  # Keep example environment files
+
+# Temporary files and directories
+*/tmp/
+*/temp/
+*.tmp
+*.temp
+
+# OS-generated files
+.DS_Store
+Thumbs.db
+mvnw
