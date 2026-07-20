@@ -10,10 +10,11 @@ import org.springframework.stereotype.Service;
 public class MailService {
     private final JavaMailSender mailSender;
 
-    public void send(String toEmail, String content) {
+    public void send(String toEmail, String subject, String content) {
         SimpleMailMessage message = new SimpleMailMessage();
         message.setTo(toEmail);
         message.setText(content);
+        message.setSubject(subject);
 
         mailSender.send(message);
     }

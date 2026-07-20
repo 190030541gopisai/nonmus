@@ -36,6 +36,9 @@ spring:
           starttls:
             enable: true
 #        debug: true
+  redis:
+    host: localhost
+    port: 6379
 
 jwt:
   secret-key: ${JWT_SECRET:my_secret_key_this_should_be_very_long_and_secure_change_in_production}

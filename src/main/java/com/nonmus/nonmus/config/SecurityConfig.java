@@ -28,7 +28,8 @@ public class SecurityConfig {
                 .authorizeHttpRequests(requests -> requests
                         .requestMatchers(
                                 "/api/v1/auth/**",
-                                "/api/v1/email/verify"
+                                "/api/v1/email/verify",
+                                "/api/v1/forgot-password/**"
                         ).permitAll()
                         .anyRequest().authenticated())
                 .sessionManagement(session ->

@@ -15,7 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Slf4j
 @Service(value = "emailVerificationService")
 @RequiredArgsConstructor
-public class SendEmailVerificationListener{
+public class SendEmailVerificationListener {
     private final MailService mailService;
     private final VerificationTokenService tokenService;
 
@@ -25,7 +25,7 @@ public class SendEmailVerificationListener{
     @Async
     @EventListener
     @Transactional
-    public void sendEmailVerificationLinkWithToken(EmailVerificationEvent event){
+    public void sendEmailVerificationLinkWithToken(EmailVerificationEvent event) {
         Users user = event.getUser();
 
         String token = tokenService.createToken(user);
@@ -35,21 +35,22 @@ public class SendEmailVerificationListener{
 
         String content = """
                 Hello %s,
-
+                
                 Click below to verify your email.
-
+                
                 %s
-
+                
                 Link expires in 24 hours.
                 """
                 .formatted(user.getEmail(), verificationLink);
 
         String email = user.getEmail();
+        String subject = "Verify Your Email Address";
 
         log.info("Sending verification email to: " + email);
 
         System.out.println(content);
-        // mailService.send(user.getEmail(), content);
+//        mailService.send(user.getEmail(), subject, content);
 
         log.info("Verification email sent to: " + email);
     }
