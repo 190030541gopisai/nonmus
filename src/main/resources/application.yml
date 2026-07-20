@@ -24,6 +24,19 @@ spring:
             client-id: ${GOOGLE_OAUTH_CLIENT_ID}
             client-secret: ${GOOGLE_OAUTH_CLIENT_SECRET}
 
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: ${GMAIL:your-email@gmail.com}
+    password: ${APP_PASSWORD:your-app-password}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+#        debug: true
+
 jwt:
   secret-key: ${JWT_SECRET:my_secret_key_this_should_be_very_long_and_secure_change_in_production}
   jwt-expiration-ms: 3600000 # 60 min
@@ -42,6 +55,9 @@ app:
     # Allowed MIME types for profile pictures
     allowed-image-types: [ image/jpeg, image/png, image/webp, image/gif ]
     channel-logo-bucket: nonmus-channel
+  email:
+    verification:
+      link: https://localhost:5173/verify-email?token=
 
 aws:
   region: us-east-1
@@ -49,3 +65,8 @@ aws:
     endpoint: http://localhost.floci.io:4566
   access-key: test
   secret-key: test
+
+management:
+  endpoint:
+    env:
+      show-values: always

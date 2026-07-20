@@ -9,4 +9,5 @@ public class OAuthUserCreateRequest {
     private String email;
     private String externalProfilePictureUrl;
     private Provider provider;
+    private boolean emailVerified;
 }

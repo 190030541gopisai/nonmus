@@ -27,6 +27,8 @@ public class Users implements UserDetails {
     @Column
     private String email;
 
+    private Boolean emailVerified = false;
+
     @Column(name = "password_hash", nullable = true)
     private String password;
 
