@@ -36,7 +36,7 @@ public class AuthenticationService {
         Users user = usersService.getUsersByEmail(email)
                 .orElseThrow(() -> new BadCredentialsException("Invalid credentials"));
 
-        if (!passwordEncoder.matches(password, user.getPassword())) {
+        if (user.getPassword() == null || !passwordEncoder.matches(password, user.getPassword())) {
             throw new BadCredentialsException("Invalid credentials");
         }
 
