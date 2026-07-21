@@ -1,0 +1,11 @@
+package com.nonmus.nonmus.modules.auth.dto.internal;
+
+import lombok.Builder;
+import lombok.Data;
+
+@Data
+@Builder
+public class TokenPair {
+    private String accessToken;
+    private String refreshToken;
+}

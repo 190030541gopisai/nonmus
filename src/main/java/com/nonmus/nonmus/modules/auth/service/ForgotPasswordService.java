@@ -1,7 +1,6 @@
 package com.nonmus.nonmus.modules.auth.service;
 
-import com.nonmus.nonmus.modules.common.exception.InvalidVerificationTokenException;
-import com.nonmus.nonmus.modules.common.exception.UserNotFoundException;
+import com.nonmus.nonmus.modules.common.exception.*;
 import com.nonmus.nonmus.modules.user.entity.Users;
 import com.nonmus.nonmus.modules.user.repository.UsersRepository;
 import lombok.RequiredArgsConstructor;
@@ -43,10 +42,10 @@ public class ForgotPasswordService {
                 redisTemplate.opsForValue().get(getOtpKey(email));
 
         if (storedOtp == null)
-            throw new RuntimeException("OTP expired");
+            throw new OtpExpiredException("OTP expired");
 
         if (!storedOtp.equals(otp))
-            throw new RuntimeException("Invalid OTP");
+            throw new InvalidOtpException("Invalid OTP");
 
         redisTemplate.delete(getOtpKey(email));
 
@@ -73,7 +72,7 @@ public class ForgotPasswordService {
                 .get(getResetTokenKey(resetToken));
 
         if (userId == null) {
-            throw new InvalidVerificationTokenException("Invalid or expired reset token");
+            throw new InvalidResetTokenException("Invalid or expired reset token");
         }
 
         Users user = userRepository.findById(UUID.fromString(userId))

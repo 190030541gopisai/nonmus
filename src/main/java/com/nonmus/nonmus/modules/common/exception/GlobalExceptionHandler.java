@@ -52,6 +52,36 @@ public class GlobalExceptionHandler {
         );
     }
 
+    @ExceptionHandler(OtpExpiredException.class)
+    public ResponseEntity<ErrorResponse> handleOtpExpiredException(
+            OtpExpiredException e) {
+        return buildErrorResponse(
+                "OTP_EXPIRED",
+                e.getMessage(),
+                HttpStatus.BAD_REQUEST
+        );
+    }
+
+    @ExceptionHandler(InvalidOtpException.class)
+    public ResponseEntity<ErrorResponse> handleOtpExpiredException(
+            InvalidOtpException e) {
+        return buildErrorResponse(
+                "INVALID_OTP",
+                e.getMessage(),
+                HttpStatus.BAD_REQUEST
+        );
+    }
+
+    @ExceptionHandler(InvalidResetTokenException.class)
+    public ResponseEntity<ErrorResponse> handleInvalidResetTokenException(
+            InvalidResetTokenException e) {
+        return buildErrorResponse(
+                "INVALID_RESET_TOKEN",
+                e.getMessage(),
+                HttpStatus.BAD_REQUEST
+        );
+    }
+
     @ExceptionHandler(VerificationTokenExpiredException.class)
     public ResponseEntity<ErrorResponse> handleVerificationTokenExpiredException(
             VerificationTokenExpiredException e) {

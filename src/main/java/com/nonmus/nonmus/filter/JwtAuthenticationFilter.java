@@ -51,7 +51,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
             if(user != null) {
                 AuthenticatedUser authenticatedUser = new AuthenticatedUser();
-                authenticatedUser.setEmail(user.getUsername());
+                authenticatedUser.setEmail(user.getEmail());
 
                 UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
                         authenticatedUser,
@@ -67,13 +67,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     }
 
     private String extractToken(HttpServletRequest request) {
-//        // 1. Authorization Header
-//        String authHeader = request.getHeader("Authorization");
-//        if (authHeader != null && authHeader.startsWith("Bearer ")) {
-//            return authHeader.substring(7);
-//        }
-
-        // 2. HttpOnly Cookie
+        // 1. HttpOnly Cookie
         Cookie[] cookies = request.getCookies();
         if (cookies != null) {
             for (Cookie cookie : cookies) {

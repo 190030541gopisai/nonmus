@@ -2,14 +2,15 @@ package com.nonmus.nonmus.modules.user.service;
 
 import com.nonmus.nonmus.modules.user.dto.request.OAuthUserCreateRequest;
 import com.nonmus.nonmus.modules.user.dto.request.UserCreateRequest;
-import com.nonmus.nonmus.modules.user.entity.Providers;
 import com.nonmus.nonmus.modules.user.entity.Users;
 import com.nonmus.nonmus.modules.user.enums.Provider;
 import com.nonmus.nonmus.modules.user.repository.ProvidersRepository;
 import com.nonmus.nonmus.modules.user.repository.UsersRepository;
 import lombok.RequiredArgsConstructor;
+import org.modelmapper.ModelMapper;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
@@ -18,29 +19,18 @@ import java.util.Optional;
 public class UsersService {
 
     private final UsersRepository usersRepository;
-    private final ProvidersRepository providersRepository;
     private final PasswordEncoder passwordEncoder;
+    private final ModelMapper modelMapper;
 
     public Users createUser(UserCreateRequest request) {
-
-        Users user = new Users();
-        user.setName(request.getName());
-        user.setEmail(request.getEmail());
+        Users user = modelMapper.map(request, Users.class);
         user.setPassword(passwordEncoder.encode(request.getPassword()));
-        user.setProfilePicture("users/default-avatar.png");
 
         Provider localProvider = Provider.LOCAL;
-
-        Providers provider = new Providers();
-        provider.setUser(user);
-        provider.setProvider(localProvider);
-
+        user.addProvider(localProvider);
         user.setProfilePictureProvider(localProvider);
 
-        usersRepository.save(user);
-        providersRepository.save(provider);
-
-        return user;
+        return usersRepository.save(user);
     }
 
     public Users createOAuthUser(OAuthUserCreateRequest request) {
@@ -49,11 +39,10 @@ public class UsersService {
         user.setEmail(request.getEmail());
         user.setProfilePicture(request.getExternalProfilePictureUrl());
 
-        Providers provider = new Providers();
-        provider.setUser(user);
-        provider.setProvider(request.getProvider());
+        Provider oauthProvider = request.getProvider();
+        user.addProvider(oauthProvider);
+        user.setProfilePictureProvider(oauthProvider);
 
-        user.setProfilePictureProvider(request.getProvider());
         user.setEmailVerified(request.isEmailVerified());
         return usersRepository.save(user);
     }
@@ -66,12 +55,9 @@ public class UsersService {
         return usersRepository.existsByEmail(email);
     }
 
-    public void updateUserAndProvider(Users user, Provider externalProvider) {
-        Providers provider = new Providers();
-        provider.setUser(user);
-        provider.setProvider(externalProvider);
-
-        providersRepository.save(provider);
+    @Transactional
+    public void addProviderToUserAndSave(Users user, Provider externalProvider) {
+        user.addProvider(externalProvider);
         usersRepository.save(user);
     }
 }

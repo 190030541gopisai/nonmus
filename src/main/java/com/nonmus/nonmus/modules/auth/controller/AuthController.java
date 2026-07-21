@@ -1,15 +1,15 @@
 package com.nonmus.nonmus.modules.auth.controller;
 
-import com.nonmus.nonmus.modules.auth.dto.request.ForgotPasswordRequest;
-import com.nonmus.nonmus.modules.auth.dto.request.ForgotPasswordVerifyRequest;
+import com.nonmus.nonmus.modules.auth.dto.internal.LoginResult;
+import com.nonmus.nonmus.modules.auth.dto.internal.SignUpResult;
 import com.nonmus.nonmus.modules.auth.dto.request.LoginRequest;
-import com.nonmus.nonmus.modules.auth.dto.response.ForgotPasswordResponse;
-import com.nonmus.nonmus.modules.auth.dto.response.ForgotPasswordVerifyResponse;
 import com.nonmus.nonmus.modules.auth.dto.response.LoginResponse;
 import com.nonmus.nonmus.modules.auth.dto.response.SignUpResponse;
 import com.nonmus.nonmus.modules.auth.service.AuthenticationService;
-import com.nonmus.nonmus.modules.auth.service.ForgotPasswordService;
+import com.nonmus.nonmus.modules.auth.service.JwtCookieService;
+import com.nonmus.nonmus.modules.auth.service.RefreshTokenService;
 import com.nonmus.nonmus.modules.auth.service.UserRegistrationService;
+import com.nonmus.nonmus.modules.common.util.AuthUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -26,22 +26,44 @@ import com.nonmus.nonmus.modules.auth.dto.request.SignUpRequest;
 public class AuthController {
     private final AuthenticationService authService;
     private final UserRegistrationService userRegistrationService;
+    private final RefreshTokenService refreshTokenService;
+    private final AuthUtil authUtil;
+    private final JwtCookieService jwtCookieService;
 
     @PostMapping("/signup")
     public ResponseEntity<SignUpResponse> signup(@RequestBody SignUpRequest request, HttpServletResponse response) {
-        SignUpResponse signUpResponse = userRegistrationService.signup(request, response);
-        return ResponseEntity.status(HttpStatus.CREATED).body(signUpResponse);
+        SignUpResult signUpResult = userRegistrationService.signup(request);
+
+        jwtCookieService.addJwtCookies(signUpResult.getTokenPair(), response);
+
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(
+                        SignUpResponse.builder()
+                                .message("Signup successful")
+                                .build()
+                );
     }
 
     @PostMapping("/login")
     public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest request, HttpServletResponse response) {
-        LoginResponse loginResponse = authService.login(request.getEmail(), request.getPassword(), request.isRememberMe(), response);
-        return ResponseEntity.status(HttpStatus.OK).body(loginResponse);
+        LoginResult loginResult = authService.login(request.getEmail(), request.getPassword(), request.isRememberMe());
+
+        jwtCookieService.addJwtCookies(loginResult.getTokenPair(), response);
+
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(
+                    LoginResponse
+                            .builder()
+                            .message("Login Successful")
+                            .build()
+                );
     }
 
     @PostMapping("/refresh")
     public void refresh(HttpServletRequest request, HttpServletResponse response) {
-        authService.refreshAccessToken(request, response);
+        refreshTokenService.refreshAccessToken(request, response);
     }
 
     @PostMapping("/logout")
