@@ -1,16 +1,13 @@
 package com.nonmus.nonmus.modules.auth.service;
 
+import com.nonmus.nonmus.modules.auth.dto.internal.LoginResult;
 import com.nonmus.nonmus.modules.auth.dto.request.ForgotPasswordRequest;
-import com.nonmus.nonmus.modules.auth.dto.response.LoginResponse;
 import com.nonmus.nonmus.modules.auth.dto.response.OAuth2Response;
 import com.nonmus.nonmus.modules.auth.events.EmailForgotPasswordEvent;
 import com.nonmus.nonmus.modules.common.exception.UserNotFoundException;
 import com.nonmus.nonmus.modules.common.util.AuthUtil;
-import com.nonmus.nonmus.modules.common.util.JwtUtil;
 import com.nonmus.nonmus.modules.user.dto.request.OAuthUserCreateRequest;
 import com.nonmus.nonmus.modules.user.enums.Provider;
-import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
@@ -26,91 +23,32 @@ import org.springframework.util.StringUtils;
 @Service
 @RequiredArgsConstructor
 public class AuthenticationService {
-
-    private final String REFRESH_TOKEN_COOKIE = "refresh_token";
-
     private final UsersService usersService;
     private final PasswordEncoder passwordEncoder;
     private final AuthUtil authUtil;
-    private final JwtUtil jwtUtil;
     private final ApplicationEventPublisher publisher;
+    private final TokenService tokenService;
+    private final JwtCookieService jwtCookieService;
 
-    public LoginResponse login(String email, String password, boolean rememberMe, HttpServletResponse response) {
-        Provider provider = Provider.LOCAL;
+    public LoginResult login(String email, String password, boolean rememberMe) {
         Users user = usersService.getUsersByEmail(email)
                 .orElseThrow(() -> new BadCredentialsException("Invalid credentials"));
 
-        if (user.getPassword() == null || !passwordEncoder.matches(password, user.getPassword())) {
+        String existingPassword = user.getPassword();
+        if (!StringUtils.hasText(existingPassword) || !passwordEncoder.matches(password, existingPassword)) {
             throw new BadCredentialsException("Invalid credentials");
         }
 
-        authUtil.addJwtTokenCookiesToResponse(user, rememberMe, response);
-
-        LoginResponse loginResponse = new LoginResponse();
-        loginResponse.setMessage("Login Successfull");
-
-        return loginResponse;
-    }
-
-    public OAuth2Response oauthSingIn(OAuth2User oauthUser, Provider provider, HttpServletResponse response){
-        String email = oauthUser.getAttribute("email");
-        boolean rememberMe = true;
-
-        if(usersService.existsByEmail(email)) {
-            Users user = usersService.getUsersByEmail(email).get();
-            user.setEmailVerified(true);
-
-            usersService.updateUserAndProvider(user, provider);
-
-            authUtil.addJwtTokenCookiesToResponse(user, rememberMe, response);
-
-            OAuth2Response oAuth2Response = new OAuth2Response();
-            oAuth2Response.setMessage("Authentication successful");
-
-            return oAuth2Response;
-        }
-
-        OAuthUserCreateRequest request = new OAuthUserCreateRequest();
-        request.setName(oauthUser.getAttribute("name"));
-        request.setEmail(oauthUser.getAttribute("email"));
-        request.setExternalProfilePictureUrl(oauthUser.getAttribute("picture"));
-        request.setEmailVerified(Boolean.TRUE.equals(oauthUser.getAttribute("email_verified")));
-        request.setProvider(provider);
-
-        Users user = usersService.createOAuthUser(request);
-        authUtil.addJwtTokenCookiesToResponse(user, rememberMe, response);
-
-        OAuth2Response oAuth2Response = new OAuth2Response();
-        oAuth2Response.setMessage("Authentication successful");
-
-        return oAuth2Response;
-    }
-
-    public void refreshAccessToken(HttpServletRequest request, HttpServletResponse response) {
-        String refreshToken = extractRefreshToken(request);
-
-        if(StringUtils.hasText(refreshToken) && jwtUtil.isTokenValid(refreshToken)) {
-            String email = jwtUtil.getEmailFromToken(refreshToken);
-            Users user = usersService.getUsersByEmail(email).orElseThrow(() -> new UserNotFoundException("User not found"));
-            authUtil.addAccessTokenCookieToResponse(user, response);
-        }
-    }
-
-    private String extractRefreshToken(HttpServletRequest request) {
-        Cookie[] cookies = request.getCookies();
-        if (cookies != null) {
-            for (Cookie cookie : cookies) {
-                if (REFRESH_TOKEN_COOKIE.equals(cookie.getName())) {
-                    return cookie.getValue();
-                }
-            }
-        }
-
-        return null;
+        return LoginResult.builder()
+                .user(user)
+                .tokenPair(
+                        tokenService.generateJwtTokens(user, rememberMe)
+                )
+                .build();
     }
 
     public void logout(HttpServletResponse response) {
-        authUtil.removeJwtTokenCookiesFromResponse(response);
+        jwtCookieService.removeJwtCookies(response);
     }
 
     public void forgotPassword(ForgotPasswordRequest request) {

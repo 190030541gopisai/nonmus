@@ -9,7 +9,7 @@ import org.springframework.context.annotation.Configuration;
 @Data
 public class AwsProperties {
     private String region = "us-east-1";
-    private String s3Endpoint; // Removed default to distinguish "not set" vs "empty"
+    private String endpoint; // Removed default to distinguish "not set" vs "empty"
     private String accessKey;
     private String secretKey;
 
@@ -19,6 +19,6 @@ public class AwsProperties {
     }
 
     public boolean hasCustomEndpoint() {
-        return s3Endpoint != null && !s3Endpoint.trim().isEmpty();
+        return endpoint != null && !endpoint.trim().isEmpty();
     }
 }

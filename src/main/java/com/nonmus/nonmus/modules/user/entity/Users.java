@@ -1,12 +1,15 @@
 package com.nonmus.nonmus.modules.user.entity;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.nonmus.nonmus.modules.user.enums.Provider;
 import jakarta.persistence.*;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.data.annotation.CreatedDate;
@@ -19,12 +22,12 @@ import org.springframework.security.core.userdetails.UserDetails;
 @Getter
 @Setter
 @EntityListeners(AuditingEntityListener.class)
-public class Users implements UserDetails {
+public class Users {
     @Id
     private UUID id = UUID.randomUUID();
     private String name;
 
-    @Column
+    @Column(nullable = false, unique = true)
     private String email;
 
     private Boolean emailVerified = false;
@@ -32,7 +35,7 @@ public class Users implements UserDetails {
     @Column(name = "password_hash", nullable = true)
     private String password;
 
-    private String profilePicture;
+    private String profilePicture = "users/default-avatar.png";
 
     @Enumerated(EnumType.STRING)
     private Provider profilePictureProvider;
@@ -44,13 +47,14 @@ public class Users implements UserDetails {
     @LastModifiedDate
     private Instant updatedAt;
 
-    @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of();
-    }
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
+    private List<Providers> providers = new ArrayList<>();
 
-    @Override
-    public String getUsername() {
-        return email;
+    public void addProvider(Provider providerType) {
+        Providers provider = new Providers();
+        provider.setProvider(providerType);
+        provider.setUser(this);
+        providers.add(provider);
     }
 }

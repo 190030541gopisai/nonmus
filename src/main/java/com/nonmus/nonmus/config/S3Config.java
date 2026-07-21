@@ -5,6 +5,7 @@ import com.nonmus.nonmus.config.props.AwsProperties;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.util.StringUtils;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.regions.Region;
@@ -32,7 +33,7 @@ public class S3Config {
                 .credentialsProvider(credentialsResolver.resolve());
 
         if (properties.hasCustomEndpoint()) {
-            builder.endpointOverride(URI.create(properties.getS3Endpoint()));
+            builder.endpointOverride(URI.create(properties.getEndpoint()));
         }
 
         return builder
@@ -47,7 +48,7 @@ public class S3Config {
                 .credentialsProvider(credentialsResolver.resolve());
 
         if (properties.hasCustomEndpoint()) {
-            builder.endpointOverride(URI.create(properties.getS3Endpoint()));
+            builder.endpointOverride(URI.create(properties.getEndpoint()));
         }
 
         return builder.build();
@@ -55,7 +56,7 @@ public class S3Config {
 
     private Region resolveRegion() {
         String regionStr = properties.getRegion();
-        if (regionStr == null || regionStr.trim().isEmpty()) {
+        if (!StringUtils.hasText(regionStr)) {
             return Region.US_EAST_1;
         }
         return Region.of(regionStr.toLowerCase().replace("_", "-"));
