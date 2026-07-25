@@ -1,18 +1,24 @@
-import { Navigate } from "react-router-dom";
-import { useAuth } from "../features/auth/hooks/useAuth";
+import {Navigate, useLocation} from "react-router-dom";
+import {useAuth} from "../features/auth/hooks/useAuth";
+import LoadingFallback from "./LoadingFallback.jsx";
 
-const ProtectedRoute = ({ children }) => {
-  const { user, loading } = useAuth();
+const ProtectedRoute = ({children}) => {
+    const {user, loading, error} = useAuth();
+    const location = useLocation();
 
-  if (loading) {
-    return <div>Loading...</div>;
-  }
+    if (loading) {
+        return <LoadingFallback/>;
+    }
 
-  if (user) {
-    return children;
-  }
+    if (error) {
+        return <Navigate to="/login" state={{from: location}} replace/>;
+    }
 
-  return <Navigate to="/login" replace />;
+    if (user) {
+        return children;
+    }
+
+    return <Navigate to="/login" state={{from: location}} replace/>;
 };
 
 export default ProtectedRoute;

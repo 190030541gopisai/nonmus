@@ -1,220 +1,49 @@
-import { useContext } from "react";
-import { AuthContext } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../hooks/useAuth";
 import ProfilePictureUploader from "../components/ProfilePictureUploader";
-import {logoutApi} from "../api/authApi.js";
 
 const DashboardPage = () => {
-  const { user, logout } = useContext(AuthContext);
-  const { name, email } = user || {};
+  const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const { name, email } = user || {};
 
   const handleLogout = async () => {
-        await logout();
-        navigate("/login", { replace: true });
+    await logout();
+    navigate("/login", { replace: true });
   };
 
-  // Derive initials for the greeting avatar fallback
-  const initials = name
-    ? name
-        .split(" ")
-        .map((w) => w[0])
-        .join("")
-        .slice(0, 2)
-        .toUpperCase()
-    : "?";
-
   return (
-    <main
-      style={{
-        minHeight: "100vh",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        padding: "24px",
-        background:
-          "linear-gradient(135deg, #020617 0%, #0f172a 45%, #111827 100%)",
-        color: "#e5e7eb",
-        fontFamily: "'Inter', system-ui, sans-serif",
-      }}
-    >
-      <section
-        style={{
-          width: "100%",
-          maxWidth: "480px",
-          borderRadius: "28px",
-          background: "rgba(15, 23, 42, 0.84)",
-          border: "1px solid rgba(148, 163, 184, 0.12)",
-          boxShadow:
-            "0 32px 96px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.04) inset",
-          backdropFilter: "blur(20px)",
-          overflow: "hidden",
-        }}
-      >
-        {/* Top accent bar */}
-        <div
-          style={{
-            height: "4px",
-            background:
-              "linear-gradient(90deg, #7c3aed, #a855f7, #ec4899, #f97316)",
-          }}
-        />
-
-        <div style={{ padding: "40px 36px 36px" }}>
-          {/* Profile picture + name header */}
-          <div
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              gap: "16px",
-              marginBottom: "36px",
-            }}
-          >
+    <main className="flex min-h-screen items-center justify-center bg-gradient-to-br from-[#020617] via-[#0f172a] to-[#111827] p-6 text-[#e5e7eb] font-sans">
+      <section className="w-full max-w-[480px] overflow-hidden rounded-[28px] border border-white/10 bg-[rgba(15,23,42,0.84)] shadow-[0_32px_96px_rgba(0,0,0,0.5),0_0_0_1px_rgba(255,255,255,0.04)_inset] backdrop-blur-xl">
+        <div className="h-1 bg-gradient-to-r from-purple-500 via-fuchsia-500 to-pink-500 via-50% to-orange-500" />
+        <div className="px-9 pb-9 pt-10">
+          <div className="mb-9 flex flex-col items-center gap-4">
             <ProfilePictureUploader />
-
-            <div style={{ textAlign: "center" }}>
-              <h1
-                style={{
-                  margin: 0,
-                  fontSize: "1.6rem",
-                  fontWeight: 700,
-                  letterSpacing: "-0.02em",
-                  color: "#f1f5f9",
-                }}
-              >
+            <div className="text-center">
+              <h1 className="m-0 text-[1.6rem] font-bold tracking-tight text-slate-100">
                 {name || "Your Profile"}
               </h1>
-              <p
-                style={{
-                  margin: "4px 0 0",
-                  fontSize: "0.875rem",
-                  color: "#64748b",
-                }}
-              >
-                {email}
-              </p>
+              {email && <p className="m-0 mt-1 text-sm text-slate-500">{email}</p>}
             </div>
           </div>
 
-          {/* Divider */}
-          <div
-            style={{
-              height: "1px",
-              background:
-                "linear-gradient(90deg, transparent, rgba(148,163,184,0.15), transparent)",
-              marginBottom: "28px",
-            }}
-          />
+          <div className="mb-7 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent" />
 
-          {/* Status row */}
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: "10px",
-              padding: "14px 16px",
-              borderRadius: "14px",
-              background: "rgba(16, 185, 129, 0.08)",
-              border: "1px solid rgba(16, 185, 129, 0.2)",
-              marginBottom: "24px",
-            }}
-          >
-            <span
-              style={{
-                width: "8px",
-                height: "8px",
-                borderRadius: "50%",
-                background: "#10b981",
-                flexShrink: 0,
-                boxShadow: "0 0 6px #10b981",
-              }}
-            />
-            <p
-              style={{
-                margin: 0,
-                fontSize: "0.875rem",
-                color: "#a7f3d0",
-                fontWeight: 500,
-              }}
-            >
-              Session active — you are logged in
-            </p>
+          <div className="mb-6 flex items-center gap-2.5 rounded-[14px] border border-emerald-500/20 bg-emerald-500/10 px-4 py-3.5">
+            <span className="h-2 w-2 shrink-0 rounded-full bg-emerald-400 shadow-[0_0_6px_#10b981]" />
+            <p className="m-0 text-sm font-medium text-emerald-200">Session active — you are logged in</p>
           </div>
 
-          {/* Info cards */}
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "1fr 1fr",
-              gap: "12px",
-              marginBottom: "28px",
-            }}
-          >
-            {[
-              { label: "Name", value: name || "—" },
-              { label: "Email", value: email || "—" },
-            ].map(({ label, value }) => (
-              <div
-                key={label}
-                style={{
-                  padding: "14px 16px",
-                  borderRadius: "14px",
-                  background: "rgba(255,255,255,0.04)",
-                  border: "1px solid rgba(255,255,255,0.07)",
-                }}
-              >
-                <p
-                  style={{
-                    margin: "0 0 4px",
-                    fontSize: "0.7rem",
-                    color: "#475569",
-                    textTransform: "uppercase",
-                    letterSpacing: "0.08em",
-                    fontWeight: 600,
-                  }}
-                >
-                  {label}
-                </p>
-                <p
-                  style={{
-                    margin: 0,
-                    fontSize: "0.9rem",
-                    color: "#cbd5e1",
-                    fontWeight: 500,
-                    overflow: "hidden",
-                    textOverflow: "ellipsis",
-                    whiteSpace: "nowrap",
-                  }}
-                  title={value}
-                >
-                  {value}
-                </p>
-              </div>
-            ))}
+          <div className="mb-7 grid grid-cols-2 gap-3">
+            <InfoCard label="Name" value={name || "\u2014"} />
+            <InfoCard label="Email" value={email || "\u2014"} />
           </div>
 
-          {/* Log out button */}
           <button
             id="logout-btn"
             type="button"
             onClick={handleLogout}
-            style={{
-              width: "100%",
-              padding: "14px",
-              borderRadius: "14px",
-              border: "none",
-              background: "linear-gradient(135deg, #ef4444, #f97316)",
-              color: "#fff",
-              fontSize: "0.95rem",
-              fontWeight: 700,
-              cursor: "pointer",
-              letterSpacing: "0.02em",
-              transition: "opacity 0.2s, transform 0.15s",
-              boxShadow: "0 4px 20px rgba(239,68,68,0.3)",
-            }}
-            onMouseEnter={(e) => (e.currentTarget.style.opacity = "0.88")}
-            onMouseLeave={(e) => (e.currentTarget.style.opacity = "1")}
+            className="w-full cursor-pointer rounded-[14px] border-none bg-gradient-to-r from-red-500 to-orange-500 px-4 py-3.5 text-[0.95rem] font-bold text-white tracking-wide shadow-[0_4px_20px_rgba(239,68,68,0.3)] transition-opacity duration-200 hover:opacity-85"
           >
             Log out
           </button>
@@ -223,5 +52,18 @@ const DashboardPage = () => {
     </main>
   );
 };
+
+function InfoCard({ label, value }) {
+  return (
+    <div className="rounded-[14px] border border-white/10 bg-white/5 px-4 py-3.5">
+      <p className="m-0 mb-1 text-[0.7rem] font-semibold uppercase tracking-wider text-slate-600">
+        {label}
+      </p>
+      <p className="m-0 truncate text-[0.9rem] font-medium text-slate-300" title={value}>
+        {value}
+      </p>
+    </div>
+  );
+}
 
 export default DashboardPage;

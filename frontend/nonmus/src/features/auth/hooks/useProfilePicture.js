@@ -91,7 +91,7 @@ export const useProfilePicture = () => {
           const freshUrl = await attemptUpload();
           setViewUrl(freshUrl);
           setSuccess(true);
-        } catch (retryErr) {
+        } catch {
           setError("Upload failed after retry. Please try again.");
         }
       } else {

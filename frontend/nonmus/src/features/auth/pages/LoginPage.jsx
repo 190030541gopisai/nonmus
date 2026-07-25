@@ -1,27 +1,35 @@
-import {useContext, useState} from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { loginWithGoogle } from "../utils/GoogleAuthUtil.js";
+import { useState } from "react";
+import { Link } from "react-router-dom";
+import { useAuth } from "../hooks/useAuth";
+import { loginWithGoogle } from "../utils/GoogleAuthUtil";
 import sideLogo from '../../../assets/side-logo.png';
 import nonmusLogo from '../../../../public/logo.png';
 
 const LoginPage = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
-  const {login} = useContext(AuthContext)
-
-  const navigate = useNavigate();
+  const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const { login } = useAuth();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    setError("");
+    setIsLoading(true);
+
     try {
       await login({ email, password, rememberMe });
     } catch (err) {
-      console.error(err);
-      setError("Login failed. Please check your credentials and try again.");
+      setError(
+          err?.response?.data?.message ||
+          err.message ||
+          "Login failed. Please check your credentials and try again."
+      );
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -162,9 +170,18 @@ const LoginPage = () => {
 
                 <button
                     type="submit"
-                    className="w-full rounded-xl bg-slate-800 py-3 text-base font-semibold text-white transition hover:bg-slate-700"
+                    disabled={isLoading}
+                    className="w-full rounded-xl bg-slate-800 py-3 text-base font-semibold text-white transition hover:bg-slate-700 disabled:opacity-60"
                 >
-                  Log In
+                  {isLoading ? (
+                      <span className="flex items-center justify-center gap-2">
+                        <svg className="h-5 w-5 animate-spin" viewBox="0 0 24 24" fill="none">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
+                        </svg>
+                        Logging in...
+                      </span>
+                  ) : "Log In"}
                 </button>
 
                 <div className="flex items-center gap-3">

@@ -1,7 +1,7 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import App from "./App.jsx";
-import { AuthProvider } from "./features/auth/context/AuthContext";
+import { AuthProvider } from "./features/auth/context/AuthProvider.jsx";
 
 import "./index.css";
 
