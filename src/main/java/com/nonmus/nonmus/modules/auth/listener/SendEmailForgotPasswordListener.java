@@ -52,11 +52,11 @@ public class SendEmailForgotPasswordListener {
 
         System.out.println(content);
 
-//        mailService.send(
-//                user.getEmail(),
-//                subject,
-//                content
-//        );
+        mailService.send(
+                user.getEmail(),
+                subject,
+                content
+        );
 
         log.info("Sent Forgot password verification code to: " + email);
     }

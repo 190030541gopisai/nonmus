@@ -49,8 +49,7 @@ public class SendEmailVerificationListener {
 
         log.info("Sending verification email to: " + email);
 
-        System.out.println(content);
-//        mailService.send(user.getEmail(), subject, content);
+        mailService.send(user.getEmail(), subject, content);
 
         log.info("Verification email sent to: " + email);
     }
