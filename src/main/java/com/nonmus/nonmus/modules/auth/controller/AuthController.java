@@ -9,7 +9,6 @@ import com.nonmus.nonmus.modules.auth.service.AuthenticationService;
 import com.nonmus.nonmus.modules.auth.service.JwtCookieService;
 import com.nonmus.nonmus.modules.auth.service.RefreshTokenService;
 import com.nonmus.nonmus.modules.auth.service.UserRegistrationService;
-import com.nonmus.nonmus.modules.common.util.AuthUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -27,9 +26,8 @@ public class AuthController {
     private final AuthenticationService authService;
     private final UserRegistrationService userRegistrationService;
     private final RefreshTokenService refreshTokenService;
-    private final AuthUtil authUtil;
     private final JwtCookieService jwtCookieService;
-    
+
     @PostMapping("/signup")
     public ResponseEntity<SignUpResponse> signup(@RequestBody SignUpRequest request, HttpServletResponse response) {
         SignUpResult signUpResult = userRegistrationService.signup(request);
