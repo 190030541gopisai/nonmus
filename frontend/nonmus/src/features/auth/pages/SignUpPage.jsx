@@ -49,41 +49,30 @@ const SignUpPage = () => {
   };
 
   return (
-      <section className="min-h-screen bg-slate-100">
-        <div className="mx-auto flex min-h-screen">
-
-          {/* Left Illustration */}
-          <div className="hidden lg:flex lg:w-1/2 items-center justify-center">
+      <section className="lg:min-h-screen">
+        <div className="flex lg:min-h-screen max-w-7xl mx-auto items-center">
+          <div className="hidden lg:flex lg:w-1/2 items-center justify-center p-8">
             <img
                 src={sideLogo}
                 alt="Signup Illustration"
-                className=" w-full object-contain"
+                className="w-full h-auto max-w-md object-contain"
             />
           </div>
-
-          {/* Right Form */}
-          <div className="flex w-full items-center justify-center p-4 sm:p-8 lg:w-1/2">
-
-            <div className="w-full max-w-sm rounded-2xl border border-slate-200 bg-white p-6 shadow-xl sm:max-w-md sm:p-8">
-
+          <div className="w-full md:w-3/4 md:mx-auto lg:w-1/2 lg:flex lg:justify-center lg:items-center">
+            <div className="w-full p-6 lg:w-3/4 md:mx-auto max-w-lg">
               <header className="mb-8">
-                <h1 className="text-3xl font-bold text-slate-900 sm:text-4xl">
-                  Create your account
+                <img src={nonmusLogo} className="w-1/3 sm:w-2/5 max-w-xs mx-auto lg:hidden" />
+                <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-slate-900">
+                  Create a Nonmus Account
                 </h1>
-
-                <p className="mt-2 text-slate-500">
-                  Register to start using Nonmus.
-                </p>
               </header>
 
               <form
                   onSubmit={handleSubmit}
-                  className="space-y-5"
+                  className="space-y-3"
               >
-                {/* Name */}
-
                 <div>
-                  <label className="mb-2 block font-medium text-slate-700">
+                  <label className="mb-2 text-sm sm:text-base lg:text-lg block font-medium text-slate-700">
                     Name
                   </label>
 
@@ -100,10 +89,8 @@ const SignUpPage = () => {
                   />
                 </div>
 
-                {/* Email */}
-
                 <div>
-                  <label className="mb-2 block font-medium text-slate-700">
+                  <label className="mb-2 text-sm sm:text-base lg:text-lg block font-medium text-slate-700">
                     Email
                   </label>
 
@@ -120,10 +107,8 @@ const SignUpPage = () => {
                   />
                 </div>
 
-                {/* Password */}
-
                 <div>
-                  <label className="mb-2 block font-medium text-slate-700">
+                  <label className="mb-2 text-sm sm:text-base lg:text-lg block font-medium text-slate-700">
                     Password
                   </label>
 
@@ -199,29 +184,26 @@ const SignUpPage = () => {
 
                 <button
                     type="submit"
-                    className="w-full rounded-xl bg-slate-800 py-3 text-base font-semibold text-white transition hover:bg-slate-700 sm:text-lg"
+                    className="w-full rounded-xl bg-slate-800 py-3 text-base font-semibold text-white transition hover:bg-slate-700"
                 >
                   Create Account
                 </button>
 
                 <div className="flex items-center gap-3">
                   <div className="h-px flex-1 bg-slate-300"></div>
-                  <span className="text-sm text-slate-500">
-                  or
-                </span>
+                  <span className="text-sm text-slate-500">or</span>
                   <div className="h-px flex-1 bg-slate-300"></div>
                 </div>
 
                 <button
                     type="button"
                     onClick={loginWithGoogle}
-                    className="flex w-full items-center justify-center gap-3 rounded-xl border border-slate-300 bg-white py-3 text-base font-semibold transition hover:bg-slate-50 sm:text-lg"
+                    className="flex w-full items-center justify-center gap-3 rounded-xl border border-slate-300 bg-white py-3 text-base font-semibold transition hover:bg-slate-50"
                 >
-                <span className="flex h-8 w-8 items-center justify-center rounded-full border border-slate-300 font-bold text-[#4285F4]">
-                  G
-                </span>
-
-                  Continue with Google
+                    <span className="flex h-8 w-8 items-center justify-center rounded-full border border-slate-300 font-bold text-[#4285F4]">
+                      G
+                    </span>
+                    Continue with Google
                 </button>
 
                 <p className="text-center text-sm text-slate-700 sm:text-base">
