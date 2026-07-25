@@ -1,16 +1,18 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 import { loginWithGoogle } from "../utils/GoogleAuthUtil";
 import sideLogo from '../../../assets/side-logo.png';
 import nonmusLogo from '../../../../public/logo.png';
 
 const LoginPage = () => {
+  const location = useLocation();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
   const [error, setError] = useState("");
+  const successMessage = location.state?.message;
   const [isLoading, setIsLoading] = useState(false);
   const { login } = useAuth();
 
@@ -143,6 +145,12 @@ const LoginPage = () => {
                   </div>
                 </div>
 
+                {successMessage && (
+                    <div className="rounded-xl border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-700">
+                      {successMessage}
+                    </div>
+                )}
+
                 {error && (
                     <p className="text-sm text-red-600">
                       {error}
@@ -160,12 +168,12 @@ const LoginPage = () => {
                     Remember me
                   </label>
 
-                  <button
-                      type="button"
+                  <Link
+                      to="/forgot-password"
                       className="text-sm sm:text-base font-medium text-blue-600 hover:text-blue-700"
                   >
                     Forgot password?
-                  </button>
+                  </Link>
                 </div>
 
                 <button
