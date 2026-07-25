@@ -29,7 +29,7 @@ public class AuthController {
     private final RefreshTokenService refreshTokenService;
     private final AuthUtil authUtil;
     private final JwtCookieService jwtCookieService;
-
+    
     @PostMapping("/signup")
     public ResponseEntity<SignUpResponse> signup(@RequestBody SignUpRequest request, HttpServletResponse response) {
         SignUpResult signUpResult = userRegistrationService.signup(request);
