@@ -11,38 +11,14 @@ function AppRoutes() {
     return (
         <BrowserRouter>
             <Routes>
-                <Route
-                    path="/"
-                    element={
-                        <ProtectedRoute>
-                            <DashboardPage/>
-                        </ProtectedRoute>
-                    }
-                />
-                <Route
-                    path="/login"
-                    element={
-                        <PublicRoute>
-                            <LoginPage/>
-                        </PublicRoute>
-                    }
-                />
-                <Route
-                    path="/signup"
-                    element={
-                        <PublicRoute>
-                            <SignUpPage/>
-                        </PublicRoute>
-                    }
-                />
-                <Route
-                    path="/forgot-password"
-                    element={
-                        <PublicRoute>
-                            <ForgotPasswordPage/>
-                        </PublicRoute>
-                    }
-                />
+                <Route element={<ProtectedRoute/>}>
+                    <Route path="/" element={<DashboardPage/>}/>
+                </Route>
+                <Route element={<PublicRoute/>}>
+                    <Route path="/login" element={<LoginPage/>}/>
+                    <Route path="/signup" element={<SignUpPage/>}/>
+                    <Route path="/forgot-password" element={<ForgotPasswordPage/>}/>
+                </Route>
                 <Route path="*" element={<Navigate to="/login" replace/>}/>
             </Routes>
         </BrowserRouter>

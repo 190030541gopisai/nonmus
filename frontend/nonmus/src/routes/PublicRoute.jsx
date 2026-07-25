@@ -1,8 +1,8 @@
-import {Navigate, useLocation} from "react-router-dom";
+import {Navigate, Outlet, useLocation} from "react-router-dom";
 import {useAuth} from "../features/auth/hooks/useAuth";
 import LoadingFallback from "./LoadingFallback.jsx";
 
-const PublicRoute = ({children}) => {
+const PublicRoute = () => {
     const {user, loading, error} = useAuth();
     const location = useLocation();
     const from = location.state?.from?.pathname || "/";
@@ -12,14 +12,14 @@ const PublicRoute = ({children}) => {
     }
 
     if (error) {
-        return children;
+        return <Outlet/>;
     }
 
     if (user) {
         return <Navigate to={from} replace/>;
     }
 
-    return children;
+    return <Outlet/>;
 };
 
 export default PublicRoute;
