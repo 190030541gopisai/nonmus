@@ -1,0 +1,885 @@
+{
+  "info": {
+    "_postman_id": "a620cf24-4927-428a-96de-f93b8ebfc2c4",
+    "name": "Nonmus Monolith",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "36256363"
+  },
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "SignUp",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"Gopi Sai\",\n    \"email\": \"gottipatigopisai1@gmail.com\",\n    \"password\": \"helloworld\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "localhost:8080/api/v1/auth/signup",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "signup"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {\r",
+                  "    const accessToken = pm.cookies.get(\"access_token\");\r",
+                  "    const refreshToken = pm.cookies.get(\"refresh_token\");\r",
+                  "\r",
+                  "    pm.collectionVariables.set(\"accessToken\", accessToken || \"\");\r",
+                  "    pm.collectionVariables.set(\"refreshToken\", refreshToken || \"\");\r",
+                  "\r",
+                  "    console.log(\"Access Token:\", accessToken);\r",
+                  "    console.log(\"Refresh Token:\", refreshToken);\r",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"email\": \"gottipatigopisai1@gmail.com\",\n    \"password\": \"helloworld\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "localhost:8080/api/v1/auth/login",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "login"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Refresh Access Token",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "localhost:8080/api/v1/auth/refresh",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "refresh"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"email\": \"test@example.com\",\n    \"password\": \"helloworld\"\n}"
+            },
+            "url": {
+              "raw": "localhost:8080/api/v1/auth/logout",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "logout"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Verify Email With Token",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "localhost:8080/api/v1/email/verify?token=B6LdoIP-6L4Cy94vgomYBRrg9DQ_qP2lZlmH38CEv0I",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "v1",
+                "email",
+                "verify"
+              ],
+              "query": [
+                {
+                  "key": "token",
+                  "value": "B6LdoIP-6L4Cy94vgomYBRrg9DQ_qP2lZlmH38CEv0I"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Resend Email Verification",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "localhost:8080/api/v1/email/resend",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "v1",
+                "email",
+                "resend"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Forgot Password Send",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"email\": \"gottipatigopisai1@gmail.com\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "localhost:8080/api/v1/forgot-password/send",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "v1",
+                "forgot-password",
+                "send"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Forgot Password Verify",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"email\": \"gottipatigopisai1@gmail.com\",\r\n    \"code\": \"633601\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "localhost:8080/api/v1/forgot-password/verify",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "v1",
+                "forgot-password",
+                "verify"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Forgot Password Reset",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"newPassword\":\"hellowolf\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "localhost:8080/api/v1/forgot-password/reset",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "v1",
+                "forgot-password",
+                "reset"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "User",
+      "item": [
+        {
+          "name": "Create User",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"Gopi Sai\",\n    \"email\": \"gopisai4568@gmail.com\",\n    \"password\": \"helloworld\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "localhost:8080/api/v1/users",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "v1",
+                "users"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "GET User",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "localhost:8080/api/v1/users/me",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "v1",
+                "users",
+                "me"
+              ],
+              "query": [
+                {
+                  "key": "",
+                  "value": null,
+                  "type": "text",
+                  "disabled": true
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Channel",
+      "item": [
+        {
+          "name": "Create Channel",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJnb3Bpc2FpNDMyNTY4QGdtYWlsLmNvbSIsIm5hbWUiOiJHb3BpIFNhaSIsImlhdCI6MTc3OTEyMzczMCwiZXhwIjoxNzc5MTI3MzMwfQ.nfYIqKoev5A17i1kwlyHojrJyaqRC85tE1fMgp8ItRM",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"Gopi Sai\",\n    \"description\":\"Sample Channel\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "localhost:8080/api/v1/channel",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "v1",
+                "channel"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Profile Picture Copy",
+      "item": [
+        {
+          "name": "[Step 1] Request Presigned Upload URL",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const json = pm.response.json();",
+                  "    pm.collectionVariables.set('presignedUploadUrl', json.presignedUrl);",
+                  "    pm.collectionVariables.set('s3Key', json.s3Key);",
+                  "    console.log('presignedUploadUrl saved:', json.presignedUrl);",
+                  "    console.log('s3Key saved:', json.s3Key);",
+                  "    console.log('URL expires in:', json.expiresInSeconds, 'seconds');",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"contentType\": \"image/jpeg\",\n  \"fileSize\": 204800\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/users/profile-picture/presigned-url",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "users",
+                "profile-picture",
+                "presigned-url"
+              ]
+            },
+            "description": "**Backend validates** contentType and fileSize, then generates a short-lived S3 presigned PUT URL.\n\nThe test script automatically saves `presignedUrl` and `s3Key` to collection variables.\n\n**Allowed contentTypes:** image/jpeg, image/png, image/webp, image/gif\n**Max fileSize:** 5242880 bytes (5 MB)"
+          },
+          "response": [
+            {
+              "name": "Success (200)",
+              "originalRequest": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"contentType\": \"image/jpeg\",\n  \"fileSize\": 204800\n}"
+                },
+                "url": {
+                  "raw": ""
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "Text",
+              "header": [],
+              "cookie": [],
+              "body": "{\n  \"presignedUrl\": \"http://localhost:4566/nonmus-profile-pics/users/test@example.com/550e8400-e29b-41d4-a716-446655440000.jpg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Expires=600&X-Amz-Signature=...\",\n  \"s3Key\": \"users/test@example.com/550e8400-e29b-41d4-a716-446655440000.jpg\",\n  \"expiresInSeconds\": 600\n}"
+            },
+            {
+              "name": "Invalid file type (400)",
+              "originalRequest": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"contentType\": \"application/pdf\",\n  \"fileSize\": 204800\n}"
+                },
+                "url": {
+                  "raw": ""
+                }
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "_postman_previewlanguage": "Text",
+              "header": [],
+              "cookie": [],
+              "body": "{\n  \"errorCode\": \"INVALID_FILE\",\n  \"message\": \"File type 'application/pdf' is not allowed. Accepted types: image/jpeg, image/png, image/webp, image/gif\"\n}"
+            },
+            {
+              "name": "File too large (400)",
+              "originalRequest": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"contentType\": \"image/jpeg\",\n  \"fileSize\": 9999999\n}"
+                },
+                "url": {
+                  "raw": ""
+                }
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "_postman_previewlanguage": "Text",
+              "header": [],
+              "cookie": [],
+              "body": "{\n  \"errorCode\": \"INVALID_FILE\",\n  \"message\": \"File size exceeds the maximum allowed size of 5 MB.\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "[Step 2] Upload File Directly to S3",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('S3 upload succeeded', function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 204]);",
+                  "});",
+                  "if (pm.response.code === 200 || pm.response.code === 204) {",
+                  "    console.log('File uploaded successfully to S3. Now run Step 3 (Confirm Upload).');",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "image/jpeg",
+                "description": "Must match the contentType sent in Step 1"
+              },
+              {
+                "key": "Authorization",
+                "value": "",
+                "description": "MUST be disabled/absent — S3 rejects requests that have both an Authorization header and presign query params",
+                "disabled": true
+              }
+            ],
+            "body": {
+              "mode": "file",
+              "file": {
+                "src": "/C:/Users/solo/Pictures/Screenshots/Screenshot (1).png"
+              }
+            },
+            "url": {
+              "raw": "{{presignedUploadUrl}}",
+              "host": [
+                "{{presignedUploadUrl}}"
+              ]
+            },
+            "description": "**Uploads directly to S3 — the backend is NOT involved in this step.**\n\nThe URL is the `presignedUploadUrl` from Step 1 (auto-populated).\n\n⚠️ **Critical:** Set Body to `binary` and select an image file.\n⚠️ **Critical:** No `Authorization` header — the presign query params ARE the auth.\n⚠️ **Critical:** `Content-Type` header must match exactly what was sent in Step 1.\n\nExpected response: `200 OK` with an empty body from S3."
+          },
+          "response": []
+        },
+        {
+          "name": "[Step 3] Confirm Upload",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"s3Key\": \"{{s3Key}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/users/profile-picture/confirm",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "users",
+                "profile-picture",
+                "confirm"
+              ]
+            },
+            "description": "Tells the backend which S3 key was uploaded. The backend:\n1. Validates the key belongs to you (prefix check)\n2. Deletes your old profile picture from S3\n3. Saves the new key to the database\n4. Returns a fresh presigned GET URL ready to use in `<img src>`\n\nThe `s3Key` variable is auto-populated from Step 1."
+          },
+          "response": [
+            {
+              "name": "Success (200)",
+              "originalRequest": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{accessToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"s3Key\": \"{{s3Key}}\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/users/profile-picture/confirm",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "users",
+                    "profile-picture",
+                    "confirm"
+                  ]
+                },
+                "description": "Tells the backend which S3 key was uploaded. The backend:\n1. Validates the key belongs to you (prefix check)\n2. Deletes your old profile picture from S3\n3. Saves the new key to the database\n4. Returns a fresh presigned GET URL ready to use in `<img src>`\n\nThe `s3Key` variable is auto-populated from Step 1."
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "Text",
+              "header": [],
+              "cookie": [],
+              "body": "{\n  \"viewUrl\": \"http://localhost:4566/nonmus-profile-pics/users/test@example.com/550e8400-e29b-41d4-a716-446655440000.jpg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Expires=3600&X-Amz-Signature=...\",\n  \"expiresInSeconds\": 3600\n}"
+            },
+            {
+              "name": "Key hijack attempt (400)",
+              "originalRequest": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{accessToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"s3Key\": \"{{s3Key}}\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/users/profile-picture/confirm",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "users",
+                    "profile-picture",
+                    "confirm"
+                  ]
+                },
+                "description": "Tells the backend which S3 key was uploaded. The backend:\n1. Validates the key belongs to you (prefix check)\n2. Deletes your old profile picture from S3\n3. Saves the new key to the database\n4. Returns a fresh presigned GET URL ready to use in `<img src>`\n\nThe `s3Key` variable is auto-populated from Step 1."
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "_postman_previewlanguage": "Text",
+              "header": [],
+              "cookie": [],
+              "body": "{\n  \"errorCode\": \"INVALID_FILE\",\n  \"message\": \"Invalid file key: key does not belong to the authenticated user.\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Get Profile Picture View URL",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/users/profile-picture/view-url",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "users",
+                "profile-picture",
+                "view-url"
+              ]
+            },
+            "description": "Returns a fresh presigned GET URL for the authenticated user's profile picture.\n\nCall this:\n- On page load to get the initial URL\n- When the previous URL expires (onerror handler on the <img> element)\n\nIf no profile picture is set, returns `{ \"viewUrl\": \"\", \"expiresInSeconds\": 0 }`"
+          },
+          "response": [
+            {
+              "name": "Success — picture exists (200)",
+              "originalRequest": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{accessToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/users/profile-picture/view-url",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "users",
+                    "profile-picture",
+                    "view-url"
+                  ]
+                },
+                "description": "Returns a fresh presigned GET URL for the authenticated user's profile picture.\n\nCall this:\n- On page load to get the initial URL\n- When the previous URL expires (onerror handler on the <img> element)\n\nIf no profile picture is set, returns `{ \"viewUrl\": \"\", \"expiresInSeconds\": 0 }`"
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "Text",
+              "header": [],
+              "cookie": [],
+              "body": "{\n  \"viewUrl\": \"http://localhost:4566/nonmus-profile-pics/users/test@example.com/550e8400-e29b-41d4-a716-446655440000.jpg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Expires=3600&X-Amz-Signature=...\",\n  \"expiresInSeconds\": 3600\n}"
+            },
+            {
+              "name": "Success — no picture set (200)",
+              "originalRequest": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{accessToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/users/profile-picture/view-url",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "users",
+                    "profile-picture",
+                    "view-url"
+                  ]
+                },
+                "description": "Returns a fresh presigned GET URL for the authenticated user's profile picture.\n\nCall this:\n- On page load to get the initial URL\n- When the previous URL expires (onerror handler on the <img> element)\n\nIf no profile picture is set, returns `{ \"viewUrl\": \"\", \"expiresInSeconds\": 0 }`"
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "Text",
+              "header": [],
+              "cookie": [],
+              "body": "{\n  \"viewUrl\": \"\",\n  \"expiresInSeconds\": 0\n}"
+            }
+          ]
+        }
+      ],
+      "description": "3-step presigned URL upload flow.\n\n1. Run [Step 1] → presignedUploadUrl and s3Key are auto-saved\n2. Run [Step 2] → uploads the file directly to S3 (no backend involved)\n3. Run [Step 3] → backend saves the key and returns a presigned view URL"
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "packages": {},
+        "requests": {},
+        "exec": [
+          ""
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "packages": {},
+        "requests": {},
+        "exec": [
+          ""
+        ]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "token",
+      "value": ""
+    },
+    {
+      "key": "accessToken",
+      "value": ""
+    },
+    {
+      "key": "refreshToken",
+      "value": ""
+    }
+  ]
+}
