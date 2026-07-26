@@ -86,7 +86,7 @@ function ProfilePage() {
   return (
     <div>
       <div className="relative flex items-center p-4">
-        <div className="w-1/4">
+        <div className="w-1/4 flex items-center justify-center">
           {editProfile ? (
             <label htmlFor="profile-picture-file-input" className="relative flex items-center justify-center cursor-pointer group">
               <img
@@ -114,7 +114,7 @@ function ProfilePage() {
             <button
                 type="button"
                 onClick={() => setShowPreview(true)}
-                className="relative flex items-center justify-center"
+                className="relative"
             >
               <img
                   src={imageSrc}
@@ -158,9 +158,8 @@ function ProfilePage() {
             <button className="mt-2 ml-2 bg-gray-500 text-white px-2 py-1 rounded" onClick={handleCancel}>Cancel</button>
           </div>}
         </div>
-
         {!editProfile &&
-            <span className="absolute top-4 right-4 p-4 cursor-pointer" onClick={() => setEditProfile(true)}>
+            <span className="absolute top-4 right-4 p-4 cursor-pointer md:right-1/4" onClick={() => setEditProfile(true)}>
               <FaEdit />
             </span>
         }
