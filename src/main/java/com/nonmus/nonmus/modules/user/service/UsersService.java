@@ -1,10 +1,12 @@
 package com.nonmus.nonmus.modules.user.service;
 
+import com.nonmus.nonmus.modules.common.exception.UserNotFoundException;
 import com.nonmus.nonmus.modules.user.dto.request.OAuthUserCreateRequest;
+import com.nonmus.nonmus.modules.user.dto.request.UpdateUserRequest;
 import com.nonmus.nonmus.modules.user.dto.request.UserCreateRequest;
+import com.nonmus.nonmus.modules.user.dto.response.UserResponse;
 import com.nonmus.nonmus.modules.user.entity.Users;
 import com.nonmus.nonmus.modules.user.enums.Provider;
-import com.nonmus.nonmus.modules.user.repository.ProvidersRepository;
 import com.nonmus.nonmus.modules.user.repository.UsersRepository;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
@@ -59,5 +61,12 @@ public class UsersService {
     public void addProviderToUserAndSave(Users user, Provider externalProvider) {
         user.addProvider(externalProvider);
         usersRepository.save(user);
+    }
+
+    @Transactional
+    public Users updateUser(String email, UpdateUserRequest request) {
+        Users user = usersRepository.findByEmail(email).orElseThrow(() -> new UserNotFoundException("User not found"));
+        modelMapper.map(request, user);
+        return usersRepository.save(user);
     }
 }
