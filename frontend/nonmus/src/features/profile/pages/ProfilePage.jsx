@@ -84,85 +84,93 @@ function ProfilePage() {
     : (viewUrl || expiredUrl);
 
   return (
-    <div>
-      <div className="relative flex items-center p-4">
-        <div className="w-1/4 flex items-center justify-center">
-          {editProfile ? (
-            <label htmlFor="profile-picture-file-input" className="relative flex items-center justify-center cursor-pointer group">
-              <img
-                  src={imageSrc}
-                  alt="Profile picture"
-                  className="rounded-full w-24 h-24 object-cover opacity-25"
-                  onError={handleViewUrlExpired}
-              />
-              <span className="absolute transition-opacity duration-300 opacity-100">
-                <svg viewBox="0 0 24 24" className="h-7 w-7">
-                  <path d="M12 15.2A3.2 3.2 0 1 0 12 8.8a3.2 3.2 0 0 0 0 6.4z" />
-                  <path d="M9 2L7.17 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2h-3.17L15 2H9zm3 15a5 5 0 1 1 0-10 5 5 0 0 1 0 10z" />
-                </svg>
-              </span>
-              <input
-                  id="profile-picture-file-input"
-                  type="file"
-                  accept="image/jpeg,image/png,image/webp,image/gif"
-                  className="hidden"
-                  aria-hidden="true"
-                  onChange={handleFileChange}
-              />
-            </label>
-          ) : (
-            <button
-                type="button"
-                onClick={() => setShowPreview(true)}
-                className="relative"
-            >
-              <img
-                  src={imageSrc}
-                  alt="Profile picture"
-                  className="rounded-full w-24 h-24 object-cover cursor-pointer"
-                  onError={handleViewUrlExpired}
-              />
-            </button>
-          )}
-          {uploading && <p className="text-xs text-blue-500 mt-1 text-center">Uploading...</p>}
-          {error && <p className="text-xs text-red-500 mt-1 text-center">{error}</p>}
-        </div>
-        <div className="w-3/4 p-4">
-          {editProfile ? (
-            <div>
-              <input
-                type="text"
-                placeholder="Name"
-                className="block font-bold text-lg"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                autoFocus
-              />
-              <input
-                type="email"
-                placeholder="Email"
-                className="block w-full"
-                value={email}
-                onChange={e => setEmail(e.target.value)}
-              />
-            </div>
-          ) : (
-            <div>
-              <h1 className="text-xl font-bold">{name || "Name"}</h1>
-              <p className="text-gray-600">{email || "Email"}</p>
-            </div>
-          )}
+    <div className="mx-auto max-w-2xl px-4 py-6 lg:py-10">
+      <div className="relative rounded-2xl border border-slate-200 bg-white p-4 lg:p-8">
+        <div className="flex flex-col items-center gap-6 lg:flex-row lg:items-start">
+          <div className="flex-shrink-0">
+            {editProfile ? (
+              <label htmlFor="profile-picture-file-input" className="relative mx-auto flex h-24 w-24 cursor-pointer items-center justify-center rounded-full group lg:h-28 lg:w-28">
+                <img
+                    src={imageSrc}
+                    alt="Profile picture"
+                    className="h-full w-full rounded-full object-cover opacity-25"
+                    onError={handleViewUrlExpired}
+                />
+                <span className="absolute opacity-100">
+                  <svg viewBox="0 0 24 24" className="h-7 w-7">
+                    <path d="M12 15.2A3.2 3.2 0 1 0 12 8.8a3.2 3.2 0 0 0 0 6.4z" />
+                    <path d="M9 2L7.17 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2h-3.17L15 2H9zm3 15a5 5 0 1 1 0-10 5 5 0 0 1 0 10z" />
+                  </svg>
+                </span>
+                <input
+                    id="profile-picture-file-input"
+                    type="file"
+                    accept="image/jpeg,image/png,image/webp,image/gif"
+                    className="hidden"
+                    aria-hidden="true"
+                    onChange={handleFileChange}
+                />
+              </label>
+            ) : (
+              <button
+                  type="button"
+                  onClick={() => setShowPreview(true)}
+                  className="mx-auto block"
+              >
+                <img
+                    src={imageSrc}
+                    alt="Profile picture"
+                    className="h-24 w-24 rounded-full object-cover cursor-pointer lg:h-28 lg:w-28"
+                    onError={handleViewUrlExpired}
+                />
+              </button>
+            )}
+            {uploading && <p className="mt-2 text-center text-xs text-blue-500">Uploading...</p>}
+            {error && <p className="mt-2 text-center text-xs text-red-500">{error}</p>}
+          </div>
 
-          {editProfile && <div className="absolute">
-            <button className="mt-2 bg-blue-500 text-white px-2 py-1 rounded" onClick={handleSubmit}>Save</button>
-            <button className="mt-2 ml-2 bg-gray-500 text-white px-2 py-1 rounded" onClick={handleCancel}>Cancel</button>
-          </div>}
+          <div className="flex-1 text-center lg:text-left">
+            {editProfile ? (
+              <div className="space-y-3">
+                <input
+                  type="text"
+                  placeholder="Name"
+                  className="block w-full rounded-lg border border-slate-300 px-3 py-2 text-lg font-bold focus:border-slate-500 focus:outline-none"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  autoFocus
+                />
+                <input
+                  type="email"
+                  placeholder="Email"
+                  className="block w-full rounded-lg border border-slate-300 px-3 py-2 focus:border-slate-500 focus:outline-none"
+                  value={email}
+                  onChange={e => setEmail(e.target.value)}
+                />
+              </div>
+            ) : (
+              <div>
+                <h1 className="text-xl font-bold lg:text-2xl">{name || "Name"}</h1>
+                <p className="text-gray-600">{email || "Email"}</p>
+              </div>
+            )}
+
+            {editProfile && (
+              <div className="mt-4 flex justify-center gap-3 lg:justify-start">
+                <button className="rounded-lg bg-blue-500 px-4 py-2 text-sm font-medium text-white hover:bg-blue-600" onClick={handleSubmit}>Save</button>
+                <button className="rounded-lg bg-gray-500 px-4 py-2 text-sm font-medium text-white hover:bg-gray-600" onClick={handleCancel}>Cancel</button>
+              </div>
+            )}
+            {!editProfile && (
+              <button
+                  className="mt-4 inline-flex items-center gap-2 text-sm font-medium text-slate-500 hover:text-slate-700 lg:mt-4"
+                  onClick={() => setEditProfile(true)}
+              >
+                <FaEdit /> Edit Profile
+              </button>
+            )}
+          </div>
         </div>
-        {!editProfile &&
-            <span className="absolute top-4 right-4 p-4 cursor-pointer md:right-1/4" onClick={() => setEditProfile(true)}>
-              <FaEdit />
-            </span>
-        }
       </div>
 
       {showPreview && (

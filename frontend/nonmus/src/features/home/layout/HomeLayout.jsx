@@ -1,4 +1,6 @@
 import { Link, Outlet, useLocation } from "react-router-dom";
+import { useState } from "react";
+import { TbLayoutSidebarLeftCollapseFilled, TbLayoutSidebarLeftExpandFilled } from "react-icons/tb";
 
 function HomeIcon({ active }) {
   return (
@@ -81,50 +83,103 @@ const navItems = [
 
 function HomeLayout() {
   const location = useLocation();
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
   return (
-    <div className="mx-auto flex min-h-screen max-w-7xl flex-col bg-slate-50">
-      <header className="sticky top-0 z-40 border-b border-slate-200 bg-white/80 backdrop-blur-lg">
-        <div className="flex items-center justify-between px-4 py-3 sm:px-6">
-          <Link to="/" className="text-xl font-bold tracking-tight text-slate-900">
-            nonmus
-          </Link>
-          <div className="flex items-center gap-3">
-            <button className="rounded-xl p-2 text-slate-500 transition hover:bg-slate-100 hover:text-slate-700">
-              <SearchIcon />
+    <div className="mx-auto flex min-h-screen  bg-slate-50">
+      <aside className={`hidden lg:flex lg:flex-col lg:border-r lg:border-slate-200 lg:bg-white transition-all duration-300 ${sidebarCollapsed ? 'lg:w-16' : 'lg:w-56'}`}>
+        <div className="flex h-14 items-center border-b border-slate-200 px-3">
+          {sidebarCollapsed ? (
+            <button
+                type="button"
+                onClick={() => setSidebarCollapsed(false)}
+                className="mx-auto rounded-lg p-1.5 text-slate-500 hover:bg-slate-100 hover:text-slate-700"
+            >
+              <TbLayoutSidebarLeftExpandFilled size={20} />
             </button>
-            <button className="rounded-xl p-2 text-slate-500 transition hover:bg-slate-100 hover:text-slate-700">
-              <BellIcon />
-            </button>
-          </div>
+          ) : (
+            <div className="flex w-full items-center justify-between">
+              <Link to="/" className="text-xl font-bold tracking-tight text-slate-900">
+                nonmus
+              </Link>
+              <button
+                  type="button"
+                  onClick={() => setSidebarCollapsed(true)}
+                  className="rounded-lg p-1.5 text-slate-500 hover:bg-slate-100 hover:text-slate-700"
+              >
+                <TbLayoutSidebarLeftCollapseFilled size={20} />
+              </button>
+            </div>
+          )}
         </div>
-      </header>
-
-      <main className="flex-1 pb-20">
-        <Outlet />
-      </main>
-
-      <nav className="fixed bottom-0 left-0 right-0 z-40 border-t border-slate-200 bg-white/80 backdrop-blur-lg">
-        <div className="mx-auto flex max-w-7xl items-center justify-around px-2 py-2">
+        <nav className="flex-1 space-y-1 px-2 py-4">
           {navItems.map(({ to, label, icon: Icon }) => {
             const isActive = location.pathname === to;
             return (
               <Link
                 key={to}
                 to={to}
-                className={`flex flex-col items-center gap-0.5 rounded-xl px-3 py-1.5 text-xs font-medium transition ${
+                title={sidebarCollapsed ? label : undefined}
+                className={`flex items-center rounded-lg px-3 py-2.5 text-sm font-medium transition ${
+                  sidebarCollapsed ? 'justify-center' : 'gap-3'
+                } ${
                   isActive
-                    ? "text-slate-900"
-                    : "text-slate-400 hover:text-slate-600"
+                    ? "bg-slate-100 text-slate-900"
+                    : "text-slate-500 hover:bg-slate-50 hover:text-slate-700"
                 }`}
               >
                 <Icon active={isActive} />
-                {label}
+                {!sidebarCollapsed && label}
               </Link>
             );
           })}
-        </div>
-      </nav>
+        </nav>
+      </aside>
+
+      <div className="flex flex-1 flex-col">
+        <header className="sticky top-0 z-40 border-b border-slate-200 bg-white/80 backdrop-blur-lg lg:bg-white">
+          <div className="flex items-center justify-between px-4 py-3 sm:px-6">
+            <Link to="/" className="text-xl font-bold tracking-tight text-slate-900 lg:hidden">
+              nonmus
+            </Link>
+            <div className="lg:hidden" />
+            <div className="flex items-center gap-3">
+              <button className="rounded-xl p-2 text-slate-500 transition hover:bg-slate-100 hover:text-slate-700">
+                <SearchIcon />
+              </button>
+              <button className="rounded-xl p-2 text-slate-500 transition hover:bg-slate-100 hover:text-slate-700">
+                <BellIcon />
+              </button>
+            </div>
+          </div>
+        </header>
+
+        <main className="flex-1 pb-20 lg:pb-0">
+          <Outlet />
+        </main>
+
+        <nav className="fixed bottom-0 left-0 right-0 z-40 border-t border-slate-200 bg-white/80 backdrop-blur-lg lg:hidden">
+          <div className="mx-auto flex max-w-7xl items-center justify-around px-2 py-2">
+            {navItems.map(({ to, label, icon: Icon }) => {
+              const isActive = location.pathname === to;
+              return (
+                <Link
+                  key={to}
+                  to={to}
+                  className={`flex flex-col items-center gap-0.5 rounded-xl px-3 py-1.5 text-xs font-medium transition ${
+                    isActive
+                      ? "text-slate-900"
+                      : "text-slate-400 hover:text-slate-600"
+                  }`}
+                >
+                  <Icon active={isActive} />
+                  {label}
+                </Link>
+              );
+            })}
+          </div>
+        </nav>
+      </div>
     </div>
   );
 }
