@@ -9,7 +9,7 @@ import EmailStep from "../components/forgot-password/EmailStep";
 import VerifyOtpStep from "../components/forgot-password/VerifyOtpStep";
 import ResetPasswordStep from "../components/forgot-password/ResetPasswordStep";
 import sideLogo from "../../../assets/side-logo.png";
-import nonmusLogo from "../../../../public/logo.png";
+
 
 const STEPS = [
   { label: "Email", description: "Enter your email" },
@@ -169,7 +169,7 @@ const ForgotPasswordPage = () => {
         <div className="w-full md:w-3/4 md:mx-auto lg:w-1/2 lg:flex lg:justify-center lg:items-center">
           <div className="w-full p-6 lg:w-3/4 md:mx-auto max-w-lg">
             <header className="mb-8">
-              <img src={nonmusLogo} className="w-1/3 sm:w-2/5 max-w-xs mx-auto lg:hidden" />
+              <img src="/logo.png" className="w-1/3 sm:w-2/5 max-w-xs mx-auto lg:hidden" />
               <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-slate-900">
                 {title}
               </h1>
