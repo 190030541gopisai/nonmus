@@ -3,9 +3,10 @@ import { TbLogout } from "react-icons/tb";
 import {useEffect, useRef, useState} from "react";
 import {useAuth} from "../../auth/hooks/useAuth.js";
 import {useProfilePicture} from "../../auth/hooks/useProfilePicture.js";
+import {updateUserApi} from "../../auth/api/userApi.js";
 
 function ProfilePage() {
-  const {user, logout} = useAuth();
+  const {user, logout, fetchUser} = useAuth();
   const {
     viewUrl,
     uploading,
@@ -16,7 +17,6 @@ function ProfilePage() {
   } = useProfilePicture();
 
   const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
   const [profilePictureFile, setProfilePictureFile] = useState(null);
   const [previewProfilePicture, setPreviewProfilePicture] = useState("");
   const [editProfile, setEditProfile] = useState(false);
@@ -32,7 +32,6 @@ function ProfilePage() {
   useEffect(() => {
     if (user) {
       setName(user.name || "");
-      setEmail(user.email || "");
     }
   }, [user]);
 
@@ -49,7 +48,13 @@ function ProfilePage() {
     }
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
+    try {
+      await updateUserApi({name});
+      await fetchUser();
+    } catch {
+      if (user) setName(user.name || "");
+    }
     if (profilePictureFile) {
       uploadProfilePicture(profilePictureFile);
       setProfilePictureFile(null);
@@ -61,7 +66,6 @@ function ProfilePage() {
   const handleCancel = () => {
     if (user) {
       setName(user.name || "");
-      setEmail(user.email || "");
     }
     setProfilePictureFile(null);
     revokeObjectUrl();
@@ -141,18 +145,12 @@ function ProfilePage() {
                   onChange={(e) => setName(e.target.value)}
                   autoFocus
                 />
-                <input
-                  type="email"
-                  placeholder="Email"
-                  className="block w-full rounded-lg border border-slate-300 px-3 py-2 focus:border-slate-500 focus:outline-none"
-                  value={email}
-                  onChange={e => setEmail(e.target.value)}
-                />
+                <p className="text-sm text-gray-400">{user?.email || "Email"}</p>
               </div>
             ) : (
               <div>
                 <h1 className="text-xl font-bold lg:text-2xl">{name || "Name"}</h1>
-                <p className="text-gray-600">{email || "Email"}</p>
+                <p className="text-gray-600">{user?.email || "Email"}</p>
               </div>
             )}
 

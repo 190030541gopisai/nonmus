@@ -6,3 +6,8 @@ export const meApi = async () => {
     const response = await apiClient.get(`${PREFIX}/me`);
     return response.data
 };
+
+export const updateUserApi = async (data) => {
+    const response = await apiClient.put(PREFIX, data);
+    return response.data
+};
