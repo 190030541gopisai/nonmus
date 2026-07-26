@@ -1,10 +1,11 @@
 import { FaEdit } from "react-icons/fa";
+import { TbLogout } from "react-icons/tb";
 import {useEffect, useRef, useState} from "react";
 import {useAuth} from "../../auth/hooks/useAuth.js";
 import {useProfilePicture} from "../../auth/hooks/useProfilePicture.js";
 
 function ProfilePage() {
-  const {user} = useAuth();
+  const {user, logout} = useAuth();
   const {
     viewUrl,
     uploading,
@@ -170,6 +171,16 @@ function ProfilePage() {
               </button>
             )}
           </div>
+        </div>
+        <div className="mt-6 border-t border-slate-200 pt-4 lg:hidden">
+          <button
+              type="button"
+              onClick={logout}
+              className="flex w-full items-center justify-center gap-2 rounded-lg px-3 py-2.5 text-sm font-medium text-slate-500 transition hover:bg-red-50 hover:text-red-600"
+          >
+            <TbLogout size={18} />
+            Logout
+          </button>
         </div>
       </div>
 

@@ -26,9 +26,10 @@ function AppRoutes() {
                         <Route path="/profile" element={<ProfilePage />} />
                     </Route>
                 </Route>
-
-                <Route path="/login" element={<LoginPage/>}/>
-                <Route path="/signup" element={<SignUpPage/>}/>
+                <Route element={<PublicRoute />}>
+                    <Route path="/login" element={<LoginPage/>}/>
+                    <Route path="/signup" element={<SignUpPage/>}/>
+                </Route>
                 <Route path="/forgot-password" element={<ForgotPasswordPage/>}/>
 
                 <Route path="*" element={<Navigate to="/login" replace/>}/>

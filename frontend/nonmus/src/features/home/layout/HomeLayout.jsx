@@ -1,6 +1,7 @@
 import { Link, Outlet, useLocation } from "react-router-dom";
 import { useState } from "react";
-import { TbLayoutSidebarLeftCollapseFilled, TbLayoutSidebarLeftExpandFilled } from "react-icons/tb";
+import { TbLayoutSidebarLeftCollapseFilled, TbLayoutSidebarLeftExpandFilled, TbLogout } from "react-icons/tb";
+import {useAuth} from "../../auth/hooks/useAuth.js";
 
 function HomeIcon({ active }) {
   return (
@@ -84,6 +85,7 @@ const navItems = [
 function HomeLayout() {
   const location = useLocation();
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const { logout } = useAuth();
 
   return (
     <div className="mx-auto flex min-h-screen  bg-slate-50">
@@ -99,9 +101,14 @@ function HomeLayout() {
             </button>
           ) : (
             <div className="flex w-full items-center justify-between">
-              <Link to="/" className="text-xl font-bold tracking-tight text-slate-900">
-                nonmus
-              </Link>
+                <div className="flex flex-row justify-center items-center gap-2">
+                    <Link to="/">
+                        <img src="/logo.png" alt="nonmus" className="h-7 w-7" />
+                    </Link>
+                    <Link to="/" className="text-xl font-bold tracking-tight text-slate-900">
+                        Nonmus
+                    </Link>
+                </div>
               <button
                   type="button"
                   onClick={() => setSidebarCollapsed(true)}
@@ -134,23 +141,41 @@ function HomeLayout() {
             );
           })}
         </nav>
+        <div className="border-t border-slate-200 px-2 py-3">
+          <button
+              type="button"
+              onClick={logout}
+              title={sidebarCollapsed ? "Logout" : undefined}
+              className={`flex w-full items-center rounded-lg px-3 py-2.5 text-sm font-medium text-slate-500 transition hover:bg-red-50 hover:text-red-600 ${
+                sidebarCollapsed ? 'justify-center' : 'gap-3'
+              }`}
+          >
+            <TbLogout size={20} />
+            {!sidebarCollapsed && "Logout"}
+          </button>
+        </div>
       </aside>
 
       <div className="flex flex-1 flex-col">
         <header className="sticky top-0 z-40 border-b border-slate-200 bg-white/80 backdrop-blur-lg lg:bg-white">
           <div className="flex items-center justify-between px-4 py-3 sm:px-6">
-            <Link to="/" className="text-xl font-bold tracking-tight text-slate-900 lg:hidden">
-              nonmus
-            </Link>
-            <div className="lg:hidden" />
-            <div className="flex items-center gap-3">
-              <button className="rounded-xl p-2 text-slate-500 transition hover:bg-slate-100 hover:text-slate-700">
-                <SearchIcon />
-              </button>
-              <button className="rounded-xl p-2 text-slate-500 transition hover:bg-slate-100 hover:text-slate-700">
-                <BellIcon />
-              </button>
-            </div>
+              <div className="flex flex-row justify-center items-center gap-2 lg:hidden">
+                  <Link to="/">
+                      <img src="/logo.png" alt="nonmus" className="h-7 w-7" />
+                  </Link>
+                  <Link to="/" className="text-xl font-bold tracking-tight text-slate-900">
+                      Nonmus
+                  </Link>
+              </div>
+              <div />
+              <div className="flex items-center gap-3">
+                  <button className="rounded-xl p-2 text-slate-500 transition hover:bg-slate-100 hover:text-slate-700">
+                    <SearchIcon />
+                  </button>
+                  <button className="rounded-xl p-2 text-slate-500 transition hover:bg-slate-100 hover:text-slate-700">
+                    <BellIcon />
+                  </button>
+              </div>
           </div>
         </header>
 
