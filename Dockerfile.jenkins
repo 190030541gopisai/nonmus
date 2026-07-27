@@ -1,0 +1,14 @@
+FROM jenkins/jenkins:lts-jdk17
+USER root
+RUN apt-get update && \
+    apt-get install -y docker.io git && \
+    rm -rf /var/lib/apt/lists/*
+
+RUN mkdir -p /usr/local/lib/docker/cli-plugins && \
+    curl -fsL -o /usr/local/lib/docker/cli-plugins/docker-compose https://github.com/docker/compose/releases/latest/download/docker-compose-linux-x86_64 && \
+    chmod +x /usr/local/lib/docker/cli-plugins/docker-compose
+
+RUN curl -fsL -o /usr/local/lib/docker/cli-plugins/docker-buildx https://github.com/docker/buildx/releases/download/v0.35.0/buildx-v0.35.0.linux-amd64 && \
+    chmod +x /usr/local/lib/docker/cli-plugins/docker-buildx
+
+USER jenkins
