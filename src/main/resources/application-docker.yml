@@ -1,0 +1,13 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://postgres:5432/nonmus
+    username: postgres
+    password: ${DB_PASSWORD:root}
+  redis:
+    host: redis
+    port: 6379
+
+aws:
+  endpoint: http://localhost.floci.io:4566
+  access-key: test
+  secret-key: test
