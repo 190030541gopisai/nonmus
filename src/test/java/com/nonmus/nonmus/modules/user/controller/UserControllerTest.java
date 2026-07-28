@@ -4,12 +4,14 @@ import com.nonmus.nonmus.modules.common.exception.UserNotFoundException;
 import com.nonmus.nonmus.modules.common.util.AuthUtil;
 import com.nonmus.nonmus.modules.common.util.JwtUtil;
 import com.nonmus.nonmus.modules.user.dto.request.UserCreateRequest;
+import com.nonmus.nonmus.modules.user.dto.response.UserResponse;
 import com.nonmus.nonmus.modules.user.entity.Users;
 import com.nonmus.nonmus.modules.user.service.UsersService;
 import com.nonmus.nonmus.security.AuthenticatedUser;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockedStatic;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
@@ -36,6 +38,9 @@ class UserControllerTest {
     @MockitoBean
     private HttpSecurity security;
 
+    @MockitoBean
+    private ModelMapper modelMapper;
+
     @Autowired
     private MockMvc mockMvc;
 
@@ -55,7 +60,11 @@ class UserControllerTest {
         Users user = new Users();
         user.setEmail("test@test.com");
 
+        UserResponse userResponse = new UserResponse();
+        userResponse.setEmail("test@test.com");
+
         when(usersService.createUser(request)).thenReturn(user);
+        when(modelMapper.map(user, UserResponse.class)).thenReturn(userResponse);
 
         client.post()
                 .uri("/api/v1/users")
@@ -75,9 +84,13 @@ class UserControllerTest {
         Users user = new Users();
         user.setEmail("user@test.com");
 
+        UserResponse userResponse = new UserResponse();
+        userResponse.setEmail("user@test.com");
+
         try (MockedStatic<AuthUtil> authUtil = mockStatic(AuthUtil.class)) {
             authUtil.when(AuthUtil::getPrincipal).thenReturn(authenticatedUser);
             when(usersService.getUsersByEmail("user@test.com")).thenReturn(Optional.of(user));
+            when(modelMapper.map(user, UserResponse.class)).thenReturn(userResponse);
 
             client.get()
                     .uri("/api/v1/users/me")
