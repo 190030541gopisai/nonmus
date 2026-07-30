@@ -1,67 +1,35 @@
-import {useCallback, useEffect, useRef, useState} from "react";
 import {AuthContext} from "./authContext.js";
-import * as authService from "../services/authService.js";
+import {useMutation, useQuery, useQueryClient} from "@tanstack/react-query";
+import {getCurrentUserApi} from "../api/userApi.js";
+import {logoutApi} from "../api/authApi.js";
 
 export function AuthProvider({children}) {
-    const [user, setUser] = useState(null);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
-    const fetchIdRef = useRef(0);
+    const queryClient = useQueryClient();
 
-    useEffect(() => {
-        const id = ++fetchIdRef.current;
+    const {
+        data: user,
+        refetch,
+        isLoading,
+        error,
+        isFetching
+    } = useQuery({
+        queryKey: ["user"],
+        queryFn: getCurrentUserApi,
+        staleTime: 1000 * 60 * 5, // Data is fresh for 5 mins (prevents spamming API)
+        retry: false
+    });
 
-        authService.fetchCurrentUser()
-            .then((userData) => {
-                if (id !== fetchIdRef.current) return;
-                setUser(userData);
-                setError(null);
-                setLoading(false);
-            })
-            .catch((err) => {
-                if (id !== fetchIdRef.current) return;
-                setUser(null);
-                setError(err);
-                setLoading(false);
-            });
-    }, []);
+    const refetchUser = () => refetch();
 
-    const fetchUser = useCallback(async () => {
-        const id = ++fetchIdRef.current;
-
-        try {
-            const userData = await authService.fetchCurrentUser();
-            if (id !== fetchIdRef.current) return;
-            setUser(userData);
-            setError(null);
-        } catch (err) {
-            if (id !== fetchIdRef.current) return;
-            setUser(null);
-            setError(err);
+    const {mutateAsync:logout} = useMutation({
+        mutationFn: logoutApi,
+        onSuccess: (data) => {
+            queryClient.clear();
         }
-    }, []);
-
-    const login = useCallback(async (credentials) => {
-        await authService.login(credentials);
-        await fetchUser();
-    }, [fetchUser]);
-
-    const signup = useCallback(async (data) => {
-        await authService.signup(data);
-        await fetchUser();
-    }, [fetchUser]);
-
-    const logout = useCallback(async () => {
-        try {
-            await authService.logout();
-        } finally {
-            setUser(null);
-            setError(null);
-        }
-    }, []);
+    });
 
     return (
-        <AuthContext.Provider value={{user, loading, error, login, signup, logout, fetchUser}}>
+        <AuthContext.Provider value={{user, isLoading, isAuthenticated: !!user, error, refetchUser, logout}}>
             {children}
         </AuthContext.Provider>
     );

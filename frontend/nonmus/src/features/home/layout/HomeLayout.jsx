@@ -2,6 +2,7 @@ import { Link, Outlet, useLocation } from "react-router-dom";
 import { useState } from "react";
 import { TbLayoutSidebarLeftCollapseFilled, TbLayoutSidebarLeftExpandFilled, TbLogout } from "react-icons/tb";
 import {useAuth} from "../../auth/hooks/useAuth.js";
+import EmailVerificationBanner from "../../auth/components/EmailVerificationBanner.jsx";
 
 function HomeIcon({ active }) {
   return (
@@ -178,6 +179,8 @@ function HomeLayout() {
               </div>
           </div>
         </header>
+
+        <EmailVerificationBanner />
 
         <main className="flex-1 pb-20 lg:pb-0">
           <Outlet />

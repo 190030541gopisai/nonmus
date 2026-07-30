@@ -1,5 +1,6 @@
-import { useState, useCallback } from "react";
+import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { useMutation } from "@tanstack/react-query";
 import {
   sendForgotPasswordOtp,
   verifyForgotPasswordOtp,
@@ -21,91 +22,46 @@ const ForgotPasswordPage = () => {
   const navigate = useNavigate();
   const [step, setStep] = useState(0);
   const [email, setEmail] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
-  const [isResending, setIsResending] = useState(false);
-  const [serverError, setServerError] = useState("");
 
-  const handleSendOtp = useCallback(async (data) => {
-    setServerError("");
-    setIsLoading(true);
-    try {
-      await sendForgotPasswordOtp(data.email);
-      setEmail(data.email);
+  const sendOtpMutation = useMutation({
+    mutationFn: (data) => sendForgotPasswordOtp(data.email),
+    onSuccess: (_, variables) => {
+      setEmail(variables.email);
       setStep(1);
-    } catch (err) {
-      setServerError(
-        err?.response?.data?.message ||
-        err.message ||
-        "Failed to send verification code. Please try again."
-      );
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
+    },
+  });
 
-  const handleVerifyOtp = useCallback(async (data) => {
-    setServerError("");
-    setIsLoading(true);
-    try {
-      await verifyForgotPasswordOtp(email, data.code);
-      setStep(2);
-    } catch (err) {
-      const status = err?.response?.status;
-      if (status === 410) {
-        setServerError("Verification code has expired. Please request a new one.");
-      } else if (status === 400) {
-        setServerError("Invalid verification code. Please try again.");
-      } else {
-        setServerError(
-          err?.response?.data?.message ||
-          err.message ||
-          "Verification failed. Please try again."
-        );
-      }
-    } finally {
-      setIsLoading(false);
-    }
-  }, [email]);
+  const verifyOtpMutation = useMutation({
+    mutationFn: (data) => verifyForgotPasswordOtp(email, data.code),
+    onSuccess: () => setStep(2),
+  });
 
-  const handleResendOtp = useCallback(async () => {
-    setServerError("");
-    setIsResending(true);
-    try {
-      await sendForgotPasswordOtp(email);
-    } catch (err) {
-      setServerError(
-        err?.response?.data?.message ||
-        err.message ||
-        "Failed to resend code. Please try again."
-      );
-    } finally {
-      setIsResending(false);
-    }
-  }, [email]);
+  const resendOtpMutation = useMutation({
+    mutationFn: () => sendForgotPasswordOtp(email),
+  });
 
-  const handleResetPassword = useCallback(async (data) => {
-    setServerError("");
-    setIsLoading(true);
-    try {
-      await resetForgotPassword(data.newPassword);
+  const resetPasswordMutation = useMutation({
+    mutationFn: (data) => resetForgotPassword(data.newPassword),
+    onSuccess: () => {
       navigate("/login", {
         state: { message: "Password reset successful. Please log in." },
       });
-    } catch (err) {
-      const status = err?.response?.status;
-      if (status === 410) {
-        setServerError("Reset link has expired. Please start over.");
-      } else {
-        setServerError(
-          err?.response?.data?.message ||
-          err.message ||
-          "Failed to reset password. Please try again."
-        );
-      }
-    } finally {
-      setIsLoading(false);
-    }
-  }, [navigate]);
+    },
+  });
+
+  const getError = (mutation) => {
+    const err = mutation.error;
+    if (!err) return "";
+    const status = err?.response?.status;
+    if (status === 410) return "Verification code has expired. Please request a new one.";
+    if (status === 400) return "Invalid verification code. Please try again.";
+    return err?.response?.data?.message || err.message || "Something went wrong. Please try again.";
+  };
+
+  const handleSendOtp = (data) => sendOtpMutation.mutate(data);
+  const handleVerifyOtp = (data) => verifyOtpMutation.mutate(data);
+  const handleResendOtp = () => resendOtpMutation.mutate();
+  const handleResetPassword = (data) => resetPasswordMutation.mutate(data);
 
   const renderStep = () => {
     switch (step) {
@@ -114,7 +70,7 @@ const ForgotPasswordPage = () => {
           <EmailStep
             defaultEmail={email}
             onSubmit={handleSendOtp}
-            isLoading={isLoading}
+            isLoading={sendOtpMutation.isPending}
           />
         );
       case 1:
@@ -123,17 +79,17 @@ const ForgotPasswordPage = () => {
             email={email}
             onSubmit={handleVerifyOtp}
             onResend={handleResendOtp}
-            isLoading={isLoading}
-            isResending={isResending}
-            serverError={serverError}
+            isLoading={verifyOtpMutation.isPending}
+            isResending={resendOtpMutation.isPending}
+            serverError={getError(verifyOtpMutation) || getError(resendOtpMutation)}
           />
         );
       case 2:
         return (
           <ResetPasswordStep
             onSubmit={handleResetPassword}
-            isLoading={isLoading}
-            serverError={serverError}
+            isLoading={resetPasswordMutation.isPending}
+            serverError={getError(resetPasswordMutation)}
           />
         );
       default:

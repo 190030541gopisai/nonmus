@@ -1,18 +1,17 @@
 package com.nonmus.nonmus.filter;
 
 import java.io.IOException;
-import java.util.Collections;
+import java.util.ArrayList;
+import java.util.List;
 
 import com.nonmus.nonmus.modules.user.entity.Users;
-import com.nonmus.nonmus.modules.user.enums.Provider;
 import com.nonmus.nonmus.modules.user.service.UsersService;
 import com.nonmus.nonmus.security.AuthenticatedUser;
 import jakarta.servlet.http.Cookie;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -29,7 +28,6 @@ import jakarta.servlet.http.HttpServletResponse;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private static final String ACCESS_TOKEN_COOKIE = "access_token";
-
 
     private final JwtUtil jwtUtil;
     private final UsersService usersService;
@@ -49,14 +47,20 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
             Users user = usersService.getUsersByEmail(email).orElse(null);
 
-            if(user != null) {
+            if (user != null) {
                 AuthenticatedUser authenticatedUser = new AuthenticatedUser();
                 authenticatedUser.setEmail(user.getEmail());
+                authenticatedUser.setEmailVerified(user.getEmailVerified());
+
+                List<SimpleGrantedAuthority> authorities = new ArrayList<>();
+                if (Boolean.TRUE.equals(user.getEmailVerified())) {
+                    authorities.add(new SimpleGrantedAuthority("EMAIL_VERIFIED"));
+                }
 
                 UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
                         authenticatedUser,
                         null,
-                        Collections.emptyList());
+                        authorities);
 
                 authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 SecurityContextHolder.getContext().setAuthentication(authentication);
@@ -67,7 +71,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     }
 
     private String extractToken(HttpServletRequest request) {
-        // 1. HttpOnly Cookie
         Cookie[] cookies = request.getCookies();
         if (cookies != null) {
             for (Cookie cookie : cookies) {

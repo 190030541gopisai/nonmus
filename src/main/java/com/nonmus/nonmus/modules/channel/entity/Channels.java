@@ -1,6 +1,7 @@
 package com.nonmus.nonmus.modules.channel.entity;
 
 import java.time.Instant;
+import java.util.List;
 import java.util.UUID;
 
 import com.nonmus.nonmus.modules.channel.enums.ChannelType;
@@ -18,14 +19,16 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 public class Channels {
     @Id
     private UUID id = UUID.randomUUID();
+
+    @Column(unique = true, nullable = true)
+    private String username;
+
     private String name;
     private String description;
     private String logo;
 
     @Enumerated(EnumType.STRING)
     private ChannelType type;
-
-    private Integer subscribersCount = 0;
 
     @ManyToOne
     @JoinColumn(name = "owner_id", referencedColumnName = "id", updatable = false)
@@ -41,4 +44,10 @@ public class Channels {
 
     @LastModifiedDate
     private Instant updatedAt;
+
+    @OneToOne(mappedBy = "channel", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private ChannelStatistics channelStatistics;
+
+    @OneToMany(mappedBy = "channel", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<ChannelMembers> channelMembers;
 }

@@ -3,10 +3,10 @@ import {useAuth} from "../features/auth/hooks/useAuth";
 import LoadingFallback from "./LoadingFallback.jsx";
 
 const ProtectedRoute = () => {
-    const {user, loading, error} = useAuth();
+    const {isAuthenticated, isLoading, error} = useAuth();
     const location = useLocation();
 
-    if (loading) {
+    if (isLoading) {
         return <LoadingFallback/>;
     }
 
@@ -14,7 +14,7 @@ const ProtectedRoute = () => {
         return <Navigate to="/login" state={{from: location}} replace/>;
     }
 
-    if (user) {
+    if (isAuthenticated) {
         return <Outlet/>;
     }
 

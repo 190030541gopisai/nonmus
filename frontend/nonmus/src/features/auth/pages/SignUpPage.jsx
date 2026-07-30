@@ -1,56 +1,42 @@
 import {useState} from "react";
 import {Link, useNavigate} from "react-router-dom";
-import {useAuth} from "../hooks/useAuth";
+import {useMutation} from "@tanstack/react-query";
 import {loginWithGoogle} from "../utils/GoogleAuthUtil";
 import sideLogo from '../../../assets/side-logo.png';
+import {signupApi} from "../api/authApi.js";
+import {useAuth} from "../hooks/useAuth.js";
 
 const SignUpPage = () => {
   const navigate = useNavigate();
-  const { signup } = useAuth();
 
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-
   const [showPassword, setShowPassword] = useState(false);
-  const [error, setError] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
+
+  const { user, refetchUser } = useAuth();
+
+  if(user) {
+    navigate("/", {replace: true});
+  }
+
+  const {mutate: handleSignUp, isPending, error} = useMutation({
+    mutationFn: (signUpData) => signupApi(signUpData),
+    onSuccess: (data) => {
+      const message = data?.message;
+
+      if(message === "Signup successful") {
+        refetchUser();
+
+        navigate("/", {replace: true});
+      }
+    }
+  })
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    setError("");
-    setIsLoading(true);
-
-    try {
-      await signup({
-        name,
-        email,
-        password,
-      });
-
-      navigate("/");
-    } catch (error) {
-      const response = error.response;
-
-      if (
-          response?.status === 409 &&
-          response?.data?.errorCode === "USER_ALREADY_EXISTS"
-      ) {
-        setError(
-            response.data.message + " Please login instead."
-        );
-      } else {
-        setError(
-            response?.data?.message ||
-            error.message ||
-            "Signup failed."
-        );
-      }
-    } finally {
-      setIsLoading(false);
-    }
-  };
+    handleSignUp({name, email, password});
+  }
 
   return (
       <section className="lg:min-h-screen">
@@ -182,16 +168,18 @@ const SignUpPage = () => {
 
                 {error && (
                     <p className="text-sm text-red-600">
-                      {error}
+                      {error?.response?.data?.errorCode === "USER_ALREADY_EXISTS"
+                        ? error.response.data.message + " Please login instead."
+                        : error?.response?.data?.message || error?.message || "Signup failed."}
                     </p>
                 )}
 
                 <button
                     type="submit"
-                    disabled={isLoading}
+                    disabled={isPending}
                     className="w-full rounded-xl bg-slate-800 py-3 text-base font-semibold text-white transition hover:bg-slate-700 disabled:opacity-60"
                 >
-                  {isLoading ? (
+                  {isPending ? (
                       <span className="flex items-center justify-center gap-2">
                         <svg className="h-5 w-5 animate-spin" viewBox="0 0 24 24" fill="none">
                           <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
@@ -229,7 +217,6 @@ const SignUpPage = () => {
                   </Link>
                 </p>
               </form>
-
             </div>
           </div>
         </div>

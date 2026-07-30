@@ -37,6 +37,9 @@ public class SecurityConfig {
                                 "/api/v1/email/verify",
                                 "/api/v1/forgot-password/**"
                         ).permitAll()
+                        .requestMatchers(
+                                "/api/v1/channel/**"
+                        ).hasAuthority("EMAIL_VERIFIED")
                         .anyRequest().authenticated())
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

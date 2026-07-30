@@ -1,37 +1,40 @@
 import {useState} from "react";
-import {Link, useLocation} from "react-router-dom";
+import {Link, useNavigate} from "react-router-dom";
+import {useMutation} from "@tanstack/react-query";
 import {useAuth} from "../hooks/useAuth";
 import {loginWithGoogle} from "../utils/GoogleAuthUtil";
 import sideLogo from '../../../assets/side-logo.png';
+import {loginApi} from "../api/authApi.js";
 
 const LoginPage = () => {
-  const location = useLocation();
+  const navigate = useNavigate();
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
-  const [error, setError] = useState("");
-  const successMessage = location.state?.message;
-  const [isLoading, setIsLoading] = useState(false);
-  const { login } = useAuth();
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const { user, refetchUser } = useAuth();
 
-    setError("");
-    setIsLoading(true);
+  if(user) {
+    navigate("/", {replace: true});
+  }
 
-    try {
-      await login({ email, password, rememberMe });
-    } catch (err) {
-      setError(
-          err?.response?.data?.message ||
-          err.message ||
-          "Login failed. Please check your credentials and try again."
-      );
-    } finally {
-      setIsLoading(false);
+  const {mutate: handleLogin, isPending, error} = useMutation({
+    mutationFn: (credentials) => loginApi(credentials),
+    onSuccess: (data) => {
+      const message = data.message;
+
+      if(message === "Login Successful") {
+        refetchUser();
+        navigate("/", {replace: true});
+      }
     }
+  })
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    handleLogin({email, password, rememberMe});
   };
 
   return (
@@ -144,15 +147,10 @@ const LoginPage = () => {
                   </div>
                 </div>
 
-                {successMessage && (
-                    <div className="rounded-xl border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-700">
-                      {successMessage}
-                    </div>
-                )}
 
                 {error && (
                     <p className="text-sm text-red-600">
-                      {error}
+                      {error?.response?.data?.message || error?.message || "Login failed. Please check your credentials and try again."}
                     </p>
                 )}
 
@@ -177,10 +175,10 @@ const LoginPage = () => {
 
                 <button
                     type="submit"
-                    disabled={isLoading}
+                    disabled={isPending}
                     className="w-full rounded-xl bg-slate-800 py-3 text-base font-semibold text-white transition hover:bg-slate-700 disabled:opacity-60"
                 >
-                  {isLoading ? (
+                  {isPending ? (
                       <span className="flex items-center justify-center gap-2">
                         <svg className="h-5 w-5 animate-spin" viewBox="0 0 24 24" fill="none">
                           <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
