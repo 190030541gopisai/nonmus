@@ -23,7 +23,7 @@ function NormalProfile({setEditProfile}) {
                 referrerPolicy="no-referrer"
             />
         </button>
-        <div className="flex-1 text-center lg:text-left pg-4">
+        <div className="flex-1 text-center pg-4">
             <div>
                 <h1 className="text-xl font-bold lg:text-2xl">{user?.name || "Name"}</h1>
                 <p className=" p-2 text-gray-600">{user?.email || "Email"}</p>
