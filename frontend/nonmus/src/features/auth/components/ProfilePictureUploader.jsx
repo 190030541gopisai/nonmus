@@ -1,15 +1,6 @@
-import { useEffect, useRef } from "react";
+import { useRef } from "react";
 import { useProfilePicture } from "../hooks/useProfilePicture";
 
-/**
- * Reusable profile picture uploader component.
- *
- * - Loads the current picture on mount via a presigned GET URL
- * - Clicking the avatar opens a file picker
- * - Runs the full 3-step presigned upload flow on file selection
- * - Handles expired view URLs silently via onError
- * - Shows an animated progress bar and status feedback
- */
 const ProfilePictureUploader = () => {
   const fileInputRef = useRef(null);
   const {
@@ -18,15 +9,9 @@ const ProfilePictureUploader = () => {
     uploadProgress,
     error,
     success,
-    loadViewUrl,
     uploadProfilePicture,
     handleViewUrlExpired,
   } = useProfilePicture();
-
-  // Load the current profile picture presigned GET URL on mount
-  useEffect(() => {
-    loadViewUrl();
-  }, [loadViewUrl]);
 
   const handleFileChange = (e) => {
     const file = e.target.files?.[0];

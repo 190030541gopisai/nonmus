@@ -19,3 +19,13 @@ export const refreshApi = async () => {
 export const logoutApi = async () => {
   await apiClient.post(`${PREFIX}/logout`)
 }
+
+export const resendVerificationEmailApi = async () => {
+  const response = await apiClient.post("/v1/email/resend");
+  return response.data;
+};
+
+export const verifyEmailApi = async (token) => {
+  const response = await apiClient.get(`/v1/email/verify?token=${token}`);
+  return response.data;
+};

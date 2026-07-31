@@ -64,8 +64,7 @@ app:
 
 aws:
   region: us-east-1
-  s3:
-    endpoint: http://localhost.floci.io:4566
+  endpoint: http://localhost.floci.io:4566
   access-key: test
   secret-key: test
 
