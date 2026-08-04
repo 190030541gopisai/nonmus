@@ -1,4 +1,4 @@
-package com.nonmus.nonmus.modules.channel.dto.response;
+package com.nonmus.nonmus.modules.channel.dto.internal;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -12,7 +12,7 @@ import java.util.UUID;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class ChannelResponse {
+public class ChannelResult {
     private UUID channelId;
     private String name;
     private String description;

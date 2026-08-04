@@ -12,11 +12,10 @@ import java.util.UUID;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class ChannelResponse {
+public class CreateChannelResponse {
     private UUID channelId;
     private String name;
     private String description;
-    private String logo;
     private String handle;
     private Long subscribersCount;
     private Instant createdAt;

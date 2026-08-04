@@ -8,4 +8,5 @@ public class CreateChannelRequest {
     private String name;
     private String description;
     private ChannelType type;
+    private String handle;
 }

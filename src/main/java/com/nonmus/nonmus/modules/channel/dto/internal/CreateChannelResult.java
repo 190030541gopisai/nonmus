@@ -1,23 +1,20 @@
-package com.nonmus.nonmus.modules.channel.dto.response;
+package com.nonmus.nonmus.modules.channel.dto.internal;
 
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 import java.time.Instant;
 import java.util.UUID;
 
 @Data
 @Builder
-@NoArgsConstructor
-@AllArgsConstructor
-public class ChannelResponse {
+public class CreateChannelResult {
     private UUID channelId;
+    private String handle;
     private String name;
     private String description;
     private String logo;
-    private String handle;
+    private String type;
     private Long subscribersCount;
     private Instant createdAt;
 }
