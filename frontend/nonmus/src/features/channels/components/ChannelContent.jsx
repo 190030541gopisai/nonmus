@@ -1,38 +1,67 @@
-import {useState} from "react";
-import {useNavigate, useParams} from "react-router-dom";
-import {useQuery} from "@tanstack/react-query";
-import {FaUsers, FaVideo} from "react-icons/fa";
-import {getChannelByIdApi} from "../api/channelApi.js";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { Outlet, useLocation, useNavigate, useParams } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
+import { FaUsers, FaVideo, FaCheckCircle, FaFilm, FaFolderOpen, FaBell } from "react-icons/fa";
+import { IoArrowBackCircleOutline } from "react-icons/io5";
+import { BsThreeDotsVertical } from "react-icons/bs";
+import { getChannelByIdApi } from "../api/channelApi.js";
 import ChannelLogo from "./ChannelLogo.jsx";
 
+function formatCompact(count) {
+    if (count == null) return "0";
+    if (count >= 1_000_000)
+        return `${(count / 1_000_000).toFixed(count % 1_000_000 === 0 ? 0 : 1).replace(/\.0$/, "")}M`;
+    if (count >= 1_000)
+        return `${(count / 1_000).toFixed(count % 1_000 === 0 ? 0 : 1).replace(/\.0$/, "")}K`;
+    return String(count);
+}
+
 const TABS = [
-    {key: "videos", label: "Videos", icon: FaVideo},
-    {key: "members", label: "Members", icon: FaUsers},
+    { key: "videos", label: "Videos", icon: FaVideo },
+    { key: "reels", label: "Reels", icon: FaFilm },
+    { key: "FoldersAndFiles", label: "Files", icon: FaFolderOpen },
 ];
 
 function ChannelContent() {
-    const {id} = useParams();
+    const { id } = useParams();
     const navigate = useNavigate();
-    const [activeTab, setActiveTab] = useState("videos");
+    const { pathname } = useLocation();
 
-    const {
-        data: channel,
-        isLoading,
-        isError,
-        error,
-        refetch,
-    } = useQuery({
+    const descriptionRef = useRef(null);
+    const [showDescription, setShowDescription] = useState(false);
+    const [isClamped, setIsClamped] = useState(false);
+    const [logoError, setLogoError] = useState(false);
+    const [subscribed, setSubscribed] = useState(false);
+    const [menuOpen, setMenuOpen] = useState(false);
+
+    const { data: channel, isLoading, isError, error, refetch } = useQuery({
         queryKey: ["channel", id],
         queryFn: () => getChannelByIdApi(id),
         enabled: !!id,
     });
+
+    // Active tab derived from the URL so deep links / refresh keep state.
+    const activeTab = useMemo(() => {
+        const found = TABS.find((t) => pathname.includes(`/${t.key}`));
+        return found?.key ?? TABS[0].key;
+    }, [pathname]);
+
+    const goToTab = (key) => navigate(`/channels/${id}/${key}`);
+
+    const subscribersLabel = channel?.subscribersCount === 1 ? "subscriber" : "subscribers";
+
+    useEffect(() => {
+        const el = descriptionRef.current;
+        if (!el) return;
+        setIsClamped(el.scrollHeight > el.clientHeight + 1);
+    }, [channel?.description, showDescription]);
 
     if (!id) {
         return (
             <div className="flex h-full items-center justify-center p-6">
                 <div className="text-center">
                     <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-blue-100">
-                        <FaUsers className="text-xl text-blue-600"/>
+                        <FaUsers className="text-xl text-blue-600" />
                     </div>
                     <h2 className="text-lg font-semibold text-slate-900">No channel selected</h2>
                     <p className="mt-1 text-sm text-slate-500">
@@ -43,28 +72,28 @@ function ChannelContent() {
         );
     }
 
-    const errorMessage = error?.response?.data?.message || error?.message || "Failed to load channel";
-
     if (isLoading) {
         return (
-            <div className="animate-pulse p-6">
-                <div className="flex items-center gap-6">
-                    <div className="h-20 w-20 shrink-0 rounded-full bg-gray-200"/>
-                    <div className="flex-1 space-y-3">
-                        <div className="h-6 w-1/3 rounded bg-gray-200"/>
-                        <div className="h-4 w-1/4 rounded bg-gray-200"/>
-                        <div className="h-4 w-1/5 rounded bg-gray-200"/>
+            <div className="animate-pulse">
+                <div className="h-28 w-full bg-gray-200 md:h-40" />
+                <div className="p-6">
+                    <div className="flex flex-col items-center gap-6 md:flex-row md:items-start">
+                        <div className="-mt-16 h-[120px] w-[120px] shrink-0 rounded-full border-4 border-white bg-gray-200 md:h-[160px] md:w-[160px]" />
+                        <div className="w-full flex-1 space-y-3 text-center md:text-left">
+                            <div className="mx-auto h-8 w-1/2 rounded bg-gray-200 md:mx-0 md:h-10 md:w-1/3" />
+                            <div className="mx-auto h-4 w-1/3 rounded bg-gray-200 md:mx-0" />
+                            <div className="mx-auto h-4 w-2/3 rounded bg-gray-200 md:mx-0" />
+                            <div className="mx-auto h-10 w-32 rounded-full bg-gray-200 md:mx-0" />
+                        </div>
                     </div>
-                </div>
-                <div className="mt-6 space-y-3">
-                    <div className="h-3 w-2/3 rounded bg-gray-200"/>
-                    <div className="h-3 w-1/2 rounded bg-gray-200"/>
                 </div>
             </div>
         );
     }
 
     if (isError) {
+        const errorMessage =
+            error?.response?.data?.message || error?.message || "Failed to load channel";
         return (
             <div className="flex flex-col items-center gap-3 p-6 text-center">
                 <p className="text-sm text-red-500">{errorMessage}</p>
@@ -78,86 +107,124 @@ function ChannelContent() {
         );
     }
 
-    const memberLabel = channel.subscribersCount === 1 ? "member" : "members";
-
     return (
-        <div className="h-full overflow-y-auto">
-            <div className="bg-gradient-to-r from-blue-600 to-indigo-600 px-6 py-8">
-                <button
-                    type="button"
-                    onClick={() => navigate("/channels")}
-                    className="mb-4 flex items-center gap-2 text-sm font-medium text-blue-100 transition hover:text-white md:hidden"
-                >
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <polyline points="15 18 9 12 15 6" />
-                    </svg>
-                    Back to channels
-                </button>
-                <div className="flex items-center gap-6">
-                    <div className="shrink-0 rounded-full bg-white p-1">
-                        <ChannelLogo channel={channel} size="xl"/>
+        <div className="relative flex h-full flex-col overflow-y-auto bg-white">
+            <button
+                onClick={() => navigate(-1)}
+                aria-label="Go back"
+                className="md:hidden absolute top-2 left-2 rounded-full text-white transition"
+            >
+                <IoArrowBackCircleOutline className="h-9 w-9" />
+            </button>
+
+            <button
+                onClick={() => setMenuOpen((v) => !v)}
+                aria-label="More options"
+                className="absolute top-2 right-2 rounded-full p-2  transition text-white "
+            >
+                <BsThreeDotsVertical className="h-5 w-5" />
+            </button>
+
+            <div className="h-28 w-full bg-gradient-to-r from-sky-500 via-indigo-500 to-fuchsia-500 md:p-16">
+                {channel?.bannerUrl && (
+                    <img
+                        src={channel.bannerUrl}
+                        alt=""
+                        className="h-full w-full object-cover"
+                        onError={(e) => (e.currentTarget.style.display = "none")}
+                    />
+                )}
+            </div>
+
+            {/* Channel identity card */}
+            <section className="px-4 md:px-8">
+                <div className="flex flex-col items-center gap-5 md:flex-row md:items-end">
+                    <div className="-mt-12 shrink-0 rounded-full ring-4 ring-white md:-mt-16">
+                        <ChannelLogo channel={channel} size="lg" onError={() => setLogoError(true)} />
                     </div>
-                    <div className="min-w-0">
-                        <h1 className="truncate text-2xl font-bold text-white">
-                            {channel.name}
-                        </h1>
-                        {channel.handle && (
-                            <p className="truncate text-sm text-blue-100">
-                                @{channel.handle}
-                            </p>
-                        )}
-                        <div className="mt-1 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-blue-100">
-                            <span>{channel.subscribersCount} {memberLabel}</span>
-                            <span>
-                                Joined {new Date(channel.createdAt).toLocaleDateString(undefined, {
-                                    month: "long",
-                                    year: "numeric",
-                                })}
-                            </span>
+
+                    <div className="flex-1 text-center md:pb-2 md:text-left">
+                        <div className="flex items-center justify-center gap-2 md:justify-start">
+                            <h1 className="text-2xl font-bold tracking-tight text-slate-900 md:text-3xl">
+                                {channel?.name}
+                            </h1>
+                            {channel?.isVerified && <FaCheckCircle className="text-sky-500" />}
                         </div>
+                        <p className="mt-1 text-sm text-slate-500">
+                            {channel?.handle ? `@${channel.handle} · ` : ""}
+                            <span className="font-medium text-slate-700">
+                                {formatCompact(channel?.subscribersCount)}
+                            </span>{" "}
+                            {subscribersLabel}
+                        </p>
                     </div>
                 </div>
-            </div>
 
-            <div className="border-b border-slate-200 bg-white">
-                <div className="flex">
-                    {TABS.map(({key, label, icon: Icon}) => (
-                        <button
-                            key={key}
-                            onClick={() => setActiveTab(key)}
-                            className={`flex items-center gap-2 px-5 py-3 text-sm font-medium transition ${
-                                activeTab === key
-                                    ? "border-b-2 border-blue-600 text-blue-600"
-                                    : "text-slate-500 hover:text-slate-700"
+                {/* Description with more / less */}
+                {channel?.description && (
+                    <div className="mt-4">
+                        <div
+                            ref={descriptionRef}
+                            className={`whitespace-pre-line text-sm leading-relaxed text-slate-600 ${
+                                showDescription ? "" : "line-clamp-2"
                             }`}
+                            style={{ overflowWrap: "anywhere", wordBreak: "break-word" }}
                         >
-                            <Icon size={15}/>
-                            {label}
-                        </button>
-                    ))}
+                            {channel.description}
+                        </div>
+                        {(isClamped || showDescription) && (
+                            <button
+                                onClick={() => setShowDescription((v) => !v)}
+                                className="mt-1 text-sm font-semibold text-slate-900 hover:underline"
+                            >
+                                {showDescription ? "less" : "...more"}
+                            </button>
+                        )}
+                    </div>
+                )}
+            </section>
+
+            {/* Sticky tab bar */}
+            <nav className="sticky top-0 z-10 mt-4 border-b border-slate-200 bg-white/90 px-4 backdrop-blur md:px-8">
+                <div className="flex gap-1 overflow-x-auto">
+                    {TABS.map(({ key, label, icon: Icon }) => {
+                        const isActive = activeTab === key;
+                        return (
+                            <button
+                                key={key}
+                                onClick={() => goToTab(key)}
+                                className={`relative flex items-center gap-2 whitespace-nowrap px-4 py-3 text-sm font-medium transition ${
+                                    isActive ? "text-slate-900" : "text-slate-500 hover:text-slate-800"
+                                }`}
+                            >
+                                <Icon className="h-4 w-4" />
+                                {label}
+                                <span
+                                    className={`absolute inset-x-2 -bottom-px h-[3px] rounded-full transition ${
+                                        isActive ? "bg-slate-900" : "bg-transparent"
+                                    }`}
+                                />
+                            </button>
+                        );
+                    })}
                 </div>
-            </div>
+            </nav>
 
-            <div className="p-6">
-                {channel.description && (
-                    <p className="mb-6 text-sm leading-relaxed text-slate-600">
-                        {channel.description}
-                    </p>
-                )}
+            {/* Tab content */}
+            <div className="flex-1 px-4 py-5 md:px-8">
 
-                {activeTab === "videos" && (
-                    <div className="rounded-xl border border-dashed border-slate-300 p-10 text-center">
-                        <FaVideo className="mx-auto mb-3 text-2xl text-slate-300"/>
-                        <p className="text-sm text-slate-500">No videos yet.</p>
-                    </div>
-                )}
+                    COntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsd
 
-                {activeTab === "members" && (
-                    <div className="rounded-xl border border-dashed border-slate-300 p-10 text-center">
-                        <FaUsers className="mx-auto mb-3 text-2xl text-slate-300"/>
-                        <p className="text-sm text-slate-500">No members yet.</p>
-                    </div>
-                )}
+                COntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsd
+
+                COntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsd
+
+                COntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsd
+
+                COntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsd
+
+                COntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsd
+
             </div>
         </div>
     );
