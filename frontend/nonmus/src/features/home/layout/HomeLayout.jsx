@@ -89,7 +89,7 @@ function HomeLayout() {
   const { logout } = useAuth();
 
   return (
-    <div className="mx-auto flex min-h-screen  bg-slate-50">
+    <div className="mx-auto flex h-screen bg-slate-50">
       <aside className={`hidden lg:flex lg:flex-col lg:border-r lg:border-slate-200 lg:bg-white transition-all duration-300 ${sidebarCollapsed ? 'lg:w-16' : 'lg:w-56'}`}>
         <div className="flex h-14 items-center border-b border-slate-200 px-3">
           {sidebarCollapsed ? (
@@ -182,7 +182,7 @@ function HomeLayout() {
 
         <EmailVerificationBanner />
 
-        <main className="flex-1 pb-20 lg:pb-0">
+        <main className="flex-1 overflow-y-auto pb-20 lg:pb-0">
           <Outlet />
         </main>
 

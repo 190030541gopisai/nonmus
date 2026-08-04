@@ -9,6 +9,7 @@ import HomeLayout from "../features/home/layout/HomeLayout.jsx";
 import HomePage from "../features/home/pages/HomePage.jsx";
 import ReelsPage from "../features/reels/pages/ReelsPage.jsx";
 import ChannelsPage from "../features/channels/pages/ChannelsPage.jsx";
+import ChannelContent from "../features/channels/components/ChannelContent.jsx";
 import ProfilePage from "../features/profile/pages/ProfilePage.jsx";
 import VideosPage from "../features/videos/pages/VideosPage.jsx";
 import EditProfile from "../features/profile/components/EditProfile.jsx";
@@ -22,7 +23,10 @@ function AppRoutes() {
                         <Route index element={<HomePage />} />
                         <Route path="/videos" element={<VideosPage />} />
                         <Route path="/reels" element={<ReelsPage />} />
-                        <Route path="/channels" element={<ChannelsPage />} />
+                        <Route path="/channels" element={<ChannelsPage />} >
+                            <Route index element={<ChannelContent />} />
+                            <Route path=":id" element={<ChannelContent />} />
+                        </Route>
                         <Route path="/profile" element={<ProfilePage />} />
                     </Route>
                 </Route>

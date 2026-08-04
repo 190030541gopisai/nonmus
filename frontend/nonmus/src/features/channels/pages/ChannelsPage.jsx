@@ -1,13 +1,16 @@
+import {Outlet, useParams} from "react-router-dom";
 import ChannelAside from "../components/ChannelAside.jsx";
-import ChannelContent from "../components/ChannelContent.jsx";
 
 function ChannelsPage() {
+    const {id} = useParams();
 
     return (
-        <div className="fixed">
-            <div className="flex">
+        <div className="flex h-full flex-col md:flex-row">
+            <div className={id ? "hidden md:block" : "md:block"}>
                 <ChannelAside />
-                <ChannelContent />
+            </div>
+            <div className={`flex-1 min-w-0 ${id ? "block" : "hidden md:block"}`}>
+                <Outlet />
             </div>
         </div>
     );

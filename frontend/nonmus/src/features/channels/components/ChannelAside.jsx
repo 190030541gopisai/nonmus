@@ -59,7 +59,7 @@ function ChannelAside() {
     };
 
     return <>
-        <div className="relative bg-gray-50 h-screen shadow-sm"
+        <div className="relative h-full bg-gray-50 shadow-sm"
              style={{
                  width: isMobile ? "100%" : `${width}px`
              }}
@@ -106,7 +106,7 @@ function ChannelAside() {
                 )}
 
                 {channels.map((channel, index) => (
-                    <Link key={channel.channelId || indx} to={channel.channelId || index}>
+                    <Link key={channel.channelId || index} to={channel.channelId || index}>
                         <Channel channel={channel} index={index}/>
                     </Link>
                 ))}
