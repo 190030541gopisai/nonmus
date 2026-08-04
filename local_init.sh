@@ -1,6 +1,4 @@
-docker compose up -d
-
-floci start
+docker compose -f ./docker-compose-local.yml up -d
 
 aws s3api create-bucket \
     --bucket nonmus-profile-pics \
