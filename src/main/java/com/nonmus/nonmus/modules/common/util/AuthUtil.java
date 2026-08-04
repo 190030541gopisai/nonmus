@@ -13,4 +13,12 @@ public class AuthUtil {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         return (AuthenticatedUser) authentication.getPrincipal();
     }
+
+    public static String getAuthenticatedUserEmail() {
+        AuthenticatedUser authUser = AuthUtil.getPrincipal();
+        if(authUser == null) {
+            return null;
+        }
+        return authUser.getEmail();
+    }
 }
