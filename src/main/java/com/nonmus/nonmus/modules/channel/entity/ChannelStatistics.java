@@ -1,18 +1,20 @@
 package com.nonmus.nonmus.modules.channel.entity;
 
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.UUID;
 
-@Data
+@Getter
+@Setter
 @Entity
 public class ChannelStatistics {
     @Id
-    private UUID id = UUID.randomUUID();
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private UUID id;
     private Long subscribersCount;
 
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="channel_id", referencedColumnName = "id")
-    private Channels channel;
+    @OneToOne(mappedBy = "channelStatistics")
+    private Channel channel;
 }

@@ -9,18 +9,24 @@ import java.util.UUID;
 @Data
 @Entity
 public class Invite {
-
     @Id
-    private UUID id = UUID.randomUUID();
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private UUID id;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "channel_id", referencedColumnName = "id")
-    private Channels channel;
+    private Channel channel;
 
+    @Column(unique = true)
     private String token;
 
     private Instant expiry;
 
-    @OneToOne(mappedBy = "invite", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private Long maxUses;
+
+    @Column(nullable = false)
+    private Long currentUses = 0L;
+
+    @OneToOne(mappedBy = "invite", cascade = CascadeType.ALL, orphanRemoval = true)
     private InviteJoinRule inviteJoinRule;
 }

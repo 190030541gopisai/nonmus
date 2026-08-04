@@ -10,10 +10,11 @@ import java.util.UUID;
 @Entity
 public class InviteJoinRule {
     @Id
-    private UUID id = UUID.randomUUID();
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private UUID id;
 
     @OneToOne
-    @JoinColumn(referencedColumnName = "id")
+    @JoinColumn(name = "invite_id", referencedColumnName = "id")
     private Invite invite;
 
     @Enumerated(EnumType.STRING)
