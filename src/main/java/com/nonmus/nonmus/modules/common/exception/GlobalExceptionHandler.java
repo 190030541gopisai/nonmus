@@ -108,6 +108,53 @@ public class GlobalExceptionHandler {
         );
     }
 
+    @ExceptionHandler(ChannelHandleAlreadyExistsException.class)
+    public ResponseEntity<ErrorResponse> handleChannelHandleAlreadyExists(
+            ChannelHandleAlreadyExistsException e) {
+        return buildErrorResponse(
+                "CHANNEL_HANDLE_ALREADY_EXISTS",
+                e.getMessage(),
+                HttpStatus.CONFLICT
+        );
+    }
+
+    @ExceptionHandler(InvalidChannelHandleException.class)
+    public ResponseEntity<ErrorResponse> handleInvalidChannelHandle(
+            InvalidChannelHandleException e) {
+        return buildErrorResponse(
+                "INVALID_CHANNEL_HANDLE",
+                e.getMessage(),
+                HttpStatus.BAD_REQUEST
+        );
+    }
+
+    @ExceptionHandler(ChannelAccessDeniedException.class)
+    public ResponseEntity<ErrorResponse> handleChannelAccessDeniedException(ChannelAccessDeniedException e) {
+        return buildErrorResponse(
+                "CHANNEL_ACCESS_DENIED",
+                e.getMessage(),
+                HttpStatus.FORBIDDEN
+        );
+    }
+
+    @ExceptionHandler(ChannelNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleChannelNotFoundException(ChannelNotFoundException e) {
+        return buildErrorResponse(
+                "CHANNEL_NOT_FOUND",
+                e.getMessage(),
+                HttpStatus.NOT_FOUND
+        );
+    }
+
+    @ExceptionHandler(InvalidCursorException.class)
+    public ResponseEntity<ErrorResponse> handleInvalidCursorException(InvalidCursorException e) {
+        return buildErrorResponse(
+                "INVALID_CURSOR",
+                e.getMessage(),
+                HttpStatus.BAD_REQUEST
+        );
+    }
+
     private ResponseEntity<ErrorResponse> buildErrorResponse(String errorCode, String message, HttpStatus status) {
         ErrorResponse errorResponse = new ErrorResponse();
         errorResponse.setErrorCode(errorCode);
