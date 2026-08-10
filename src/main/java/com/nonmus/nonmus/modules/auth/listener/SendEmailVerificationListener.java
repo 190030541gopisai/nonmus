@@ -49,7 +49,8 @@ public class SendEmailVerificationListener {
 
         log.info("Sending verification email to: " + email);
 
-        mailService.send(user.getEmail(), subject, content);
+        System.out.println(content);
+//        mailService.send(user.getEmail(), subject, content);
 
         log.info("Verification email sent to: " + email);
     }

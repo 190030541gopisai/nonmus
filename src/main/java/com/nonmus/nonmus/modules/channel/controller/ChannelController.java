@@ -7,8 +7,10 @@ import com.nonmus.nonmus.modules.channel.dto.internal.CursorPage;
 import com.nonmus.nonmus.modules.channel.dto.request.CreateChannelRequest;
 import com.nonmus.nonmus.modules.channel.dto.response.ChannelResponse;
 import com.nonmus.nonmus.modules.channel.dto.response.ChannelsResponse;
+import com.nonmus.nonmus.modules.channel.dto.response.CreateChannelInviteResponse;
 import com.nonmus.nonmus.modules.channel.dto.response.CreateChannelResponse;
 import com.nonmus.nonmus.modules.channel.dto.response.HandleAvailabilityResponse;
+import com.nonmus.nonmus.modules.channel.service.ChannelInviteService;
 import com.nonmus.nonmus.modules.channel.service.ChannelService;
 import com.nonmus.nonmus.modules.common.util.AuthUtil;
 import com.nonmus.nonmus.security.AuthenticatedUser;
@@ -27,6 +29,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class ChannelController {
     private final ChannelService channelService;
+    private final ChannelInviteService channelInviteService;
     private final ModelMapper modelMapper;
 
     @PostMapping
@@ -85,6 +88,15 @@ public class ChannelController {
                         .hasNext(cursorPage.hasNext())
                         .build()
         );
+    }
+
+    @GetMapping("/{channelId}/invites")
+    public ResponseEntity<List<CreateChannelInviteResponse>> getChannelInvites(@PathVariable UUID channelId) {
+        String email = AuthUtil.getAuthenticatedUserEmail();
+
+        List<CreateChannelInviteResponse> invites = channelInviteService.listChannelInvites(channelId, email);
+
+        return ResponseEntity.ok(invites);
     }
 
     @GetMapping("/handle/{handle}/availability")

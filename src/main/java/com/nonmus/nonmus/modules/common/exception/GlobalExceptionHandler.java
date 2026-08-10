@@ -155,6 +155,24 @@ public class GlobalExceptionHandler {
         );
     }
 
+    @ExceptionHandler(InvalidInviteException.class)
+    public ResponseEntity<ErrorResponse> handleInvalidInviteException(InvalidInviteException e) {
+        return buildErrorResponse(
+                "INVALID_INVITE",
+                e.getMessage(),
+                HttpStatus.BAD_REQUEST
+        );
+    }
+
+    @ExceptionHandler(UserAlreadyExistsInChannelException.class)
+    public ResponseEntity<ErrorResponse> handleUserAlreadyExistsInChannelException(UserAlreadyExistsInChannelException e) {
+        return buildErrorResponse(
+                "USER_ALREADY_IN_CHANNEL",
+                e.getMessage(),
+                HttpStatus.CONFLICT
+        );
+    }
+
     private ResponseEntity<ErrorResponse> buildErrorResponse(String errorCode, String message, HttpStatus status) {
         ErrorResponse errorResponse = new ErrorResponse();
         errorResponse.setErrorCode(errorCode);

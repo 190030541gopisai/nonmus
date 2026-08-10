@@ -9,6 +9,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.http.HttpMethod;
 
 import com.nonmus.nonmus.filter.JwtAuthenticationFilter;
 
@@ -37,6 +38,7 @@ public class SecurityConfig {
                                 "/api/v1/email/verify",
                                 "/api/v1/forgot-password/**"
                         ).permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/v1/channels/invite/**").permitAll()
                         .requestMatchers(
                                 "/api/v1/channel/**"
                         ).hasAuthority("EMAIL_VERIFIED")

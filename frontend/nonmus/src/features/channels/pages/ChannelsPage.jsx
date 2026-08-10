@@ -9,7 +9,7 @@ function ChannelsPage() {
             <div className={id ? "hidden md:block" : "md:block"}>
                 <ChannelAside />
             </div>
-            <div className={`flex-1 min-w-0 ${id ? "block" : "hidden md:block"}`}>
+            <div className={`flex-1`}>
                 <Outlet />
             </div>
         </div>

@@ -3,20 +3,27 @@
     "_postman_id": "a620cf24-4927-428a-96de-f93b8ebfc2c4",
     "name": "Nonmus Monolith",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-    "_exporter_id": "36256363"
+    "_exporter_id": "36256363",
+    "description": "Nonmus full-stack video/social platform backend.\n\nBase URL: {{baseUrl}} (default http://localhost:8080)\n\nAuth: JWT is stored in httpOnly cookies (`access_token` 60min, `refresh_token` 7d/30d).\nSign up/log in once, then Postman's cookie jar keeps you authenticated.\n\nPublic endpoints: POST /auth/**, GET /email/verify, POST /forgot-password/**.\nEverything else requires an authenticated session. `/users/me` returns user info;\non a 401 the frontend calls POST /auth/refresh."
   },
   "item": [
     {
       "name": "Auth",
       "item": [
         {
-          "name": "SignUp",
+          "name": "Sign Up",
           "event": [
             {
               "listen": "test",
               "script": {
                 "exec": [
-                  ""
+                  "pm.test('Signup succeeded (201)', function () {",
+                  "    pm.expect(pm.response.code).to.eql(201);",
+                  "});",
+                  "pm.test('Returns success message', function () {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body.message).to.eql('Signup successful');",
+                  "});"
                 ],
                 "type": "text/javascript",
                 "packages": {},
@@ -26,7 +33,12 @@
           ],
           "request": {
             "method": "POST",
-            "header": [],
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "body": {
               "mode": "raw",
               "raw": "{\n    \"name\": \"Gopi Sai\",\n    \"email\": \"gottipatigopisai1@gmail.com\",\n    \"password\": \"helloworld\"\n}",
@@ -37,18 +49,18 @@
               }
             },
             "url": {
-              "raw": "localhost:8080/api/v1/auth/signup",
+              "raw": "{{baseUrl}}/api/v1/auth/signup",
               "host": [
-                "localhost"
+                "{{baseUrl}}"
               ],
-              "port": "8080",
               "path": [
                 "api",
                 "v1",
                 "auth",
                 "signup"
               ]
-            }
+            },
+            "description": "Creates a new account and sets JWT cookies in the response.\n\nBody:\n- name: string (required)\n- email: string (required, unique)\n- password: string (required)\n\nOn success the `access_token` and `refresh_token` cookies are stored by Postman automatically."
           },
           "response": []
         },
@@ -59,16 +71,13 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "if (pm.response.code === 200) {\r",
-                  "    const accessToken = pm.cookies.get(\"access_token\");\r",
-                  "    const refreshToken = pm.cookies.get(\"refresh_token\");\r",
-                  "\r",
-                  "    pm.collectionVariables.set(\"accessToken\", accessToken || \"\");\r",
-                  "    pm.collectionVariables.set(\"refreshToken\", refreshToken || \"\");\r",
-                  "\r",
-                  "    console.log(\"Access Token:\", accessToken);\r",
-                  "    console.log(\"Refresh Token:\", refreshToken);\r",
-                  "}"
+                  "pm.test('Login succeeded (200)', function () {",
+                  "    pm.expect(pm.response.code).to.eql(200);",
+                  "});",
+                  "pm.test('Sets auth cookies', function () {",
+                  "    pm.expect(pm.response.headers.get('set-cookie')).to.include('access_token');",
+                  "    pm.expect(pm.response.headers.get('set-cookie')).to.include('refresh_token');",
+                  "});"
                 ],
                 "type": "text/javascript",
                 "packages": {},
@@ -78,10 +87,15 @@
           ],
           "request": {
             "method": "POST",
-            "header": [],
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "body": {
               "mode": "raw",
-              "raw": "{\n    \"email\": \"gottipatigopisai1@gmail.com\",\n    \"password\": \"helloworld\"\n}",
+              "raw": "{\n    \"email\": \"gottipatigopisai1@gmail.com\",\n    \"password\": \"helloworld\",\n    \"rememberMe\": false\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -89,18 +103,18 @@
               }
             },
             "url": {
-              "raw": "localhost:8080/api/v1/auth/login",
+              "raw": "{{baseUrl}}/api/v1/auth/login",
               "host": [
-                "localhost"
+                "{{baseUrl}}"
               ],
-              "port": "8080",
               "path": [
                 "api",
                 "v1",
                 "auth",
                 "login"
               ]
-            }
+            },
+            "description": "Authenticates and sets JWT cookies.\n\nBody:\n- email: string (required)\n- password: string (required)\n- rememberMe: boolean — `true` issues a 30-day refresh token, `false` a 7-day token.\n\nRun this before calling authenticated endpoints so the cookie jar is populated."
           },
           "response": []
         },
@@ -110,18 +124,18 @@
             "method": "POST",
             "header": [],
             "url": {
-              "raw": "localhost:8080/api/v1/auth/refresh",
+              "raw": "{{baseUrl}}/api/v1/auth/refresh",
               "host": [
-                "localhost"
+                "{{baseUrl}}"
               ],
-              "port": "8080",
               "path": [
                 "api",
                 "v1",
                 "auth",
                 "refresh"
               ]
-            }
+            },
+            "description": "Rotates the access token using the `refresh_token` cookie. No body needed.\n\nReads the refresh cookie from the request, validates it, and issues a fresh `access_token` cookie. Call this when an authenticated request returns 401."
           },
           "response": []
         },
@@ -130,37 +144,37 @@
           "request": {
             "method": "POST",
             "header": [],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n    \"email\": \"test@example.com\",\n    \"password\": \"helloworld\"\n}"
-            },
             "url": {
-              "raw": "localhost:8080/api/v1/auth/logout",
+              "raw": "{{baseUrl}}/api/v1/auth/logout",
               "host": [
-                "localhost"
+                "{{baseUrl}}"
               ],
-              "port": "8080",
               "path": [
                 "api",
                 "v1",
                 "auth",
                 "logout"
               ]
-            }
+            },
+            "description": "Clears the JWT cookies (expires them) and revokes server state. No body needed."
           },
           "response": []
-        },
+        }
+      ]
+    },
+    {
+      "name": "Email & Forgot Password",
+      "item": [
         {
           "name": "Verify Email With Token",
           "request": {
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "localhost:8080/api/v1/email/verify?token=B6LdoIP-6L4Cy94vgomYBRrg9DQ_qP2lZlmH38CEv0I",
+              "raw": "{{baseUrl}}/api/v1/email/verify?token=B6LdoIP-6L4Cy94vgomYBRrg9DQ_qP2lZlmH38CEv0I",
               "host": [
-                "localhost"
+                "{{baseUrl}}"
               ],
-              "port": "8080",
               "path": [
                 "api",
                 "v1",
@@ -173,7 +187,8 @@
                   "value": "B6LdoIP-6L4Cy94vgomYBRrg9DQ_qP2lZlmH38CEv0I"
                 }
               ]
-            }
+            },
+            "description": "Public. Confirms an email address using the token from the emailed verification link.\n\nQuery: token (string, required). Returns `{ message: 'Verification Successful' }`."
           },
           "response": []
         },
@@ -181,31 +196,41 @@
           "name": "Resend Email Verification",
           "request": {
             "method": "POST",
-            "header": [],
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "url": {
-              "raw": "localhost:8080/api/v1/email/resend",
+              "raw": "{{baseUrl}}/api/v1/email/resend",
               "host": [
-                "localhost"
+                "{{baseUrl}}"
               ],
-              "port": "8080",
               "path": [
                 "api",
                 "v1",
                 "email",
                 "resend"
               ]
-            }
+            },
+            "description": "Authenticated. Sends a new verification link to the logged-in user's email. No body needed — the user is resolved from the session."
           },
           "response": []
         },
         {
-          "name": "Forgot Password Send",
+          "name": "Forgot Password - Send Code",
           "request": {
             "method": "POST",
-            "header": [],
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "body": {
               "mode": "raw",
-              "raw": "{\r\n    \"email\": \"gottipatigopisai1@gmail.com\"\r\n}",
+              "raw": "{\n    \"email\": \"gottipatigopisai1@gmail.com\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -213,29 +238,34 @@
               }
             },
             "url": {
-              "raw": "localhost:8080/api/v1/forgot-password/send",
+              "raw": "{{baseUrl}}/api/v1/forgot-password/send",
               "host": [
-                "localhost"
+                "{{baseUrl}}"
               ],
-              "port": "8080",
               "path": [
                 "api",
                 "v1",
                 "forgot-password",
                 "send"
               ]
-            }
+            },
+            "description": "Public. Requests a verification code be emailed to the given address.\n\nBody: { email }. Returns `{ message: 'Verification code sent to your email' }`."
           },
           "response": []
         },
         {
-          "name": "Forgot Password Verify",
+          "name": "Forgot Password - Verify Code",
           "request": {
             "method": "POST",
-            "header": [],
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "body": {
               "mode": "raw",
-              "raw": "{\r\n    \"email\": \"gottipatigopisai1@gmail.com\",\r\n    \"code\": \"633601\"\r\n}",
+              "raw": "{\n    \"email\": \"gottipatigopisai1@gmail.com\",\n    \"code\": \"633601\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -243,29 +273,34 @@
               }
             },
             "url": {
-              "raw": "localhost:8080/api/v1/forgot-password/verify",
+              "raw": "{{baseUrl}}/api/v1/forgot-password/verify",
               "host": [
-                "localhost"
+                "{{baseUrl}}"
               ],
-              "port": "8080",
               "path": [
                 "api",
                 "v1",
                 "forgot-password",
                 "verify"
               ]
-            }
+            },
+            "description": "Public. Validates the emailed code and returns a `reset_token` cookie (10-min expiry) used by the next step.\n\nBody: { email, code }."
           },
           "response": []
         },
         {
-          "name": "Forgot Password Reset",
+          "name": "Forgot Password - Reset",
           "request": {
             "method": "POST",
-            "header": [],
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "body": {
               "mode": "raw",
-              "raw": "{\r\n    \"newPassword\":\"hellowolf\"\r\n}",
+              "raw": "{\n    \"newPassword\": \"hellowolf\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -273,18 +308,18 @@
               }
             },
             "url": {
-              "raw": "localhost:8080/api/v1/forgot-password/reset",
+              "raw": "{{baseUrl}}/api/v1/forgot-password/reset",
               "host": [
-                "localhost"
+                "{{baseUrl}}"
               ],
-              "port": "8080",
               "path": [
                 "api",
                 "v1",
                 "forgot-password",
                 "reset"
               ]
-            }
+            },
+            "description": "Public. Sets a new password. Requires the `reset_token` cookie from the Verify step (cookie jar auto-sends it). Clears the cookie afterwards.\n\nBody: { newPassword }. Returns 204 No Content."
           },
           "response": []
         }
@@ -297,7 +332,12 @@
           "name": "Create User",
           "request": {
             "method": "POST",
-            "header": [],
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "body": {
               "mode": "raw",
               "raw": "{\n    \"name\": \"Gopi Sai\",\n    \"email\": \"gopisai4568@gmail.com\",\n    \"password\": \"helloworld\"\n}",
@@ -308,75 +348,54 @@
               }
             },
             "url": {
-              "raw": "localhost:8080/api/v1/users",
+              "raw": "{{baseUrl}}/api/v1/users",
               "host": [
-                "localhost"
+                "{{baseUrl}}"
               ],
-              "port": "8080",
               "path": [
                 "api",
                 "v1",
                 "users"
               ]
-            }
+            },
+            "description": "Creates a user directly (service-level, does not set cookies).\n\nBody: { name, email, password }. Returns the created user."
           },
           "response": []
         },
         {
-          "name": "GET User",
+          "name": "GET Logged-in User",
           "request": {
-            "auth": {
-              "type": "noauth"
-            },
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "localhost:8080/api/v1/users/me",
+              "raw": "{{baseUrl}}/api/v1/users/me",
               "host": [
-                "localhost"
+                "{{baseUrl}}"
               ],
-              "port": "8080",
               "path": [
                 "api",
                 "v1",
                 "users",
                 "me"
-              ],
-              "query": [
-                {
-                  "key": "",
-                  "value": null,
-                  "type": "text",
-                  "disabled": true
-                }
-              ]
-            }
-          },
-          "response": []
-        }
-      ]
-    },
-    {
-      "name": "Channel",
-      "item": [
-        {
-          "name": "Create Channel",
-          "request": {
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJnb3Bpc2FpNDMyNTY4QGdtYWlsLmNvbSIsIm5hbWUiOiJHb3BpIFNhaSIsImlhdCI6MTc3OTEyMzczMCwiZXhwIjoxNzc5MTI3MzMwfQ.nfYIqKoev5A17i1kwlyHojrJyaqRC85tE1fMgp8ItRM",
-                  "type": "string"
-                }
               ]
             },
-            "method": "POST",
-            "header": [],
+            "description": "Authenticated. Returns the current user's profile (resolved from the session cookie)."
+          },
+          "response": []
+        },
+        {
+          "name": "Update User",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "body": {
               "mode": "raw",
-              "raw": "{\n    \"name\": \"Gopi Sai\",\n    \"description\":\"Sample Channel\"\n}",
+              "raw": "{\n    \"name\": \"Gopi Sai Updated\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -384,27 +403,27 @@
               }
             },
             "url": {
-              "raw": "localhost:8080/api/v1/channel",
+              "raw": "{{baseUrl}}/api/v1/users",
               "host": [
-                "localhost"
+                "{{baseUrl}}"
               ],
-              "port": "8080",
               "path": [
                 "api",
                 "v1",
-                "channel"
+                "users"
               ]
-            }
+            },
+            "description": "Authenticated. Updates the logged-in user's profile.\n\nBody: { name } (currently the only updatable field). Returns the updated user."
           },
           "response": []
         }
       ]
     },
     {
-      "name": "Profile Picture Copy",
+      "name": "Profile Picture (S3 Presigned Upload)",
       "item": [
         {
-          "name": "[Step 1] Request Presigned Upload URL",
+          "name": "[1] Presigned Upload URL",
           "event": [
             {
               "listen": "test",
@@ -414,9 +433,9 @@
                   "    const json = pm.response.json();",
                   "    pm.collectionVariables.set('presignedUploadUrl', json.presignedUrl);",
                   "    pm.collectionVariables.set('s3Key', json.s3Key);",
-                  "    console.log('presignedUploadUrl saved:', json.presignedUrl);",
-                  "    console.log('s3Key saved:', json.s3Key);",
-                  "    console.log('URL expires in:', json.expiresInSeconds, 'seconds');",
+                  "    console.log('presignedUploadUrl saved (expires in ' + json.expiresInSeconds + 's)');",
+                  "} else {",
+                  "    console.log('Presign request failed: ' + pm.response.code);",
                   "}"
                 ],
                 "type": "text/javascript",
@@ -426,16 +445,6 @@
             }
           ],
           "request": {
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{accessToken}}",
-                  "type": "string"
-                }
-              ]
-            },
             "method": "POST",
             "header": [
               {
@@ -445,7 +454,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"contentType\": \"image/jpeg\",\n  \"fileSize\": 204800\n}",
+              "raw": "{\n    \"contentType\": \"image/jpeg\",\n    \"fileSize\": 204800\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -465,73 +474,12 @@
                 "presigned-url"
               ]
             },
-            "description": "**Backend validates** contentType and fileSize, then generates a short-lived S3 presigned PUT URL.\n\nThe test script automatically saves `presignedUrl` and `s3Key` to collection variables.\n\n**Allowed contentTypes:** image/jpeg, image/png, image/webp, image/gif\n**Max fileSize:** 5242880 bytes (5 MB)"
+            "description": "Authenticated — Step 1 of 3.\n\nBody:\n- contentType: allowed values image/jpeg, image/png, image/webp, image/gif\n- fileSize: bytes; max 5242880 (5 MB)\n\nReturns `presignedUrl`, `s3Key`, `expiresInSeconds`. The test script auto-saves `presignedUploadUrl` and `s3Key` for the next steps."
           },
-          "response": [
-            {
-              "name": "Success (200)",
-              "originalRequest": {
-                "method": "POST",
-                "header": [],
-                "body": {
-                  "mode": "raw",
-                  "raw": "{\n  \"contentType\": \"image/jpeg\",\n  \"fileSize\": 204800\n}"
-                },
-                "url": {
-                  "raw": ""
-                }
-              },
-              "status": "OK",
-              "code": 200,
-              "_postman_previewlanguage": "Text",
-              "header": [],
-              "cookie": [],
-              "body": "{\n  \"presignedUrl\": \"http://localhost:4566/nonmus-profile-pics/users/test@example.com/550e8400-e29b-41d4-a716-446655440000.jpg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Expires=600&X-Amz-Signature=...\",\n  \"s3Key\": \"users/test@example.com/550e8400-e29b-41d4-a716-446655440000.jpg\",\n  \"expiresInSeconds\": 600\n}"
-            },
-            {
-              "name": "Invalid file type (400)",
-              "originalRequest": {
-                "method": "POST",
-                "header": [],
-                "body": {
-                  "mode": "raw",
-                  "raw": "{\n  \"contentType\": \"application/pdf\",\n  \"fileSize\": 204800\n}"
-                },
-                "url": {
-                  "raw": ""
-                }
-              },
-              "status": "Bad Request",
-              "code": 400,
-              "_postman_previewlanguage": "Text",
-              "header": [],
-              "cookie": [],
-              "body": "{\n  \"errorCode\": \"INVALID_FILE\",\n  \"message\": \"File type 'application/pdf' is not allowed. Accepted types: image/jpeg, image/png, image/webp, image/gif\"\n}"
-            },
-            {
-              "name": "File too large (400)",
-              "originalRequest": {
-                "method": "POST",
-                "header": [],
-                "body": {
-                  "mode": "raw",
-                  "raw": "{\n  \"contentType\": \"image/jpeg\",\n  \"fileSize\": 9999999\n}"
-                },
-                "url": {
-                  "raw": ""
-                }
-              },
-              "status": "Bad Request",
-              "code": 400,
-              "_postman_previewlanguage": "Text",
-              "header": [],
-              "cookie": [],
-              "body": "{\n  \"errorCode\": \"INVALID_FILE\",\n  \"message\": \"File size exceeds the maximum allowed size of 5 MB.\"\n}"
-            }
-          ]
+          "response": []
         },
         {
-          "name": "[Step 2] Upload File Directly to S3",
+          "name": "[2] Upload Directly to S3",
           "event": [
             {
               "listen": "test",
@@ -539,10 +487,7 @@
                 "exec": [
                   "pm.test('S3 upload succeeded', function () {",
                   "    pm.expect(pm.response.code).to.be.oneOf([200, 204]);",
-                  "});",
-                  "if (pm.response.code === 200 || pm.response.code === 204) {",
-                  "    console.log('File uploaded successfully to S3. Now run Step 3 (Confirm Upload).');",
-                  "}"
+                  "});"
                 ],
                 "type": "text/javascript",
                 "packages": {},
@@ -551,21 +496,12 @@
             }
           ],
           "request": {
-            "auth": {
-              "type": "noauth"
-            },
             "method": "PUT",
             "header": [
               {
                 "key": "Content-Type",
                 "value": "image/jpeg",
                 "description": "Must match the contentType sent in Step 1"
-              },
-              {
-                "key": "Authorization",
-                "value": "",
-                "description": "MUST be disabled/absent — S3 rejects requests that have both an Authorization header and presign query params",
-                "disabled": true
               }
             ],
             "body": {
@@ -580,23 +516,13 @@
                 "{{presignedUploadUrl}}"
               ]
             },
-            "description": "**Uploads directly to S3 — the backend is NOT involved in this step.**\n\nThe URL is the `presignedUploadUrl` from Step 1 (auto-populated).\n\n⚠️ **Critical:** Set Body to `binary` and select an image file.\n⚠️ **Critical:** No `Authorization` header — the presign query params ARE the auth.\n⚠️ **Critical:** `Content-Type` header must match exactly what was sent in Step 1.\n\nExpected response: `200 OK` with an empty body from S3."
+            "description": "Step 2 — uploads the file directly to S3; the backend is NOT involved.\n\n- URL is the `presignedUploadUrl` saved from Step 1 (S3 instance, e.g. http://localhost:4566)\n- Body: set to binary and pick an image file\n- NO Authorization header (the presign query params are the auth)\n- Content-Type header must match Step 1 exactly\n\nExpected: 200/204 empty body from S3."
           },
           "response": []
         },
         {
-          "name": "[Step 3] Confirm Upload",
+          "name": "[3] Confirm Upload",
           "request": {
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{accessToken}}",
-                  "type": "string"
-                }
-              ]
-            },
             "method": "PUT",
             "header": [
               {
@@ -606,7 +532,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"s3Key\": \"{{s3Key}}\"\n}",
+              "raw": "{\n    \"s3Key\": \"{{s3Key}}\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -626,126 +552,13 @@
                 "confirm"
               ]
             },
-            "description": "Tells the backend which S3 key was uploaded. The backend:\n1. Validates the key belongs to you (prefix check)\n2. Deletes your old profile picture from S3\n3. Saves the new key to the database\n4. Returns a fresh presigned GET URL ready to use in `<img src>`\n\nThe `s3Key` variable is auto-populated from Step 1."
+            "description": "Authenticated — Step 3.\n\nBody: { s3Key } (auto-populated from Step 1).\n\nBackend validates the key belongs to you (prefix check), deletes your old picture, saves the new key, and returns a fresh presigned GET `viewUrl`."
           },
-          "response": [
-            {
-              "name": "Success (200)",
-              "originalRequest": {
-                "auth": {
-                  "type": "bearer",
-                  "bearer": [
-                    {
-                      "key": "token",
-                      "value": "{{accessToken}}",
-                      "type": "string"
-                    }
-                  ]
-                },
-                "method": "PUT",
-                "header": [
-                  {
-                    "key": "Content-Type",
-                    "value": "application/json"
-                  }
-                ],
-                "body": {
-                  "mode": "raw",
-                  "raw": "{\n  \"s3Key\": \"{{s3Key}}\"\n}",
-                  "options": {
-                    "raw": {
-                      "language": "json"
-                    }
-                  }
-                },
-                "url": {
-                  "raw": "{{baseUrl}}/api/v1/users/profile-picture/confirm",
-                  "host": [
-                    "{{baseUrl}}"
-                  ],
-                  "path": [
-                    "api",
-                    "v1",
-                    "users",
-                    "profile-picture",
-                    "confirm"
-                  ]
-                },
-                "description": "Tells the backend which S3 key was uploaded. The backend:\n1. Validates the key belongs to you (prefix check)\n2. Deletes your old profile picture from S3\n3. Saves the new key to the database\n4. Returns a fresh presigned GET URL ready to use in `<img src>`\n\nThe `s3Key` variable is auto-populated from Step 1."
-              },
-              "status": "OK",
-              "code": 200,
-              "_postman_previewlanguage": "Text",
-              "header": [],
-              "cookie": [],
-              "body": "{\n  \"viewUrl\": \"http://localhost:4566/nonmus-profile-pics/users/test@example.com/550e8400-e29b-41d4-a716-446655440000.jpg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Expires=3600&X-Amz-Signature=...\",\n  \"expiresInSeconds\": 3600\n}"
-            },
-            {
-              "name": "Key hijack attempt (400)",
-              "originalRequest": {
-                "auth": {
-                  "type": "bearer",
-                  "bearer": [
-                    {
-                      "key": "token",
-                      "value": "{{accessToken}}",
-                      "type": "string"
-                    }
-                  ]
-                },
-                "method": "PUT",
-                "header": [
-                  {
-                    "key": "Content-Type",
-                    "value": "application/json"
-                  }
-                ],
-                "body": {
-                  "mode": "raw",
-                  "raw": "{\n  \"s3Key\": \"{{s3Key}}\"\n}",
-                  "options": {
-                    "raw": {
-                      "language": "json"
-                    }
-                  }
-                },
-                "url": {
-                  "raw": "{{baseUrl}}/api/v1/users/profile-picture/confirm",
-                  "host": [
-                    "{{baseUrl}}"
-                  ],
-                  "path": [
-                    "api",
-                    "v1",
-                    "users",
-                    "profile-picture",
-                    "confirm"
-                  ]
-                },
-                "description": "Tells the backend which S3 key was uploaded. The backend:\n1. Validates the key belongs to you (prefix check)\n2. Deletes your old profile picture from S3\n3. Saves the new key to the database\n4. Returns a fresh presigned GET URL ready to use in `<img src>`\n\nThe `s3Key` variable is auto-populated from Step 1."
-              },
-              "status": "Bad Request",
-              "code": 400,
-              "_postman_previewlanguage": "Text",
-              "header": [],
-              "cookie": [],
-              "body": "{\n  \"errorCode\": \"INVALID_FILE\",\n  \"message\": \"Invalid file key: key does not belong to the authenticated user.\"\n}"
-            }
-          ]
+          "response": []
         },
         {
           "name": "Get Profile Picture View URL",
           "request": {
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{accessToken}}",
-                  "type": "string"
-                }
-              ]
-            },
             "method": "GET",
             "header": [],
             "url": {
@@ -761,87 +574,1150 @@
                 "view-url"
               ]
             },
-            "description": "Returns a fresh presigned GET URL for the authenticated user's profile picture.\n\nCall this:\n- On page load to get the initial URL\n- When the previous URL expires (onerror handler on the <img> element)\n\nIf no profile picture is set, returns `{ \"viewUrl\": \"\", \"expiresInSeconds\": 0 }`"
+            "description": "Authenticated. Returns a fresh presigned GET URL for the current user's profile picture.\n\nCall on page load and when the previous URL expires (onerror handler). If no picture is set, returns `{ viewUrl: '', expiresInSeconds: 0 }`."
+          },
+          "response": []
+        }
+      ],
+      "description": "3-step presigned URL upload flow.\n\n1. Run [1] → presignedUploadUrl + s3Key auto-saved\n2. Run [2] → upload file directly to S3 (backend not involved)\n3. Run [3] → backend saves the key and returns a presigned view URL"
+    },
+    {
+      "name": "Channels",
+      "item": [
+        {
+          "name": "Create Channel",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"Gopi Sai\",\n    \"description\": \"Sample Channel\",\n    \"type\": \"PUBLIC\",\n    \"handle\": \"gopisai\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/channels",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "channels"
+              ]
+            },
+            "description": "Authenticated. Creates a channel owned by the logged-in user.\n\nBody:\n- name: string (required)\n- description: string\n- type: PRIVATE | PUBLIC\n- handle: string — unique channel handle\n\nReturns 201 with the created channel."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Channel by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/channels/id/{{channelId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "channels",
+                "id",
+                "{{channelId}}"
+              ]
+            },
+            "description": "Authenticated. Fetches a channel by its UUID.\n\nPath: channelId (UUID)."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Channel by Handle",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/channels/handle/gopisai",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "channels",
+                "handle",
+                "gopisai"
+              ]
+            },
+            "description": "Authenticated. Fetches a channel by its handle.\n\nPath: handle (string)."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Subscribed Channels (cursor paginated)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/channels/subscribed?limit=20",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "channels",
+                "subscribed"
+              ],
+              "query": [
+                {
+                  "key": "cursor",
+                  "value": "",
+                  "disabled": true
+                },
+                {
+                  "key": "limit",
+                  "value": "20"
+                }
+              ]
+            },
+            "description": "Authenticated. Lists channels the current user subscribes to, with cursor pagination.\n\nQuery:\n- cursor: opaque token from the previous response's `nextCursor` (optional)\n- limit: page size, clamped to 1–50 (default 20)\n\nReturns `{ channels, nextCursor, hasNext }`."
+          },
+          "response": []
+        },
+        {
+          "name": "Check Handle Availability",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/channels/handle/gopisai/availability",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "channels",
+                "handle",
+                "gopisai",
+                "availability"
+              ]
+            },
+            "description": "Checks whether a channel handle is available.\n\nPath: handle (string). Returns `{ isAvailable: boolean }`."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Channel Logo",
+      "item": [
+        {
+          "name": "Presign Channel Logo Upload URL",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"contentType\": \"image/png\",\n    \"fileSize\": 102400\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/channel/logo/presign-url",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "channel",
+                "logo",
+                "presign-url"
+              ]
+            },
+            "description": "Authenticated. Generates a presigned PUT URL for a channel logo upload.\n\nBody:\n- contentType: allowed image types (image/jpeg, image/png, image/webp, image/gif)\n- fileSize: bytes, max 5 MB\n\nReturns `presignedUrl`, `s3Key`, `expiresInSeconds`."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Channel Invite",
+      "item": [
+        {
+          "name": "Create Channel Invite",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    const json = pm.response.json();",
+                  "    pm.collectionVariables.set('inviteToken', json.token);",
+                  "    pm.collectionVariables.set('inviteId', json.inviteId);",
+                  "    console.log('inviteToken saved: ' + json.token);",
+                  "} else {",
+                  "    console.log('Create invite failed: ' + pm.response.code);",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"channelId\": \"{{channelId}}\",\n    \"expiry\": \"2026-12-31T23:59:59Z\",\n    \"maxUses\": 10,\n    \"joinType\": \"ANYONE\",\n    \"password\": null\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/channels/invite",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "channels",
+                "invite"
+              ]
+            },
+            "description": "Authenticated. Creates an invite link for a channel.\n\nBody:\n- channelId: UUID (required)\n- expiry: ISO-8601 instant\n- maxUses: number of allowed joins\n- joinType: ANYONE | PASSWORD | APPROVAL\n- password: required when joinType is PASSWORD\n\nReturns 201 with inviteId, channelId, token, expiry, maxUses, currentUses, joinType. The test script auto-saves `inviteToken` and `inviteId` for the Get Invite Info request."
           },
           "response": [
             {
-              "name": "Success — picture exists (200)",
+              "name": "201 Created (ANYONE)",
               "originalRequest": {
-                "auth": {
-                  "type": "bearer",
-                  "bearer": [
-                    {
-                      "key": "token",
-                      "value": "{{accessToken}}",
-                      "type": "string"
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"channelId\": \"0f8fad5b-d9cb-469f-a165-70867728950e\",\n    \"expiry\": \"2026-12-31T23:59:59Z\",\n    \"maxUses\": 10,\n    \"joinType\": \"ANYONE\",\n    \"password\": null\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
                     }
-                  ]
+                  }
                 },
-                "method": "GET",
-                "header": [],
                 "url": {
-                  "raw": "{{baseUrl}}/api/v1/users/profile-picture/view-url",
+                  "raw": "{{baseUrl}}/api/v1/channels/invite",
                   "host": [
                     "{{baseUrl}}"
                   ],
                   "path": [
                     "api",
                     "v1",
-                    "users",
-                    "profile-picture",
-                    "view-url"
+                    "channels",
+                    "invite"
                   ]
-                },
-                "description": "Returns a fresh presigned GET URL for the authenticated user's profile picture.\n\nCall this:\n- On page load to get the initial URL\n- When the previous URL expires (onerror handler on the <img> element)\n\nIf no profile picture is set, returns `{ \"viewUrl\": \"\", \"expiresInSeconds\": 0 }`"
+                }
               },
-              "status": "OK",
-              "code": 200,
-              "_postman_previewlanguage": "Text",
-              "header": [],
+              "status": "Created",
+              "code": 201,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
               "cookie": [],
-              "body": "{\n  \"viewUrl\": \"http://localhost:4566/nonmus-profile-pics/users/test@example.com/550e8400-e29b-41d4-a716-446655440000.jpg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Expires=3600&X-Amz-Signature=...\",\n  \"expiresInSeconds\": 3600\n}"
+              "body": "{\n    \"inviteId\": \"a51b6f2e-3c9d-4a7e-9b10-2f4c8d3e1a94\",\n    \"channelId\": \"0f8fad5b-d9cb-469f-a165-70867728950e\",\n    \"token\": \"Ab3Xy9RmKq\",\n    \"expiry\": \"2026-12-31T23:59:59Z\",\n    \"maxUses\": 10,\n    \"currentUses\": 0,\n    \"joinType\": \"ANYONE\"\n}"
             },
             {
-              "name": "Success — no picture set (200)",
+              "name": "201 Created (PASSWORD)",
               "originalRequest": {
-                "auth": {
-                  "type": "bearer",
-                  "bearer": [
-                    {
-                      "key": "token",
-                      "value": "{{accessToken}}",
-                      "type": "string"
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"channelId\": \"0f8fad5b-d9cb-469f-a165-70867728950e\",\n    \"expiry\": \"2026-12-31T23:59:59Z\",\n    \"maxUses\": 5,\n    \"joinType\": \"PASSWORD\",\n    \"password\": \"secret123\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
                     }
-                  ]
+                  }
                 },
-                "method": "GET",
-                "header": [],
                 "url": {
-                  "raw": "{{baseUrl}}/api/v1/users/profile-picture/view-url",
+                  "raw": "{{baseUrl}}/api/v1/channels/invite",
                   "host": [
                     "{{baseUrl}}"
                   ],
                   "path": [
                     "api",
                     "v1",
-                    "users",
-                    "profile-picture",
-                    "view-url"
+                    "channels",
+                    "invite"
                   ]
+                }
+              },
+              "status": "Created",
+              "code": 201,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"inviteId\": \"8d3c5b1a-7e42-4f9b-a2c8-4d6e7f8a9b1c\",\n    \"channelId\": \"0f8fad5b-d9cb-469f-a165-70867728950e\",\n    \"token\": \"Qz7WvLn2Px\",\n    \"expiry\": \"2026-12-31T23:59:59Z\",\n    \"maxUses\": 5,\n    \"currentUses\": 0,\n    \"joinType\": \"PASSWORD\"\n}"
+            },
+            {
+              "name": "403 Forbidden (Not an owner)",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"channelId\": \"0f8fad5b-d9cb-469f-a165-70867728950e\",\n    \"joinType\": \"ANYONE\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
                 },
-                "description": "Returns a fresh presigned GET URL for the authenticated user's profile picture.\n\nCall this:\n- On page load to get the initial URL\n- When the previous URL expires (onerror handler on the <img> element)\n\nIf no profile picture is set, returns `{ \"viewUrl\": \"\", \"expiresInSeconds\": 0 }`"
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/channels/invite",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "channels",
+                    "invite"
+                  ]
+                }
+              },
+              "status": "Forbidden",
+              "code": 403,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"errorCode\": \"CHANNEL_ACCESS_DENIED\",\n    \"message\": \"Only channel owners can create invites\"\n}"
+            },
+            {
+              "name": "400 Bad Request (Password required)",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"channelId\": \"0f8fad5b-d9cb-469f-a165-70867728950e\",\n    \"joinType\": \"PASSWORD\",\n    \"password\": null\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/channels/invite",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "channels",
+                    "invite"
+                  ]
+                }
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"errorCode\": \"INVALID_INVITE\",\n    \"message\": \"Password is required for PASSWORD join type\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Get Channel Invite Info",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/channels/invite/{{inviteToken}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "channels",
+                "invite",
+                "{{inviteToken}}"
+              ]
+            },
+            "description": "Public. Resolves an invite token and returns channel + invite metadata so a visitor can preview the channel before joining.\n\nPath: inviteToken (string, auto-saved from Create Channel Invite).\n\nReturns inviteId, channelId, channelName, channelLogo, joinType, expiry, currentUses, maxUses.\n\nErrors: 400 INVALID_INVITE if the token is unknown, expired, or at max uses."
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/channels/invite/Ab3Xy9RmKq",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "channels",
+                    "invite",
+                    "Ab3Xy9RmKq"
+                  ]
+                }
               },
               "status": "OK",
               "code": 200,
-              "_postman_previewlanguage": "Text",
-              "header": [],
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
               "cookie": [],
-              "body": "{\n  \"viewUrl\": \"\",\n  \"expiresInSeconds\": 0\n}"
+              "body": "{\n    \"inviteId\": \"a51b6f2e-3c9d-4a7e-9b10-2f4c8d3e1a94\",\n    \"channelId\": \"0f8fad5b-d9cb-469f-a165-70867728950e\",\n    \"channelName\": \"Gopi Sai\",\n    \"channelLogo\": \"https://localhost.floci.io:4566/nonmus-channel/logos/0f8fad5b-d9cb-469f-a165-70867728950e.png\",\n    \"joinType\": \"ANYONE\",\n    \"expiry\": \"2026-12-31T23:59:59Z\",\n    \"currentUses\": 3,\n    \"maxUses\": 10\n}"
+            },
+            {
+              "name": "400 Bad Request (Expired invite)",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/channels/invite/Expired0Token",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "channels",
+                    "invite",
+                    "Expired0Token"
+                  ]
+                }
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"errorCode\": \"INVALID_INVITE\",\n    \"message\": \"Invite has expired\"\n}"
+            },
+            {
+              "name": "400 Bad Request (Max uses reached)",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/channels/invite/UsedUp0Token",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "channels",
+                    "invite",
+                    "UsedUp0Token"
+                  ]
+                }
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"errorCode\": \"INVALID_INVITE\",\n    \"message\": \"Invite has reached its maximum number of uses\"\n}"
+            },
+            {
+              "name": "404 Not Found (Unknown token)",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/channels/invite/UnknownToken00",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "channels",
+                    "invite",
+                    "UnknownToken00"
+                  ]
+                }
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"errorCode\": \"INVALID_INVITE\",\n    \"message\": \"Invite not found\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Join Channel via Invite",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"password\": null\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/channels/invite/join/{{inviteToken}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "channels",
+                "invite",
+                "join",
+                "{{inviteToken}}"
+              ]
+            },
+            "description": "Authenticated. Joins a channel using an invite token.\n\nPath: inviteToken (string, auto-saved from Create Channel Invite).\n\nBody:\n- password: string — required only when the invite's joinType is PASSWORD; omit/null otherwise\n\nReturns channelId, channelName, channelLogo, role (MEMBER), joinedAt.\n\nErrors: 400 INVALID_INVITE if the token is unknown/expired/at max uses or the password is wrong; 409 USER_ALREADY_IN_CHANNEL if the user is already a member."
+          },
+          "response": [
+            {
+              "name": "200 OK (ANYONE invite)",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"password\": null\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/channels/invite/join/Ab3Xy9RmKq",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "channels",
+                    "invite",
+                    "join",
+                    "Ab3Xy9RmKq"
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"channelId\": \"0f8fad5b-d9cb-469f-a165-70867728950e\",\n    \"channelName\": \"Gopi Sai\",\n    \"channelLogo\": \"https://localhost.floci.io:4566/nonmus-channel/logos/0f8fad5b-d9cb-469f-a165-70867728950e.png\",\n    \"role\": \"MEMBER\",\n    \"joinedAt\": \"2026-08-05T12:34:56.789Z\"\n}"
+            },
+            {
+              "name": "200 OK (PASSWORD invite)",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"password\": \"secret123\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/channels/invite/join/Qz7WvLn2Px",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "channels",
+                    "invite",
+                    "join",
+                    "Qz7WvLn2Px"
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"channelId\": \"0f8fad5b-d9cb-469f-a165-70867728950e\",\n    \"channelName\": \"Gopi Sai\",\n    \"channelLogo\": null,\n    \"role\": \"MEMBER\",\n    \"joinedAt\": \"2026-08-05T12:40:10.123Z\"\n}"
+            },
+            {
+              "name": "400 Bad Request (Wrong password)",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"password\": \"wrongpassword\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/channels/invite/join/Qz7WvLn2Px",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "channels",
+                    "invite",
+                    "join",
+                    "Qz7WvLn2Px"
+                  ]
+                }
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"errorCode\": \"INVALID_INVITE\",\n    \"message\": \"Invalid invite password\"\n}"
+            },
+            {
+              "name": "409 Conflict (Already a member)",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"password\": null\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/channels/invite/join/Ab3Xy9RmKq",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "channels",
+                    "invite",
+                    "join",
+                    "Ab3Xy9RmKq"
+                  ]
+                }
+              },
+              "status": "Conflict",
+              "code": 409,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"errorCode\": \"USER_ALREADY_IN_CHANNEL\",\n    \"message\": \"You are already a member of this channel\"\n}"
+            },
+            {
+              "name": "400 Bad Request (APPROVAL not supported)",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"password\": null\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/channels/invite/join/Approval0Token",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "channels",
+                    "invite",
+                    "join",
+                    "Approval0Token"
+                  ]
+                }
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"errorCode\": \"INVALID_INVITE\",\n    \"message\": \"This invite requires approval, which is not supported yet\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Update Channel Invite",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"expiry\": \"2027-12-31T23:59:59Z\",\n    \"maxUses\": 25,\n    \"joinType\": \"PASSWORD\",\n    \"password\": \"newpass123\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/channels/invite/{{inviteId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "channels",
+                "invite",
+                "{{inviteId}}"
+              ]
+            },
+            "description": "Owner-only. Updates an existing invite.\n\nPath: inviteId (UUID, auto-saved from Create Channel Invite).\n\nBody (all optional, only provided fields are changed):\n- expiry: ISO-8601 instant\n- maxUses: number of allowed joins\n- joinType: ANYONE | PASSWORD | APPROVAL (password re-hashed; nulled if switching to non-PASSWORD)\n- password: required when switching joinType to PASSWORD, or to rotate an existing PASSWORD invite's password\n\nReturns the updated invite (inviteId, channelId, token, expiry, maxUses, currentUses, joinType).\n\nErrors: 403 CHANNEL_ACCESS_DENIED for non-owners; 400 INVALID_INVITE for bad request."
+          },
+          "response": [
+            {
+              "name": "200 OK (Update expiry & maxUses)",
+              "originalRequest": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"expiry\": \"2027-06-30T23:59:59Z\",\n    \"maxUses\": 50\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/channels/invite/a51b6f2e-3c9d-4a7e-9b10-2f4c8d3e1a94",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "channels",
+                    "invite",
+                    "a51b6f2e-3c9d-4a7e-9b10-2f4c8d3e1a94"
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"inviteId\": \"a51b6f2e-3c9d-4a7e-9b10-2f4c8d3e1a94\",\n    \"channelId\": \"0f8fad5b-d9cb-469f-a165-70867728950e\",\n    \"token\": \"Ab3Xy9RmKq\",\n    \"expiry\": \"2027-06-30T23:59:59Z\",\n    \"maxUses\": 50,\n    \"currentUses\": 3,\n    \"joinType\": \"ANYONE\"\n}"
+            },
+            {
+              "name": "200 OK (Switch to PASSWORD)",
+              "originalRequest": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"joinType\": \"PASSWORD\",\n    \"password\": \"newpass123\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/channels/invite/a51b6f2e-3c9d-4a7e-9b10-2f4c8d3e1a94",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "channels",
+                    "invite",
+                    "a51b6f2e-3c9d-4a7e-9b10-2f4c8d3e1a94"
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"inviteId\": \"a51b6f2e-3c9d-4a7e-9b10-2f4c8d3e1a94\",\n    \"channelId\": \"0f8fad5b-d9cb-469f-a165-70867728950e\",\n    \"token\": \"Ab3Xy9RmKq\",\n    \"expiry\": \"2026-12-31T23:59:59Z\",\n    \"maxUses\": 10,\n    \"currentUses\": 3,\n    \"joinType\": \"PASSWORD\"\n}"
+            },
+            {
+              "name": "200 OK (Rotate password)",
+              "originalRequest": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"password\": \"rotated456\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/channels/invite/8d3c5b1a-7e42-4f9b-a2c8-4d6e7f8a9b1c",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "channels",
+                    "invite",
+                    "8d3c5b1a-7e42-4f9b-a2c8-4d6e7f8a9b1c"
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"inviteId\": \"8d3c5b1a-7e42-4f9b-a2c8-4d6e7f8a9b1c\",\n    \"channelId\": \"0f8fad5b-d9cb-469f-a165-70867728950e\",\n    \"token\": \"Qz7WvLn2Px\",\n    \"expiry\": \"2026-12-31T23:59:59Z\",\n    \"maxUses\": 5,\n    \"currentUses\": 2,\n    \"joinType\": \"PASSWORD\"\n}"
+            },
+            {
+              "name": "403 Forbidden (Not an owner)",
+              "originalRequest": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"maxUses\": 100\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/channels/invite/a51b6f2e-3c9d-4a7e-9b10-2f4c8d3e1a94",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "channels",
+                    "invite",
+                    "a51b6f2e-3c9d-4a7e-9b10-2f4c8d3e1a94"
+                  ]
+                }
+              },
+              "status": "Forbidden",
+              "code": 403,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"errorCode\": \"CHANNEL_ACCESS_DENIED\",\n    \"message\": \"Only channel owners can update invites\"\n}"
+            },
+            {
+              "name": "400 Bad Request (Password missing for PASSWORD)",
+              "originalRequest": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"joinType\": \"PASSWORD\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/channels/invite/a51b6f2e-3c9d-4a7e-9b10-2f4c8d3e1a94",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "channels",
+                    "invite",
+                    "a51b6f2e-3c9d-4a7e-9b10-2f4c8d3e1a94"
+                  ]
+                }
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"errorCode\": \"INVALID_INVITE\",\n    \"message\": \"Password is required for PASSWORD join type\"\n}"
+            },
+            {
+              "name": "400 Bad Request (Invite not found)",
+              "originalRequest": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"maxUses\": 50\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/channels/invite/00000000-0000-0000-0000-000000000000",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "channels",
+                    "invite",
+                    "00000000-0000-0000-0000-000000000000"
+                  ]
+                }
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"errorCode\": \"INVALID_INVITE\",\n    \"message\": \"Invite not found\"\n}"
             }
           ]
         }
-      ],
-      "description": "3-step presigned URL upload flow.\n\n1. Run [Step 1] → presignedUploadUrl and s3Key are auto-saved\n2. Run [Step 2] → uploads the file directly to S3 (no backend involved)\n3. Run [Step 3] → backend saves the key and returns a presigned view URL"
+      ]
     }
   ],
   "event": [
@@ -870,8 +1746,8 @@
   ],
   "variable": [
     {
-      "key": "token",
-      "value": ""
+      "key": "baseUrl",
+      "value": "http://localhost:8080"
     },
     {
       "key": "accessToken",
@@ -879,6 +1755,26 @@
     },
     {
       "key": "refreshToken",
+      "value": ""
+    },
+    {
+      "key": "channelId",
+      "value": ""
+    },
+    {
+      "key": "inviteToken",
+      "value": ""
+    },
+    {
+      "key": "inviteId",
+      "value": ""
+    },
+    {
+      "key": "presignedUploadUrl",
+      "value": ""
+    },
+    {
+      "key": "s3Key",
       "value": ""
     }
   ]

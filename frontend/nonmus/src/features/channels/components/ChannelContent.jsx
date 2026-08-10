@@ -1,10 +1,10 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Outlet, useLocation, useNavigate, useParams } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
-import { FaUsers, FaVideo, FaCheckCircle, FaFilm, FaFolderOpen, FaBell } from "react-icons/fa";
+import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
+import { FaUsers, FaVideo, FaCheckCircle, FaFilm, FaFolderOpen, FaBell, FaLink } from "react-icons/fa";
 import { IoArrowBackCircleOutline } from "react-icons/io5";
 import { BsThreeDotsVertical } from "react-icons/bs";
-import { getChannelByIdApi } from "../api/channelApi.js";
+import { CHANNELS_QUERY_KEY, getChannelByIdApi, getSubscribedChannelsApi } from "../api/channelApi.js";
 import ChannelLogo from "./ChannelLogo.jsx";
 
 function formatCompact(count) {
@@ -18,7 +18,6 @@ function formatCompact(count) {
 
 const TABS = [
     { key: "videos", label: "Videos", icon: FaVideo },
-    { key: "reels", label: "Reels", icon: FaFilm },
     { key: "FoldersAndFiles", label: "Files", icon: FaFolderOpen },
 ];
 
@@ -40,6 +39,15 @@ function ChannelContent() {
         enabled: !!id,
     });
 
+    const subscribedData = useInfiniteQuery({
+        queryKey: CHANNELS_QUERY_KEY,
+        queryFn: ({ pageParam }) => getSubscribedChannelsApi({ cursor: pageParam, limit: 20 }),
+        initialPageParam: null,
+        getNextPageParam: (lastPage) => lastPage.hasNext ? lastPage.nextCursor : undefined,
+    });
+
+    const subscribedChannelCount = subscribedData.data?.pages.flatMap((page) => page.channels ?? []).length ?? 0;
+
     // Active tab derived from the URL so deep links / refresh keep state.
     const activeTab = useMemo(() => {
         const found = TABS.find((t) => pathname.includes(`/${t.key}`));
@@ -57,8 +65,11 @@ function ChannelContent() {
     }, [channel?.description, showDescription]);
 
     if (!id) {
+        if (subscribedChannelCount === 0) {
+            return <div className="hidden md:block flex-1" />;
+        }
         return (
-            <div className="flex h-full items-center justify-center p-6">
+            <div className="hidden md:flex h-full items-center justify-center p-6">
                 <div className="text-center">
                     <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-blue-100">
                         <FaUsers className="text-xl text-blue-600" />
@@ -110,7 +121,7 @@ function ChannelContent() {
     return (
         <div className="relative flex h-full flex-col overflow-y-auto bg-white">
             <button
-                onClick={() => navigate(-1)}
+                onClick={() => navigate("/channels")}
                 aria-label="Go back"
                 className="md:hidden absolute top-2 left-2 rounded-full text-white transition"
             >
@@ -124,6 +135,24 @@ function ChannelContent() {
             >
                 <BsThreeDotsVertical className="h-5 w-5" />
             </button>
+
+            {menuOpen && (
+                <>
+                    <div className="fixed inset-0 z-10" onClick={() => setMenuOpen(false)} />
+                    <div className="absolute top-10 right-5 z-20 w-56 overflow-hidden rounded-lg border border-slate-200 bg-white py-1 shadow-lg">
+                        <button
+                            onClick={() => {
+                                setMenuOpen(false);
+                                navigate(`/channels/${id}/invites`);
+                            }}
+                            className="flex w-full items-center gap-2 px-4 py-2.5 text-sm text-slate-700 transition hover:bg-slate-50"
+                        >
+                            <FaLink className="h-4 w-4" />
+                            Manage Invites
+                        </button>
+                    </div>
+                </>
+            )}
 
             <div className="h-28 w-full bg-gradient-to-r from-sky-500 via-indigo-500 to-fuchsia-500 md:p-16">
                 {channel?.bannerUrl && (

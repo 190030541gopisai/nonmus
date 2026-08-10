@@ -78,7 +78,6 @@ function BellIcon() {
 const navItems = [
   { to: "/", label: "Home", icon: HomeIcon },
   { to: "/videos", label: "Videos", icon: VideosIcon },
-  { to: "/reels", label: "Reels", icon: ReelsIcon },
   { to: "/channels", label: "Channels", icon: ChannelsIcon },
   { to: "/profile", label: "Profile", icon: ProfileIcon },
 ];

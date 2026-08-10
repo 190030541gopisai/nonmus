@@ -10,11 +10,14 @@ import org.springframework.stereotype.Repository;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Repository
 public interface ChannelMemberRepository extends JpaRepository<ChannelMember, UUID> {
     boolean existsByChannelIdAndUserIdAndLeftAtIsNull(UUID channelId, UUID userId);
+
+    Optional<ChannelMember> findByChannelIdAndUserIdAndLeftAtIsNull(UUID channelId, UUID userId);
 
     @EntityGraph(attributePaths = {"channel", "channel.channelStatistics"})
     List<ChannelMember> findAllByUserIdAndLeftAtIsNull(UUID userId);
