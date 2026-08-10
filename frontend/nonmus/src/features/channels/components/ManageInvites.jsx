@@ -1,4 +1,5 @@
 import {useEffect, useState} from "react";
+import {createPortal} from "react-dom";
 import {useMutation, useQuery, useQueryClient} from "@tanstack/react-query";
 import {useNavigate, useParams} from "react-router-dom";
 import {FaCheckCircle, FaLink, FaPen, FaShareAlt, FaTimes} from "react-icons/fa";
@@ -60,9 +61,11 @@ function CopyButton({text}) {
         <button
             type="button"
             onClick={handleCopy}
-            className="inline-flex items-center gap-1.5 rounded-lg bg-blue-600 px-3 py-2 text-sm font-medium text-white transition hover:bg-blue-700 active:scale-95"
-        >
-            {copied ? <FaCheckCircle className="h-4 w-4"/> : <FaLink className="h-4 w-4"/>}
+            className="inline-flex items-center gap-1.5 rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
+            >
+            {copied
+                ? <FaCheckCircle className="text-emerald-500"/>
+                : <FaLink className="text-slate-400"/>}
             {copied ? "Copied!" : "Copy"}
         </button>
     );
@@ -89,13 +92,17 @@ function ShareButton({text, title}) {
         <button
             type="button"
             onClick={handleShare}
-            className="inline-flex items-center gap-1.5 rounded-lg border border-slate-300 px-3 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-100 active:scale-95"
-        >
-            <FaShareAlt className="h-4 w-4"/>
+            className="inline-flex items-center gap-1.5 rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
+            >
+            <FaShareAlt className="text-slate-400"/>
             Share
         </button>
     );
 }
+
+const inputClass = "w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-800 placeholder:text-slate-400 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition";
+const labelClass = "mb-1.5 block text-sm font-medium text-slate-700";
+const fieldGroupClass = "space-y-6 sm:space-y-0 sm:grid sm:grid-cols-2 sm:gap-4";
 
 function CreateInviteForm({channelId, onCreated}) {
     const queryClient = useQueryClient();
@@ -137,30 +144,28 @@ function CreateInviteForm({channelId, onCreated}) {
     };
 
     return (
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-6">
             <div>
-                <label className="mb-1 block text-sm font-medium text-slate-700">
-                    Who can join with this link?
-                </label>
-                <div className="space-y-2">
+                <span className="mb-2 block text-sm font-semibold text-slate-800">Who can join with this link?</span>
+                <div className="grid gap-3 sm:grid-cols-2">
                     {JOIN_TYPES.map(({value, label}) => (
                         <label
                             key={value}
-                            className={`flex cursor-pointer items-center gap-3 rounded-lg border p-3 transition ${
+                            className={`flex cursor-pointer items-center gap-3 rounded-xl border px-4 py-3 transition ${
                                 joinType === value
-                                    ? "border-blue-500 bg-blue-50"
-                                    : "border-slate-200 hover:border-slate-300"
+                                    ? "border-blue-500 bg-blue-50 ring-2 ring-blue-500/20"
+                                    : "border-slate-300 bg-white hover:border-slate-400"
                             }`}
-                        >
+                            >
                             <input
                                 type="radio"
                                 name="joinType"
                                 value={value}
                                 checked={joinType === value}
                                 onChange={() => setJoinType(value)}
-                                className="h-4 w-4 text-blue-600"
-                            />
-                            <span className="text-sm text-slate-800">{label}</span>
+                                className="h-4 w-4 accent-blue-600"
+                                />
+                            <span className="text-sm font-medium text-slate-700">{label}</span>
                         </label>
                     ))}
                 </div>
@@ -168,7 +173,7 @@ function CreateInviteForm({channelId, onCreated}) {
 
             {joinType === "PASSWORD" && (
                 <div>
-                    <label className="mb-1 block text-sm font-medium text-slate-700" htmlFor="invite-password">
+                    <label htmlFor="invite-password" className={labelClass}>
                         Password
                     </label>
                     <input
@@ -177,15 +182,15 @@ function CreateInviteForm({channelId, onCreated}) {
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                         placeholder="Password required to join"
-                        className="w-full rounded-lg border border-slate-300 p-3 text-sm focus:border-blue-500 focus:outline-none"
                         required
+                        className={inputClass}
                     />
                 </div>
             )}
 
-            <div className="grid gap-4 sm:grid-cols-2">
+            <div className={fieldGroupClass}>
                 <div>
-                    <label className="mb-1 block text-sm font-medium text-slate-700" htmlFor="invite-expiry">
+                    <label htmlFor="invite-expiry" className={labelClass}>
                         Expiry <span className="font-normal text-slate-400">(optional)</span>
                     </label>
                     <input
@@ -193,11 +198,11 @@ function CreateInviteForm({channelId, onCreated}) {
                         type="datetime-local"
                         value={expiry}
                         onChange={(e) => setExpiry(e.target.value)}
-                        className="w-full rounded-lg border border-slate-300 p-3 text-sm focus:border-blue-500 focus:outline-none"
-                    />
+                        className={inputClass}
+                        />
                 </div>
                 <div>
-                    <label className="mb-1 block text-sm font-medium text-slate-700" htmlFor="invite-max-uses">
+                    <label htmlFor="invite-max-uses" className={labelClass}>
                         Max uses <span className="font-normal text-slate-400">(optional)</span>
                     </label>
                     <input
@@ -207,13 +212,13 @@ function CreateInviteForm({channelId, onCreated}) {
                         value={maxUses}
                         onChange={(e) => setMaxUses(e.target.value)}
                         placeholder="No limit"
-                        className="w-full rounded-lg border border-slate-300 p-3 text-sm focus:border-blue-500 focus:outline-none"
-                    />
+                        className={inputClass}
+                        />
                 </div>
             </div>
 
             {isError && (
-                <p role="alert" className="text-sm text-red-500">
+                <p role="alert" className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-600">
                     {errorMessage}
                 </p>
             )}
@@ -221,8 +226,8 @@ function CreateInviteForm({channelId, onCreated}) {
             <button
                 type="submit"
                 disabled={isPending}
-                className="w-full rounded-lg bg-blue-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-blue-700 disabled:opacity-50"
-            >
+                className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
+                >
                 {isPending ? "Creating..." : "Create invite link"}
             </button>
         </form>
@@ -264,33 +269,36 @@ function EditInviteForm({invite, channelId, onDone}) {
     };
 
     return (
-        <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="space-y-2">
-                {JOIN_TYPES.map(({value, label}) => (
-                    <label
-                        key={value}
-                        className={`flex cursor-pointer items-center gap-3 rounded-lg border p-3 transition ${
-                            joinType === value
-                                ? "border-blue-500 bg-blue-50"
-                                : "border-slate-200 bg-white hover:border-slate-300"
-                        }`}
-                    >
-                        <input
-                            type="radio"
-                            name={`joinType-${invite.inviteId}`}
-                            value={value}
-                            checked={joinType === value}
-                            onChange={() => setJoinType(value)}
-                            className="h-4 w-4 text-blue-600"
-                        />
-                        <span className="text-sm text-slate-800">{label}</span>
-                    </label>
-                ))}
+        <form onSubmit={handleSubmit} className="space-y-5">
+            <div>
+                <span className="mb-2 block text-sm font-semibold text-slate-800">Who can join with this link?</span>
+                <div className="grid gap-3 sm:grid-cols-2">
+                    {JOIN_TYPES.map(({value, label}) => (
+                        <label
+                            key={value}
+                            className={`flex cursor-pointer items-center gap-3 rounded-xl border px-4 py-3 transition ${
+                                joinType === value
+                                    ? "border-blue-500 bg-blue-50 ring-2 ring-blue-500/20"
+                                    : "border-slate-300 bg-white hover:border-slate-400"
+                            }`}
+                            >
+                            <input
+                                type="radio"
+                                name={`joinType-${invite.inviteId}`}
+                                value={value}
+                                checked={joinType === value}
+                                onChange={() => setJoinType(value)}
+                                className="h-4 w-4 accent-blue-600"
+                                />
+                            <span className="text-sm font-medium text-slate-700">{label}</span>
+                        </label>
+                    ))}
+                </div>
             </div>
 
             {joinType === "PASSWORD" && (
                 <div>
-                    <label className="mb-1 block text-sm font-medium text-slate-700" htmlFor={`password-${invite.inviteId}`}>
+                    <label htmlFor={`password-${invite.inviteId}`} className={labelClass}>
                         {invite.joinType === "PASSWORD" ? "New password" : "Password"}
                     </label>
                     <input
@@ -299,15 +307,15 @@ function EditInviteForm({invite, channelId, onDone}) {
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                         placeholder="Password required to join"
-                        className="w-full rounded-lg border border-slate-300 p-3 text-sm focus:border-blue-500 focus:outline-none"
                         required={joinType === "PASSWORD"}
+                        className={inputClass}
                     />
                 </div>
             )}
 
-            <div className="grid gap-4 sm:grid-cols-2">
+            <div className={fieldGroupClass}>
                 <div>
-                    <label className="mb-1 block text-sm font-medium text-slate-700" htmlFor={`expiry-${invite.inviteId}`}>
+                    <label htmlFor={`expiry-${invite.inviteId}`} className={labelClass}>
                         Expiry <span className="font-normal text-slate-400">(blank = never)</span>
                     </label>
                     <input
@@ -315,11 +323,11 @@ function EditInviteForm({invite, channelId, onDone}) {
                         type="datetime-local"
                         value={expiry}
                         onChange={(e) => setExpiry(e.target.value)}
-                        className="w-full rounded-lg border border-slate-300 p-3 text-sm focus:border-blue-500 focus:outline-none"
-                    />
+                        className={inputClass}
+                        />
                 </div>
                 <div>
-                    <label className="mb-1 block text-sm font-medium text-slate-700" htmlFor={`max-uses-${invite.inviteId}`}>
+                    <label htmlFor={`max-uses-${invite.inviteId}`} className={labelClass}>
                         Max uses <span className="font-normal text-slate-400">(blank = no limit)</span>
                     </label>
                     <input
@@ -329,13 +337,13 @@ function EditInviteForm({invite, channelId, onDone}) {
                         value={maxUses}
                         onChange={(e) => setMaxUses(e.target.value)}
                         placeholder="No limit"
-                        className="w-full rounded-lg border border-slate-300 p-3 text-sm focus:border-blue-500 focus:outline-none"
-                    />
+                        className={inputClass}
+                        />
                 </div>
             </div>
 
             {isError && (
-                <p role="alert" className="text-sm text-red-500">
+                <p role="alert" className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-600">
                     {errorMessage}
                 </p>
             )}
@@ -345,15 +353,15 @@ function EditInviteForm({invite, channelId, onDone}) {
                     type="button"
                     onClick={onDone}
                     disabled={isPending}
-                    className="rounded-lg border border-slate-300 px-4 py-2 text-sm text-slate-700 transition hover:bg-white disabled:opacity-50"
-                >
+                    className="rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50 disabled:opacity-50"
+                    >
                     Cancel
                 </button>
                 <button
                     type="submit"
                     disabled={isPending}
                     className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-blue-700 disabled:opacity-50"
-                >
+                    >
                     {isPending ? "Saving..." : "Save changes"}
                 </button>
             </div>
@@ -366,44 +374,55 @@ function InviteCard({invite, channelId}) {
     const link = buildInviteLink(invite.token);
     const expired = isExpired(invite.expiry);
     const maxedOut = invite.maxUses != null && invite.currentUses >= invite.maxUses;
+    const unusable = expired || maxedOut;
 
     return (
-        <div className={`rounded-xl border bg-white p-4 shadow-sm ${expired || maxedOut ? "border-amber-200" : "border-slate-200"}`}>
-            <div className="flex flex-wrap items-start justify-between gap-3">
-                <div className="min-w-0 flex-1">
-                    <div className="mb-1 flex flex-wrap items-center gap-2">
-                        <span className="rounded-full bg-blue-50 px-2.5 py-0.5 text-xs font-semibold text-blue-700">
+        <div className={`rounded-xl border bg-white p-5 shadow-sm transition ${
+            unusable ? "border-slate-200 opacity-80" : "border-slate-200 hover:border-slate-300 hover:shadow"
+        }`}>
+            <div className="flex items-start justify-between gap-4">
+                <div className="min-w-0">
+                    <div className="flex flex-wrap items-center gap-2">
+                        <span className="inline-flex items-center rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-medium text-slate-700">
                             {invite.joinType === "PASSWORD" ? "Password required" : "Anyone with the link"}
                         </span>
                         {expired && (
-                            <span className="rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-semibold text-amber-700">
+                            <span className="inline-flex items-center rounded-full bg-red-100 px-2.5 py-0.5 text-xs font-medium text-red-700">
                                 Expired
                             </span>
                         )}
                         {maxedOut && (
-                            <span className="rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-semibold text-amber-700">
+                            <span className="inline-flex items-center rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-medium text-amber-700">
                                 Max uses reached
                             </span>
                         )}
                     </div>
-                    <p className="text-sm text-slate-500">{formatExpiry(invite.expiry)} · {formatUses(invite)}</p>
+                    <p className="mt-2 text-sm text-slate-500">{formatExpiry(invite.expiry)} · {formatUses(invite)}</p>
                 </div>
             </div>
 
-            <div className="mt-3 flex items-center gap-2">
-                <p className="min-w-0 flex-1 truncate rounded-lg bg-slate-100 px-3 py-2.5 font-mono text-sm text-slate-800" title={link}>
+            <div className="mt-3 rounded-lg bg-slate-50 px-3 py-2.5">
+                <p
+                    title={link}
+                    className="truncate font-mono text-xs text-slate-600"
+                    >
                     {link}
                 </p>
             </div>
-            <div className="flex shrink-0 items-center gap-2">
+
+            <div className="mt-4 flex flex-wrap gap-2">
                 <ShareButton text={link} title={`Join ${invite.channelName ?? "channel"}`}/>
                 <CopyButton text={link}/>
                 <button
                     type="button"
                     onClick={() => setEditing((v) => !v)}
-                    className="inline-flex items-center gap-1.5 rounded-lg border border-slate-300 px-3 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-100 active:scale-95"
-                >
-                    <FaPen className="h-3.5 w-3.5"/>
+                    className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium transition ${
+                        editing
+                            ? "bg-slate-700 text-white hover:bg-slate-800"
+                            : "border border-slate-300 bg-white text-slate-700 hover:bg-slate-50"
+                    }`}
+                    >
+                    <FaPen className="text-xs"/>
                     {editing ? "Close" : "Edit"}
                 </button>
             </div>
@@ -426,32 +445,33 @@ function EditInviteModal({invite, channelId, onClose}) {
         };
     }, [onClose]);
 
-    return (
+    return createPortal(
         <div
-            className="fixed inset-0 z-50 flex items-end justify-center bg-black/40 md:items-center"
             onClick={onClose}
             role="dialog"
             aria-modal="true"
             aria-label="Edit invite link"
+            className="fixed inset-0 z-50 flex items-end justify-center bg-slate-900/60 backdrop-blur-sm md:items-center"
         >
             <div
-                className="max-h-[90vh] w-full overflow-y-auto rounded-t-2xl bg-white p-5 shadow-xl md:w-[480px] md:rounded-2xl md:p-6"
                 onClick={(e) => e.stopPropagation()}
+                className="w-full rounded-t-2xl bg-white p-6 shadow-xl md:max-w-lg md:rounded-2xl"
             >
-                <div className="mb-4 flex items-center justify-between">
-                    <h2 className="text-xl font-semibold text-slate-900">Edit invite link</h2>
+                <div className="mb-5 flex items-center justify-between">
+                    <h2 className="text-lg font-semibold text-slate-900">Edit invite link</h2>
                     <button
                         type="button"
                         onClick={onClose}
                         aria-label="Close edit dialog"
-                        className="inline-flex rounded-lg p-2 text-slate-400 transition hover:bg-slate-100 hover:text-slate-700"
-                    >
-                        <FaTimes className="h-5 w-5"/>
+                        className="rounded-full p-1.5 text-slate-400 transition hover:bg-slate-100 hover:text-slate-600"
+                        >
+                        <FaTimes/>
                     </button>
                 </div>
                 <EditInviteForm invite={invite} channelId={channelId} onDone={onClose}/>
             </div>
-        </div>
+        </div>,
+        document.body,
     );
 }
 
@@ -468,32 +488,33 @@ function CreateInviteModal({channelId, onClose}) {
         };
     }, [onClose]);
 
-    return (
+    return createPortal(
         <div
-            className="fixed inset-0 z-50 flex items-end justify-center bg-black/40 md:items-center"
             onClick={onClose}
             role="dialog"
             aria-modal="true"
             aria-label="Create a new invite link"
+            className="fixed inset-0 z-50 flex items-end justify-center bg-slate-900/60 backdrop-blur-sm md:items-center"
         >
             <div
-                className="flex max-h-[90vh] w-full flex-col overflow-y-auto rounded-t-2xl bg-white p-5 shadow-xl md:w-[480px] md:rounded-2xl md:p-6"
                 onClick={(e) => e.stopPropagation()}
+                className="w-full rounded-t-2xl bg-white p-6 shadow-xl md:max-w-lg md:rounded-2xl"
             >
-                <div className="mb-4 flex items-center justify-between">
-                    <h2 className="text-xl font-semibold text-slate-900">Create a new invite link</h2>
+                <div className="mb-5 flex items-center justify-between">
+                    <h2 className="text-lg font-semibold text-slate-900">Create a new invite link</h2>
                     <button
                         type="button"
                         onClick={onClose}
                         aria-label="Close invite dialog"
-                        className="inline-flex rounded-lg p-2 text-slate-400 transition hover:bg-slate-100 hover:text-slate-700"
-                    >
-                        <FaTimes className="h-5 w-5"/>
+                        className="rounded-full p-1.5 text-slate-400 transition hover:bg-slate-100 hover:text-slate-600"
+                        >
+                        <FaTimes/>
                     </button>
                 </div>
                 <CreateInviteForm channelId={channelId} onCreated={onClose}/>
             </div>
-        </div>
+        </div>,
+        document.body,
     );
 }
 
@@ -518,42 +539,46 @@ function ManageInvites() {
 
     if (!id) {
         return (
-            <div className="flex h-full items-center justify-center p-6">
+            <div className="flex min-h-[50vh] items-center justify-center p-6">
                 <p className="text-sm text-slate-500">No channel selected.</p>
             </div>
         );
     }
 
     return (
-        <div className="relative mx-auto w-full md:px-8">
+        <div className="mx-auto max-w-3xl px-4 py-8">
             <button
                 onClick={() => navigate(`/channels/${id}`)}
                 aria-label="Go back"
-                className="mb-4 inline-flex items-center gap-1 text-sm font-medium text-slate-600 transition hover:text-slate-900"
-            >
-                <IoArrowBackCircleOutline className="h-7 w-7"/>
+                className="mb-6 inline-flex items-center gap-1.5 text-sm font-medium text-slate-500 transition hover:text-slate-800"
+                >
+                <IoArrowBackCircleOutline className="text-xl"/>
                 Back to channel
             </button>
 
-            <h1 className="mb-1 text-2xl font-bold tracking-tight text-slate-900">Manage Invites</h1>
-            <p className="mb-6 text-sm text-slate-500">
-                Create shareable links so others can join this channel. Only the channel owner can manage invites.
-            </p>
+            <div className="flex flex-wrap items-end justify-between gap-4">
+                <div>
+                    <h1 className="text-2xl font-bold text-slate-900">Manage Invites</h1>
+                    <p className="mt-1 max-w-xl text-sm text-slate-500">
+                        Create shareable links so others can join this channel. Only the channel owner can manage invites.
+                    </p>
+                </div>
 
-            <button
-                type="button"
-                onClick={() => setIsCreateOpen(true)}
-                className="mb-6 inline-flex items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700 active:scale-95 sm:w-auto"
-            >
-                <CiCirclePlus className="h-5 w-5"/>
-                Create Invite
-            </button>
+                <button
+                    type="button"
+                    onClick={() => setIsCreateOpen(true)}
+                    className="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700"
+                    >
+                    <CiCirclePlus className="text-lg"/>
+                    Create Invite
+                </button>
+            </div>
 
-            <section>
-                <h2 className="mb-3 text-lg font-semibold text-slate-900">Active invites</h2>
+            <section className="mt-8">
+                <h2 className="mb-4 text-sm font-semibold uppercase tracking-wide text-slate-400">Active invites</h2>
 
                 {isLoading && (
-                    <div className="space-y-3">
+                    <div className="grid gap-4">
                         {Array.from({length: 2}).map((_, index) => (
                             <div key={index} className="h-32 animate-pulse rounded-xl bg-slate-100"/>
                         ))}
@@ -561,25 +586,25 @@ function ManageInvites() {
                 )}
 
                 {!isLoading && isError && (
-                    <div className="flex flex-col items-center gap-3 rounded-xl border border-slate-200 bg-white p-6 text-center">
-                        <p className="text-sm text-red-500">{errorMessage}</p>
+                    <div className="rounded-xl border border-red-200 bg-red-50 p-6 text-center">
+                        <p className="text-sm text-red-600">{errorMessage}</p>
                         <button
                             onClick={() => refetch()}
-                            className="rounded-lg bg-blue-600 px-4 py-2 text-sm text-white hover:bg-blue-700"
-                        >
+                            className="mt-3 rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-red-700"
+                            >
                             Retry
                         </button>
                     </div>
                 )}
 
                 {!isLoading && !isError && invites?.length === 0 && (
-                    <p className="rounded-xl border border-dashed border-slate-300 bg-white p-6 text-center text-sm text-slate-500">
-                        No invites yet. Create one above to share your channel.
-                    </p>
+                    <div className="rounded-xl border border-dashed border-slate-300 bg-slate-50 p-10 text-center">
+                        <p className="text-sm text-slate-500">No invites yet. Create one above to share your channel.</p>
+                    </div>
                 )}
 
                 {!isLoading && !isError && invites?.length > 0 && (
-                    <div className="space-y-3">
+                    <div className="grid gap-4">
                         {invites.map((invite) => (
                             <InviteCard key={invite.inviteId} invite={invite} channelId={id}/>
                         ))}

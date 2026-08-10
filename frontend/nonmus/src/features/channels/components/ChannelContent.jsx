@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Outlet, useLocation, useNavigate, useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
-import { FaUsers, FaVideo, FaCheckCircle, FaFilm, FaFolderOpen, FaBell, FaLink } from "react-icons/fa";
+import { FaUsers, FaVideo, FaCheckCircle, FaFolderOpen, FaLink } from "react-icons/fa";
 import { IoArrowBackCircleOutline } from "react-icons/io5";
 import { BsThreeDotsVertical } from "react-icons/bs";
 import { CHANNELS_QUERY_KEY, getChannelByIdApi, getSubscribedChannelsApi } from "../api/channelApi.js";
@@ -21,6 +21,18 @@ const TABS = [
     { key: "FoldersAndFiles", label: "Files", icon: FaFolderOpen },
 ];
 
+function EmptyTab({ icon: Icon, title, description }) {
+    return (
+        <div className="flex flex-col items-center justify-center gap-3 py-20 text-center">
+            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-slate-100">
+                <Icon className="h-7 w-7 text-slate-400" />
+            </div>
+            <h3 className="text-base font-semibold text-slate-900">{title}</h3>
+            <p className="max-w-sm text-sm text-slate-500">{description}</p>
+        </div>
+    );
+}
+
 function ChannelContent() {
     const { id } = useParams();
     const navigate = useNavigate();
@@ -29,8 +41,6 @@ function ChannelContent() {
     const descriptionRef = useRef(null);
     const [showDescription, setShowDescription] = useState(false);
     const [isClamped, setIsClamped] = useState(false);
-    const [logoError, setLogoError] = useState(false);
-    const [subscribed, setSubscribed] = useState(false);
     const [menuOpen, setMenuOpen] = useState(false);
 
     const { data: channel, isLoading, isError, error, refetch } = useQuery({
@@ -46,7 +56,12 @@ function ChannelContent() {
         getNextPageParam: (lastPage) => lastPage.hasNext ? lastPage.nextCursor : undefined,
     });
 
-    const subscribedChannelCount = subscribedData.data?.pages.flatMap((page) => page.channels ?? []).length ?? 0;
+    const subscribedChannels = useMemo(
+        () => subscribedData.data?.pages.flatMap((page) => page.channels ?? []) ?? [],
+        [subscribedData.data],
+    );
+
+    const subscribedChannelCount = subscribedChannels.length;
 
     // Active tab derived from the URL so deep links / refresh keep state.
     const activeTab = useMemo(() => {
@@ -66,10 +81,10 @@ function ChannelContent() {
 
     if (!id) {
         if (subscribedChannelCount === 0) {
-            return <div className="hidden md:block flex-1" />;
+            return <div />;
         }
         return (
-            <div className="hidden md:flex h-full items-center justify-center p-6">
+            <div className="flex h-full items-center justify-center p-6">
                 <div className="text-center">
                     <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-blue-100">
                         <FaUsers className="text-xl text-blue-600" />
@@ -119,11 +134,11 @@ function ChannelContent() {
     }
 
     return (
-        <div className="relative flex h-full flex-col overflow-y-auto bg-white">
+        <div className="relative flex h-full flex-col bg-white">
             <button
                 onClick={() => navigate("/channels")}
                 aria-label="Go back"
-                className="md:hidden absolute top-2 left-2 rounded-full text-white transition"
+                className=" absolute top-2 left-1 z-30 rounded-full p-1.5 px-0 transition hover:bg-white/20"
             >
                 <IoArrowBackCircleOutline className="h-9 w-9" />
             </button>
@@ -131,45 +146,37 @@ function ChannelContent() {
             <button
                 onClick={() => setMenuOpen((v) => !v)}
                 aria-label="More options"
-                className="absolute top-2 right-2 rounded-full p-2  transition text-white "
+                className="absolute top-2 right-2 z-30 rounded-full p-2 transition hover:bg-white/20"
             >
                 <BsThreeDotsVertical className="h-5 w-5" />
             </button>
 
             {menuOpen && (
                 <>
-                    <div className="fixed inset-0 z-10" onClick={() => setMenuOpen(false)} />
-                    <div className="absolute top-10 right-5 z-20 w-56 overflow-hidden rounded-lg border border-slate-200 bg-white py-1 shadow-lg">
+                    <div
+                        className="fixed inset-0 z-20"
+                        onClick={() => setMenuOpen(false)}
+                    />
+                    <div className="absolute right-2 top-12 z-30 w-56 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-lg">
                         <button
                             onClick={() => {
                                 setMenuOpen(false);
                                 navigate(`/channels/${id}/invites`);
                             }}
-                            className="flex w-full items-center gap-2 px-4 py-2.5 text-sm text-slate-700 transition hover:bg-slate-50"
+                            className="flex w-full items-center gap-3 px-4 py-3 text-left text-sm font-medium text-slate-700 transition hover:bg-slate-50"
                         >
-                            <FaLink className="h-4 w-4" />
+                            <FaLink className="h-4 w-4 text-slate-400" />
                             Manage Invites
                         </button>
                     </div>
                 </>
             )}
 
-            <div className="h-28 w-full bg-gradient-to-r from-sky-500 via-indigo-500 to-fuchsia-500 md:p-16">
-                {channel?.bannerUrl && (
-                    <img
-                        src={channel.bannerUrl}
-                        alt=""
-                        className="h-full w-full object-cover"
-                        onError={(e) => (e.currentTarget.style.display = "none")}
-                    />
-                )}
-            </div>
-
             {/* Channel identity card */}
-            <section className="px-4 md:px-8">
+            <section className="px-16 p-4">
                 <div className="flex flex-col items-center gap-5 md:flex-row md:items-end">
-                    <div className="-mt-12 shrink-0 rounded-full ring-4 ring-white md:-mt-16">
-                        <ChannelLogo channel={channel} size="lg" onError={() => setLogoError(true)} />
+                    <div className="shrink-0 rounded-full ring-4 ring-white">
+                        <ChannelLogo channel={channel} size="lg" />
                     </div>
 
                     <div className="flex-1 text-center md:pb-2 md:text-left">
@@ -241,19 +248,20 @@ function ChannelContent() {
 
             {/* Tab content */}
             <div className="flex-1 px-4 py-5 md:px-8">
-
-                    COntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsd
-
-                COntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsd
-
-                COntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsd
-
-                COntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsd
-
-                COntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsd
-
-                COntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsdCOntent ssdfsd
-
+                {activeTab === "videos" && (
+                    <EmptyTab
+                        icon={FaVideo}
+                        title="No videos yet"
+                        description="Videos posted in this channel will appear here."
+                    />
+                )}
+                {activeTab === "FoldersAndFiles" && (
+                    <EmptyTab
+                        icon={FaFolderOpen}
+                        title="No files yet"
+                        description="Files and folders shared in this channel will appear here."
+                    />
+                )}
             </div>
         </div>
     );

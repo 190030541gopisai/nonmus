@@ -15,6 +15,8 @@ import JoinInvitePage from "../features/channels/pages/JoinInvitePage.jsx";
 import ProfilePage from "../features/profile/pages/ProfilePage.jsx";
 import VideosPage from "../features/videos/pages/VideosPage.jsx";
 import EditProfile from "../features/profile/components/EditProfile.jsx";
+import LoadingFallback from "./LoadingFallback.jsx";
+import Demo from "./Demo.jsx";
 
 function AppRoutes() {
     return (
@@ -28,6 +30,8 @@ function AppRoutes() {
                         <Route path="/channels" element={<ChannelsPage />} >
                             <Route index element={<ChannelContent />} />
                             <Route path=":id" element={<ChannelContent />} />
+                            <Route path=":id/videos" element={<ChannelContent />} />
+                            <Route path=":id/FoldersAndFiles" element={<ChannelContent />} />
                             <Route path=":id/invites" element={<ManageInvites />} />
                         </Route>
                         <Route path="/profile" element={<ProfilePage />} />
@@ -39,7 +43,7 @@ function AppRoutes() {
                 <Route path="/signup" element={<SignUpPage/>}/>
                 <Route path="/forgot-password" element={<ForgotPasswordPage/>}/>
                 <Route path="/verify-email" element={<VerifyEmailPage/>}/>
-                <Route path="/demo" element={<EditProfile />} />
+                <Route path="/demo" element={<Demo />} />
 
                 <Route path="*" element={<Navigate to="/login" replace/>}/>
             </Routes>

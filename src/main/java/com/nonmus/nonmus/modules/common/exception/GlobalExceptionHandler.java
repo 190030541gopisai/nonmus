@@ -22,7 +22,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(BadCredentialsException.class)
     public ResponseEntity<ErrorResponse> handleBadCredentialsException(BadCredentialsException e) {
-        return buildErrorResponse("INVALID_CREDENTIALS", "Invalid username or password.", HttpStatus.UNAUTHORIZED);
+        return buildErrorResponse("INVALID_CREDENTIALS", "Invalid email or password.", HttpStatus.UNAUTHORIZED);
     }
 
     @ExceptionHandler(UserAlreadyExistsException.class)

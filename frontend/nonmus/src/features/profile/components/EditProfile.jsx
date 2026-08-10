@@ -60,34 +60,33 @@ function EditProfile({setEditProfile}) {
         setName(user?.name);
     }, []);
 
-    return <>
-        <label htmlFor="profile-picture-file-input"
-               className="relative mx-auto flex h-24 w-24 cursor-pointer items-center justify-center rounded-full group lg:h-28 lg:w-28">
+    return <div className="pt-8">
+        <label htmlFor="profile-picture-file-input" className="flex justify-center items-center cursor-pointer">
             <img
                 src={imageSrc}
                 alt="Profile picture"
-                className="h-full w-full rounded-full object-cover opacity-25"
                 onError={handleViewUrlExpired}
+                className="h-24 w-24 rounded-full opacity-50"
             />
             <span className="absolute opacity-100">
-                                      <svg viewBox="0 0 24 24" className="h-7 w-7">
-                                        <path d="M12 15.2A3.2 3.2 0 1 0 12 8.8a3.2 3.2 0 0 0 0 6.4z"/>
-                                        <path
-                                            d="M9 2L7.17 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2h-3.17L15 2H9zm3 15a5 5 0 1 1 0-10 5 5 0 0 1 0 10z"/>
-                                      </svg>
-                                    </span>
+              <svg viewBox="0 0 24 24" className="h-7 w-7">
+                <path d="M12 15.2A3.2 3.2 0 1 0 12 8.8a3.2 3.2 0 0 0 0 6.4z"/>
+                <path
+                    d="M9 2L7.17 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2h-3.17L15 2H9zm3 15a5 5 0 1 1 0-10 5 5 0 0 1 0 10z"/>
+              </svg>
+            </span>
             <input
                 id="profile-picture-file-input"
                 type="file"
                 accept="image/jpeg,image/png,image/webp,image/gif"
-                className="hidden"
                 aria-hidden="true"
                 onChange={handleFileChange}
+                className="hidden"
             />
         </label>
         {uploading && <p className="mt-2 text-center text-xs text-blue-500">Uploading...</p>}
-        <div className="flex-1 text-center lg:text-left p-4">
-            <div className="space-y-3">
+        <div className="flex flex-col justify-center items-center m-4">
+            <div className="text-center">
                 <input
                     type="text"
                     placeholder="Name"
@@ -96,7 +95,7 @@ function EditProfile({setEditProfile}) {
                     onChange={(e) => setName(e.target.value)}
                     autoFocus
                 />
-                <p className="text-sm text-gray-400">{user?.email || "Email"}</p>
+                <p className="truncate text-sm text-gray-400">{user?.email || "Email"}</p>
             </div>
             <div className="mt-4 flex justify-center gap-3 lg:justify-start">
                 <button
@@ -114,7 +113,7 @@ function EditProfile({setEditProfile}) {
             </div>
             {error && <p className="mt-2 text-center text-xs text-red-500">{error}</p>}
         </div>
-    </>
+    </div>
 }
 
 export default EditProfile;

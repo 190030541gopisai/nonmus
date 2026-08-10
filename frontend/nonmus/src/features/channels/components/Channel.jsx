@@ -1,18 +1,18 @@
 import ChannelLogo from "./ChannelLogo.jsx";
 
-function Channel({channel, index}) {
+function Channel({channel, index, className = "", ...rest}) {
     return <div
         key={channel.channelId || index}
-        id="channel"
-        className="group flex items-center gap-4 p-2 pl-4 border border-gray-200 bg-white shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg hover:border-gray-300"
-    >
+        className={`w-full min-w-0 overflow-hidden ${className}`}
+        {...rest}
+        >
         <ChannelLogo channel={channel}/>
 
         <div className="min-w-0 flex-1">
-            <h1 className="truncate font-semibold text-gray-900">
+            <h1 className="truncate">
                 {channel.name || "Channel Name"}
             </h1>
-            <p className="truncate text-gray-500">
+            <p className="truncate">
                 {channel.subscribersCount + " " + (channel.subscribersCount === 1 ? "member" : "members")}
             </p>
         </div>

@@ -1,4 +1,4 @@
-function ResizeBar({width, setWidth}) {
+function ResizeBar({width, setWidth, className = ""}) {
     const handleMouseDown = (e) => {
         e.preventDefault();
 
@@ -23,8 +23,8 @@ function ResizeBar({width, setWidth}) {
 
     return <div
         onMouseDown={handleMouseDown}
-        className="hidden md:block h-full w-4 cursor-col-resize absolute top-0 -right-2"
-    />;
+        className={className}
+        />;
 }
 
 export default ResizeBar;

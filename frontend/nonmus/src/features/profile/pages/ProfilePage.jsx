@@ -4,11 +4,13 @@ import {useAuth} from "../../auth/hooks/useAuth.js";
 import {useProfilePicture} from "../../auth/hooks/useProfilePicture.js";
 import NormalProfile from "../components/NormalProfile.jsx";
 import EditProfile from "../components/EditProfile.jsx";
+import {HiOutlineDotsVertical} from "react-icons/hi";
 
 function ProfilePage() {
     const {logout} = useAuth();
+    const [showMenu, setShowMenu] = useState(false);
 
-    const {uploading, error, loadViewUrl} = useProfilePicture();
+    const {loadViewUrl} = useProfilePicture();
 
     const [editProfile, setEditProfile] = useState(false);
 
@@ -21,25 +23,43 @@ function ProfilePage() {
     }
 
     return (
-        <div className="mx-auto max-w-2xl px-4 py-6 lg:py-10">
-            <div className="relative rounded-2xl border border-slate-200 bg-white p-4 lg:p-8">
-                <div className="flex flex-col items-center gap-6 lg:flex-row lg:items-start lg:justify-center">
-                    <div className="flex-shrink-0">
-                        {editProfile ?
-                            <EditProfile setEditProfile={setEditProfile} /> :
-                            <NormalProfile setEditProfile={setEditProfile} />
-                        }
-                    </div>
-                </div>
-                <div className="mt-6 border-t border-slate-200 pt-4 lg:hidden">
+        <div>
+            <div className="relative">
+                {editProfile ?
+                    <EditProfile setEditProfile={setEditProfile}/> :
+                    <NormalProfile setEditProfile={setEditProfile}/>
+                }
+
+                {/* More Options */}
+                <div className="absolute right-4 top-4">
                     <button
                         type="button"
-                        onClick={handleLogout}
-                        className="flex w-full items-center justify-center gap-2 rounded-lg px-3 py-2.5 text-sm font-medium text-slate-500 transition hover:bg-red-50 hover:text-red-600"
+                        className="flex h-10 w-10 items-center justify-center rounded-full
+                           text-gray-600 transition
+                           hover:bg-gray-100 hover:text-gray-900
+                           focus:outline-none focus:ring-2 focus:ring-gray-300"
+                        onClick={() => setShowMenu(prev => !prev)}
                     >
-                        <TbLogout size={18}/>
-                        Logout
+                        <HiOutlineDotsVertical className="text-xl" />
                     </button>
+
+                    {/* Dropdown */}
+                    {showMenu && (<div
+                        className="absolute right-5 top-12 z-50 w-44
+                           overflow-hidden rounded-xl bg-white
+                           shadow-lg"
+                    >
+                        <button
+                            type="button"
+                            onClick={handleLogout}
+                            className="flex w-full items-center gap-3 px-4 py-3
+                               text-sm font-medium text-gray-700
+                               transition hover:bg-gray-50 hover:text-red-600"
+                        >
+                            <TbLogout className="text-lg" />
+                            <span>Logout</span>
+                        </button>
+                    </div>)}
                 </div>
             </div>
         </div>

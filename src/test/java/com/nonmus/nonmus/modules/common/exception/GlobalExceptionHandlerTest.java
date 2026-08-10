@@ -28,7 +28,7 @@ class GlobalExceptionHandlerTest {
 
         assertEquals(HttpStatus.UNAUTHORIZED, response.getStatusCode());
         assertEquals("INVALID_CREDENTIALS", response.getBody().getErrorCode());
-        assertEquals("Invalid username or password.", response.getBody().getMessage());
+        assertEquals("Invalid email or password.", response.getBody().getMessage());
     }
 
     @Test
