@@ -49,7 +49,9 @@ data/
 # Environment variables
 .env
 .env.*
-! .env.example  # Keep example environment files
+
+# Keep example environment files
+!.env.example
 
 # Temporary files and directories
 */tmp/
