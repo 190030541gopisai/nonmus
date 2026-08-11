@@ -21,7 +21,7 @@ const ProfilePictureUploader = () => {
   };
 
   return (
-    <div >
+    <div className="flex flex-col items-center gap-2">
       {/* Avatar — clicking it opens the file picker */}
       <button
         id="profile-picture-upload-btn"
@@ -30,6 +30,7 @@ const ProfilePictureUploader = () => {
         disabled={uploading}
         title="Click to change profile picture"
         aria-label="Upload profile picture"
+        className="group relative h-28 w-28 overflow-hidden rounded-full ring-2 ring-slate-200 transition hover:ring-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:cursor-not-allowed"
       >
         {/* Profile image or placeholder */}
         {viewUrl ? (
@@ -37,19 +38,20 @@ const ProfilePictureUploader = () => {
             src={viewUrl}
             alt="Profile picture"
             onError={handleViewUrlExpired}
+            className="h-full w-full object-cover"
             />
         ) : (
-          <span >
+          <span className="flex h-full w-full items-center justify-center bg-slate-100 text-slate-500">
             {/* Person silhouette */}
-            <svg viewBox="0 0 24 24" fill="currentColor" >
+            <svg viewBox="0 0 24 24" fill="currentColor" className="h-16 w-16">
               <path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z" />
             </svg>
           </span>
         )}
 
         {/* Hover overlay with camera icon */}
-        <span >
-          <svg viewBox="0 0 24 24" fill="white" >
+        <span className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 transition group-hover:opacity-100">
+          <svg viewBox="0 0 24 24" fill="white" className="h-8 w-8">
             <path d="M12 15.2A3.2 3.2 0 1 0 12 8.8a3.2 3.2 0 0 0 0 6.4z" />
             <path d="M9 2L7.17 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2h-3.17L15 2H9zm3 15a5 5 0 1 1 0-10 5 5 0 0 1 0 10z" />
           </svg>
@@ -57,10 +59,11 @@ const ProfilePictureUploader = () => {
 
         {/* Uploading spinner overlay */}
         {uploading && (
-          <span >
+          <span className="absolute inset-0 flex items-center justify-center bg-black/40">
             <svg
               viewBox="0 0 24 24"
               fill="none"
+              className="h-10 w-10 animate-spin text-white"
             >
               <circle
                 cx="12"
@@ -68,9 +71,11 @@ const ProfilePictureUploader = () => {
                 r="10"
                 stroke="currentColor"
                 strokeWidth="4"
+                className="opacity-25"
               />
               <path
                 fill="currentColor"
+                className="opacity-75"
                 d="M4 12a8 8 0 018-8v8H4z"
               />
             </svg>
@@ -86,12 +91,14 @@ const ProfilePictureUploader = () => {
         accept="image/jpeg,image/png,image/webp,image/gif"
         onChange={handleFileChange}
         aria-hidden="true"
+        className="hidden"
       />
 
       {/* Progress bar */}
       {uploading && (
-        <div >
+        <div className="h-1.5 w-full max-w-[10rem] overflow-hidden rounded-full bg-slate-200">
           <div
+            className="h-full rounded-full bg-blue-600 transition-[width]"
             style={{ width: `${uploadProgress}%` }}
           />
         </div>
@@ -101,17 +108,18 @@ const ProfilePictureUploader = () => {
       {error && (
         <p
           role="alert"
+          className="text-center text-sm text-red-600"
           >
           {error}
         </p>
       )}
       {success && !uploading && (
-        <p >
+        <p className="text-center text-sm text-emerald-600">
           ✓ Profile picture updated
         </p>
       )}
       {!uploading && !error && !success && (
-        <p >Click to change photo</p>
+        <p className="text-center text-sm text-slate-500">Click to change photo</p>
       )}
     </div>
   );
