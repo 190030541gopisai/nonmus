@@ -93,9 +93,15 @@ public class ChannelService {
 
     @Transactional(readOnly = true)
     public ChannelResult getChannel(String email, UUID channelId) {
+        Users user = usersService.getUsersByEmail(email).orElseThrow(
+                () -> new UserNotFoundException("User not found")
+        );
+
         Channel channel = channelRepository.findById(channelId).orElseThrow(
                 () -> new ChannelNotFoundException("Channel not found")
         );
+
+        boolean isMemberOfChannel = channelMemberRepository.existsByChannelIdAndUserIdAndLeftAtIsNull(channelId, user.getId());
 
         ChannelType type = channel.getType();
 
@@ -107,17 +113,15 @@ public class ChannelService {
                 .logo(channel.getLogo())
                 .subscribersCount(channel.getChannelStatistics().getSubscribersCount())
                 .createdAt(channel.getCreatedAt())
+                .isOwner(user == channel.getCreatedBy())
+                .isMember(isMemberOfChannel)
                 .build();
 
         if (type == ChannelType.PUBLIC) {
             return channelResult;
         }
 
-        Users user = usersService.getUsersByEmail(email).orElseThrow(
-                () -> new UserNotFoundException("User not found")
-        );
-
-        if (!channelMemberRepository.existsByChannelIdAndUserIdAndLeftAtIsNull(channelId, user.getId())) {
+        if (!isMemberOfChannel) {
             throw new ChannelAccessDeniedException("You are not a member of this channel");
         }
 

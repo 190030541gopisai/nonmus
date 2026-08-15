@@ -40,26 +40,33 @@ function ProfilePage() {
                            focus:outline-none focus:ring-2 focus:ring-gray-300"
                         onClick={() => setShowMenu(prev => !prev)}
                     >
-                        <HiOutlineDotsVertical className="text-xl" />
+                        <HiOutlineDotsVertical className="text-xl"/>
                     </button>
 
                     {/* Dropdown */}
-                    {showMenu && (<div
-                        className="absolute right-5 top-12 z-50 w-44
+                    {showMenu && (
+                        <>
+                            <div
+                                className="fixed inset-0 z-20"
+                                onClick={() => setShowMenu(false)}
+                            />
+                            <div
+                                className="absolute right-5 top-12 z-50 w-44
                            overflow-hidden rounded-xl bg-white
                            shadow-lg"
-                    >
-                        <button
-                            type="button"
-                            onClick={handleLogout}
-                            className="flex w-full items-center gap-3 px-4 py-3
+                            >
+                                <button
+                                    type="button"
+                                    onClick={handleLogout}
+                                    className="flex w-full items-center gap-3 px-4 py-3
                                text-sm font-medium text-gray-700
                                transition hover:bg-gray-50 hover:text-red-600"
-                        >
-                            <TbLogout className="text-lg" />
-                            <span>Logout</span>
-                        </button>
-                    </div>)}
+                                >
+                                    <TbLogout className="text-lg"/>
+                                    <span>Logout</span>
+                                </button>
+                            </div>
+                        </>)}
                 </div>
             </div>
         </div>

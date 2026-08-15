@@ -4,20 +4,43 @@ import {CgProfile} from "react-icons/cg";
 import {FaHome, FaSearch} from "react-icons/fa";
 import {Link, Outlet, useLocation} from "react-router-dom";
 import {IoMdNotifications} from "react-icons/io";
-import {TbLayoutSidebarLeftCollapseFilled, TbLayoutSidebarLeftExpandFilled, TbLogout} from "react-icons/tb";
-import {useAuth} from "../../auth/hooks/useAuth.js";
+import {TbLayoutSidebarLeftCollapseFilled, TbLayoutSidebarLeftExpandFilled} from "react-icons/tb";
 import {useState} from "react";
+import EmailVerificationBanner from "../../auth/components/EmailVerificationBanner.jsx";
+import {useAuth} from "../../auth/hooks/useAuth.js";
 
 
 const navItems = [
-    {to: "/", label: "Home", icon: <FaHome/>},
-    {to: "/videos", label: "Videos", icon: <MdVideocam/>},
-    {to: "/channels", label: "Channels", icon: <GrChannel/>},
-    {to: "/profile", label: "Profile", icon: <CgProfile/>},
+    {
+        to: "/",
+        label: "Home",
+        icon: <FaHome/>,
+        requiresEmailVerification: false,
+    },
+    {
+        to: "/videos",
+        label: "Videos",
+        icon: <MdVideocam/>,
+        requiresEmailVerification: false,
+    },
+    {
+        to: "/channels",
+        label: "Channels",
+        icon: <GrChannel/>,
+        requiresEmailVerification: true,
+    },
+    {
+        to: "/profile",
+        label: "Profile",
+        icon: <CgProfile/>,
+        requiresEmailVerification: false,
+    },
 ];
+
 
 function HomeLayout() {
     const location = useLocation();
+    const {emailVerified} = useAuth();
 
     const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
@@ -54,8 +77,14 @@ function HomeLayout() {
                 )}
             </div>
             <nav className="flex-1 space-y-4 px-2 py-4">
-                {navItems.map(({to, label, icon}) => {
+                {navItems.map(({to, label, icon, requiresEmailVerification}) => {
                     const isActive = location.pathname === to;
+                    const isAllowed = !requiresEmailVerification || emailVerified;
+
+                    if (!isAllowed) {
+                        return null;
+                    }
+
                     return (
                         <Link
                             key={to}
@@ -72,8 +101,9 @@ function HomeLayout() {
                             {icon}
                             {!sidebarCollapsed && label}
                         </Link>
-                    );
-                })}
+                    )
+                })
+                }
             </nav>
 
         </aside>
@@ -99,42 +129,53 @@ function HomeLayout() {
                     </Link>
                 </div>
 
-                <div className="flex-1" />
+                <div className="flex-1"/>
 
                 {/* Right actions */}
                 <div className="flex items-center gap-3">
                     <button
                         className="rounded-xl p-2 text-slate-500 transition hover:bg-slate-100 hover:text-slate-700"
                     >
-                        <FaSearch />
+                        <FaSearch/>
                     </button>
 
                     <button
                         className="rounded-xl p-2 text-slate-500 transition hover:bg-slate-100 hover:text-slate-700"
                     >
-                        <IoMdNotifications />
+                        <IoMdNotifications/>
                     </button>
                 </div>
             </header>
 
+            <EmailVerificationBanner/>
+
             {/* Scrollable content */}
             <main className="min-h-0 flex-1 overflow-y-auto">
-                <Outlet />
+                <Outlet/>
             </main>
 
             {/* Mobile bottom navigation */}
             <nav className="shrink-0 border-t border-slate-200 bg-white lg:hidden">
                 <div className="mx-auto flex max-w-7xl justify-around">
-                    {navItems.map((item) => (
-                        <Link
-                            key={item.to}
-                            to={item.to}
-                            className="flex flex-col items-center justify-center gap-1 p-3 text-sm text-slate-600"
-                        >
-                            {item.icon}
-                            <span>{item.label}</span>
-                        </Link>
-                    ))}
+                    {navItems.map(({to, label, icon, requiresEmailVerification}) => {
+                        const isAllowed = !requiresEmailVerification || emailVerified;
+
+                        if (!isAllowed) {
+                            return null;
+                        }
+
+                        return (
+                            <Link
+                                key={to}
+                                to={to}
+                                className="flex flex-col items-center justify-center gap-1 p-3 text-sm text-slate-600"
+                            >
+                                {icon}
+                                <span>{label}</span>
+                            </Link>
+                        );
+                    })
+                    }
                 </div>
             </nav>
         </div>

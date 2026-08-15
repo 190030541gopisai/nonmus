@@ -12,6 +12,7 @@ import {
     updateChannelInviteApi,
 } from "../api/inviteApi.js";
 import {CiCirclePlus} from "react-icons/ci";
+import {getChannelByIdApi} from "../api/channelApi.js";
 
 const JOIN_TYPES = [
     {value: "ANYONE", label: "Anyone with the link"},
@@ -523,6 +524,12 @@ function ManageInvites() {
     const navigate = useNavigate();
     const [isCreateOpen, setIsCreateOpen] = useState(false);
 
+    const {data: channel, isLoading: channelLoading} = useQuery({
+        queryKey: ["channel", id],
+        queryFn: () => getChannelByIdApi(id),
+        enabled: !!id,
+    });
+
     const {
         data: invites,
         isLoading,
@@ -536,6 +543,27 @@ function ManageInvites() {
     });
 
     const errorMessage = error?.response?.data?.message || error?.message || "Failed to load invites";
+
+    if (channelLoading) {
+        return <div className="flex min-h-[50vh] items-center justify-center p-6">
+            <p className="text-sm text-slate-500">Loading...</p>
+        </div>;
+    }
+
+    if (!channel?.owner) {
+        return (
+            <div className="flex min-h-[50vh] flex-col items-center justify-center gap-3 p-6 text-center">
+                <p className="text-sm text-red-600">
+                    Only the channel owner can manage invites.
+                </p>
+                <button
+                    onClick={() => navigate(`/channels/${id}`)}
+                    className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700">
+                    Back to channel
+                </button>
+            </div>
+        );
+    }
 
     if (!id) {
         return (

@@ -20,4 +20,6 @@ public class ChannelResult {
     private String handle;
     private Long subscribersCount;
     private Instant createdAt;
+    private boolean isOwner;
+    private boolean isMember;
 }

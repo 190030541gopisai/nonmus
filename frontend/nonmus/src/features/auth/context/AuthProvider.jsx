@@ -29,7 +29,7 @@ export function AuthProvider({children}) {
     });
 
     return (
-        <AuthContext.Provider value={{user, isLoading, isAuthenticated: !!user, error, refetchUser, logout}}>
+        <AuthContext.Provider value={{user, isLoading, isAuthenticated: !!user, emailVerified: user?.emailVerified, error, refetchUser, logout}}>
             {children}
         </AuthContext.Provider>
     );

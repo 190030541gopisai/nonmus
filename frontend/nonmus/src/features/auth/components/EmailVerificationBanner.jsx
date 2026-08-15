@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { useAuth } from "../hooks/useAuth.js";
 import { resendVerificationEmailApi } from "../api/authApi.js";
+import {IoClose} from "react-icons/io5";
 
 export default function EmailVerificationBanner() {
   const { user } = useAuth();
@@ -16,6 +17,26 @@ export default function EmailVerificationBanner() {
 
   return (
       <div className="border-b border-amber-200 bg-amber-50">
+        <div className="flex justify-center items-center gap-3">
+          {sent && (
+              <span className="text-sm font-medium text-emerald-600">Verification email sent!</span>
+          )}
+          {error && (
+              <span className="text-sm text-red-600">{error}</span>
+          )}
+          {(sent || error) && (
+              <button
+                  type="button"
+                  onClick={() => {
+                    setSent(false);
+                  }}
+                  className="font-medium text-gray-500 hover:text-gray-700"
+                  aria-label="Dismiss message"
+              >
+                <IoClose />
+              </button>
+          )}
+        </div>
         <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-x-4 gap-y-2 px-4 py-3">
           <div className="flex items-center gap-2 text-sm text-amber-800">
             <div className="text-amber-500">
@@ -29,13 +50,7 @@ export default function EmailVerificationBanner() {
               Your email is not verified. Please verify your email to access all features.
             </span>
           </div>
-          <div className="flex items-center gap-3">
-            {sent && (
-              <span className="text-sm font-medium text-emerald-600">Verification email sent!</span>
-            )}
-            {error && (
-              <span className="text-sm text-red-600">{error}</span>
-            )}
+          <div>
             <button
               type="button"
               onClick={handleResend}

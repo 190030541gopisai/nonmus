@@ -12,8 +12,8 @@ import com.nonmus.nonmus.modules.channel.dto.response.CreateChannelResponse;
 import com.nonmus.nonmus.modules.channel.dto.response.HandleAvailabilityResponse;
 import com.nonmus.nonmus.modules.channel.service.ChannelInviteService;
 import com.nonmus.nonmus.modules.channel.service.ChannelService;
+import com.nonmus.nonmus.modules.common.exception.ChannelNotFoundException;
 import com.nonmus.nonmus.modules.common.util.AuthUtil;
-import com.nonmus.nonmus.security.AuthenticatedUser;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
@@ -43,17 +43,25 @@ public class ChannelController {
     }
 
     @GetMapping("/id/{channelId}")
-    public ResponseEntity<ChannelResponse> getChannel(@PathVariable UUID channelId) {
+    public ResponseEntity<ChannelResponse> getChannelById(@PathVariable String channelId) {
+        UUID uuidChannelId;
+
+        try {
+            uuidChannelId = UUID.fromString(channelId);
+        } catch (IllegalArgumentException e) {
+            throw new ChannelNotFoundException("Channel not found");
+        }
+
         String email = AuthUtil.getAuthenticatedUserEmail();
 
-        ChannelResult channelResult = channelService.getChannel(email, channelId);
+        ChannelResult channelResult = channelService.getChannel(email, uuidChannelId);
         ChannelResponse channelResponse = modelMapper.map(channelResult, ChannelResponse.class);
 
         return ResponseEntity.ok(channelResponse);
     }
 
     @GetMapping("/handle/{handle}")
-    public ResponseEntity<ChannelResponse> getChannel(@PathVariable String handle) {
+    public ResponseEntity<ChannelResponse> getChannelByHandle(@PathVariable String handle) {
         String email = AuthUtil.getAuthenticatedUserEmail();
 
         ChannelResult channelResult = channelService.getChannel(handle, email);

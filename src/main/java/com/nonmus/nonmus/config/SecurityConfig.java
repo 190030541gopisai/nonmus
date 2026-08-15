@@ -40,7 +40,7 @@ public class SecurityConfig {
                         ).permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/channels/invite/**").permitAll()
                         .requestMatchers(
-                                "/api/v1/channel/**"
+                                "/api/v1/channels/**"
                         ).hasAuthority("EMAIL_VERIFIED")
                         .anyRequest().authenticated())
                 .sessionManagement(session ->
